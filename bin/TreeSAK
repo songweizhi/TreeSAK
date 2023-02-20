@@ -44,6 +44,8 @@ def print_main_help():
        rename_leaves          ->  Rename tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
        iTOL                   ->  Prepare iTOL-compatible files for tree visualization
+    
+    Dating-related
        AssessCVG              ->  Assess dating convergence
     
     ''' % version(config_dict)

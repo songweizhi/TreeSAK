@@ -28,7 +28,7 @@ Installation
 TreeSAK modules
 ---
    
-                 ...::: TreeSAK v1.0.0 :::...
+                 ...::: TreeSAK v1.1.1 :::...
 
     Multiple Sequence Alignment (MSA)
        convert_align_format   ->  Convert alignment format
@@ -42,3 +42,6 @@ TreeSAK modules
        rename_leaves          ->  Rename tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
        iTOL                   ->  Prepare iTOL-compatible files for tree visualization
+    
+    Dating-related
+       AssessCVG              ->  Assess dating convergence
