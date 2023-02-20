@@ -15,7 +15,7 @@ Contact
 Installation
 ---
 
-1. TreeSAK has been tested on Linux/Mac, but **NOT** on Windows.
+1. TreeSAK has been tested on Linux/Mac, but **NOT** yet on Windows.
 
 1. TreeSAK is implemented in python3, you can install it with pip3:
 
