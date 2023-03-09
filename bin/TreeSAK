@@ -31,19 +31,21 @@ def print_main_help():
 
     help_message = ''' 
                  ...::: TreeSAK v%s :::...
-
+                 
+    Marker-related
+       parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
+       get_arCOG_seq          ->  Retrieve arCOG sequences
+    
     Multiple Sequence Alignment
        convert_align_format   ->  Convert alignment format
        OneLineAln             ->  One-line fasta format alignments
        SubsetAlnCols          ->  Subset MSA by column    
     
     Tree-related
-       GTDB_tree_r207         ->  Infer GTDB (r207) archaeal/bacterial tree
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
-       iTOL                   ->  Prepare iTOL-compatible files for tree visualization
     
     Dating-related
        AssessCVG              ->  Assess dating convergence
@@ -89,25 +91,6 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         label_tree.label_tree(args, config_dict)
 
-    elif sys.argv[1] == 'iTOL':
-        from TreeSAK import iTOL
-        iTOL_parser = subparsers.add_parser('iTOL', description='Plot tree with iTOL', usage=iTOL.iTOL_usage)
-        iTOL_parser.add_argument('-ColorStrip',      required=False, action='store_true',   help='ColorStrip')
-        iTOL_parser.add_argument('-ColorRange',      required=False, action='store_true',   help='ColorRange')
-        iTOL_parser.add_argument('-SimpleBar',       required=False, action='store_true',   help='SimpleBar')
-        iTOL_parser.add_argument('-Heatmap',         required=False, action='store_true',   help='Heatmap')
-        iTOL_parser.add_argument('-ExternalShape',   required=False, action='store_true',   help='ExternalShape')
-        iTOL_parser.add_argument('-lg',              required=False, default=None,          help='Leaf Group')
-        iTOL_parser.add_argument('-gc',              required=False, default=None,          help='Specify Group/column Color (optional)')
-        iTOL_parser.add_argument('-cc',              required=False, default=None,          help='Specify Column Color (for ExternalShape format) (optional)')
-        iTOL_parser.add_argument('-lv',              required=False, default=None,          help='Leaf Value')
-        iTOL_parser.add_argument('-lm',              required=False, default=None,          help='Leaf Matrix')
-        iTOL_parser.add_argument('-scale',           required=False, default=None,          help='Scale Values, in format 0-3-6-9')
-        iTOL_parser.add_argument('-lt',              required=False, default=None,          help='Legend Title')
-        iTOL_parser.add_argument('-out',             required=True,                         help='Output filename')
-        args = vars(parser.parse_args())
-        iTOL.iTOL(args)
-
     elif sys.argv[1] == 'convert_align_format':
         from TreeSAK import format_converter
         convert_align_fmt_parser = subparsers.add_parser('convert_align_format', description='Convert alignment format', usage=format_converter.convert_align_format_usage)
@@ -136,16 +119,6 @@ if __name__ == '__main__':
         SubsetAlnCols_parser.add_argument('-out', required=True,                help='output file')
         args = vars(parser.parse_args())
         SubsetAlnCols.SubsetAlnCols(args)
-
-    elif sys.argv[1] == 'GTDB_tree_r207':
-        from TreeSAK import GTDB_tree_r207
-        GTDB_tree_r207_parser = subparsers.add_parser('GTDB_tree_r207', usage=GTDB_tree_r207.GTDB_tree_r207_usage)
-        GTDB_tree_r207_parser.add_argument('-p', required=True,                         help='output prefix')
-        GTDB_tree_r207_parser.add_argument('-i', required=True,                         help='genome folder')
-        GTDB_tree_r207_parser.add_argument('-x', required=True,                         help='genome file extension')
-        GTDB_tree_r207_parser.add_argument('-t', required=False, type=int, default=1,   help='number of threads')
-        args = vars(parser.parse_args())
-        GTDB_tree_r207.GTDB_tree_r207(args)
 
     elif sys.argv[1] == 'compare_trees':
         from TreeSAK import compare_trees
@@ -190,6 +163,24 @@ if __name__ == '__main__':
         AssessCVG_parser.add_argument('-o',  required=True, help='output convergence plot')
         args = vars(parser.parse_args())
         AssessCVG.AssessCVG(args)
+
+    elif sys.argv[1] == 'parse_deltall_stdout':
+        from TreeSAK import parse_deltall_stdout
+        parse_deltall_stdout_parser = subparsers.add_parser('parse_deltall_stdout', usage=parse_deltall_stdout.parse_deltall_stdout_usage)
+        parse_deltall_stdout_parser.add_argument('-i', required=True, help='input file (e.g., nohup.out)')
+        parse_deltall_stdout_parser.add_argument('-o', required=True, help='output summary')
+        args = vars(parser.parse_args())
+        parse_deltall_stdout.parse_deltall_stdout(args)
+
+    elif sys.argv[1] == 'get_arCOG_seq':
+        from TreeSAK import get_arCOG_seq
+        get_arCOG_seq_parser = subparsers.add_parser('get_arCOG_seq', usage=get_arCOG_seq.get_arCOG_seq_usage)
+        get_arCOG_seq_parser.add_argument('-i',      required=True,                         help='arCOD id file, one id per line')
+        get_arCOG_seq_parser.add_argument('-db_dir', required=True,                         help='database folder')
+        get_arCOG_seq_parser.add_argument('-o',      required=True,                         help='output folder')
+        get_arCOG_seq_parser.add_argument('-f',      required=False, action="store_true",   help='force overwrite existing output folder')
+        args = vars(parser.parse_args())
+        get_arCOG_seq.get_arCOG_seq(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

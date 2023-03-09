@@ -28,20 +28,22 @@ Installation
 TreeSAK modules
 ---
    
-                 ...::: TreeSAK v1.1.1 :::...
+                 ...::: TreeSAK v1.3.1 :::...
 
-    Multiple Sequence Alignment (MSA)
+    Marker-related
+       parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
+       get_arCOG_seq          ->  Retrieve arCOG sequences
+    
+    Multiple Sequence Alignment
        convert_align_format   ->  Convert alignment format
        OneLineAln             ->  One-line fasta format alignments
        SubsetAlnCols          ->  Subset MSA by column    
-
+    
     Tree-related
-       GTDB_tree_r207         ->  Infer GTDB (r207) archaeal/bacterial tree
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
-       iTOL                   ->  Prepare iTOL-compatible files for tree visualization
     
     Dating-related
        AssessCVG              ->  Assess dating convergence

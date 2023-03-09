@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 AssessCVG_usage = '''
 ================================= AssessCVG example commands =================================
 
-BioSAK AssessCVG -m1 r1_mcmc.txt -m2 r1_mcmc.txt -o convergence_plot.png
+TreeSAK AssessCVG -m1 r1_mcmc.txt -m2 r1_mcmc.txt -o convergence_plot.png
 
 # This script was modified based on the script from Tianhua Liao: 
 https://github.com/444thLiao/evol_tk/blob/master/dating_workflow/vis/assess_convergence.py
@@ -110,10 +110,10 @@ def AssessCVG(args):
                     y=[min(dis1 + dis2), max(dis1 + dis2)],
                     mode='lines', name='y=x')
 
-    fig.layout.width = 1000
-    fig.layout.height = 1000
-    fig.layout.xaxis.title = "run2 posterior mean time (100Ma)"
-    fig.layout.yaxis.title = "run1 posterior mean time (100Ma)"
+    fig.layout.width = 750
+    fig.layout.height = 750
+    fig.layout.xaxis.title = "run2 posterior mean time"
+    fig.layout.yaxis.title = "run1 posterior mean time"
     fig.write_image(output_plot)
 
 
