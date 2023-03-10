@@ -1,11 +1,14 @@
+1.4.4
+- fixed bugs
+
+1.4.0
+- added module ConvertMSA
+
 1.3.0
 - added module get_arCOG_seq
 
 1.2.0
 - added module parse_deltall_stdout
-
-1.1.2
-- fixed bugs
 
 1.1.0
 - added module AssessCVG

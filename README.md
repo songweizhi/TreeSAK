@@ -27,23 +27,23 @@ Installation
 
 TreeSAK modules
 ---
-   
+
                  ...::: TreeSAK v1.3.1 :::...
 
     Marker-related
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
-    
+
     Multiple Sequence Alignment
-       convert_align_format   ->  Convert alignment format
+       ConvertMSA             ->  Convert alignment format
        OneLineAln             ->  One-line fasta format alignments
        SubsetAlnCols          ->  Subset MSA by column    
-    
+
     Tree-related
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
-    
+
     Dating-related
        AssessCVG              ->  Assess dating convergence

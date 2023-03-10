@@ -4,6 +4,7 @@ MANIFEST.in
 README.md
 setup.py
 TreeSAK/AssessCVG.py
+TreeSAK/ConvertMSA.py
 TreeSAK/TreeSAK_config copy.py
 TreeSAK/TreeSAK_config.py
 TreeSAK/VERSION

@@ -37,7 +37,7 @@ def print_main_help():
        get_arCOG_seq          ->  Retrieve arCOG sequences
     
     Multiple Sequence Alignment
-       convert_align_format   ->  Convert alignment format
+       ConvertMSA             ->  Convert MSA format
        OneLineAln             ->  One-line fasta format alignments
        SubsetAlnCols          ->  Subset MSA by column    
     
@@ -181,6 +181,21 @@ if __name__ == '__main__':
         get_arCOG_seq_parser.add_argument('-f',      required=False, action="store_true",   help='force overwrite existing output folder')
         args = vars(parser.parse_args())
         get_arCOG_seq.get_arCOG_seq(args)
+
+    elif sys.argv[1] == 'ConvertMSA':
+        from TreeSAK import ConvertMSA
+        ConvertMSA_parser = subparsers.add_parser('ConvertMSA', usage=ConvertMSA.ConvertMSA_usage)
+        ConvertMSA_parser.add_argument('-i',       required=True,                       help='input alignment')
+        ConvertMSA_parser.add_argument('-xi',      required=False, default='aln',       help='input alignment extension')
+        ConvertMSA_parser.add_argument('-fi',      required=True,                       help='input alignment format, e.g., fasta, phylip')
+        ConvertMSA_parser.add_argument('-o',       required=True,                       help='output alignment')
+        ConvertMSA_parser.add_argument('-xo',      required=False, default='aln',       help='output alignment extension')
+        ConvertMSA_parser.add_argument('-fo',      required=True,                       help='output alignment format, e.g., fasta, phylip')
+        ConvertMSA_parser.add_argument('-oneline', required=False, action="store_true", help='put sequence in single line, available if -fo is fasta')
+        ConvertMSA_parser.add_argument('-nogap',   required=False, action="store_true", help='remove gaps from alignment, available if -fo is fasta')
+        ConvertMSA_parser.add_argument('-f',       required=False, action="store_true", help='force overwrite existing output folder')
+        args = vars(parser.parse_args())
+        ConvertMSA.ConvertMSA(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])
