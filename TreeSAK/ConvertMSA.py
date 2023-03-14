@@ -107,8 +107,10 @@ def ConvertMSA(args):
                         pwd_aln_out_handle.write('>%s\n' % seq_id)
                         pwd_aln_out_handle.write('%s\n' % seq_sequence)
                     else:
-                        pwd_aln_out_handle.write('>%s\n' % seq_id)
-                        pwd_aln_out_handle.write('%s\n' % seq_sequence.replace('-', ''))
+                        sequence_no_gap = seq_sequence.replace('-', '')
+                        if len(sequence_no_gap) > 0:
+                            pwd_aln_out_handle.write('>%s\n' % seq_id)
+                            pwd_aln_out_handle.write('%s\n' % sequence_no_gap)
                 pwd_aln_out_handle.close()
                 os.system('rm %s' % pwd_aln_out_tmp)
         print('Done!')

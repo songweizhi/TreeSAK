@@ -1,5 +1,14 @@
-1.4.4
+1.7.2
 - fixed bugs
+
+1.7.0
+- added module AssessMarkerPA
+
+1.6.0
+- added module Marker2Tree
+
+1.5.0
+- added module SliceMSA
 
 1.4.0
 - added module ConvertMSA

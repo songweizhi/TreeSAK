@@ -34,15 +34,15 @@ fasta, phylip, phylip-relaxed, phylip-sequential, clustal
 
 def ConvertMSA(args):
 
-    aln_in              = args['i']
-    aln_in_ext          = args['xi']
-    aln_in_format       = args['fi']
-    aln_out             = args['o']
-    aln_out_ext         = args['xo']
-    aln_out_format      = args['fo']
-    one_line            = args['oneline']
-    no_gap              = args['nogap']
-    force_overwriting   = args['f']
+    aln_in            = args['i']
+    aln_in_ext        = args['xi']
+    aln_in_format     = args['fi']
+    aln_out           = args['o']
+    aln_out_ext       = args['xo']
+    aln_out_format    = args['fo']
+    one_line          = args['oneline']
+    no_gap            = args['nogap']
+    force_overwriting = args['f']
 
     if ((one_line is True) and (aln_out_format != 'fasta')) or ((no_gap is True) and (aln_out_format != 'fasta')):
         print('Please provide "-oneline" and/or "-nogap" only if "-fo" is fasta')
@@ -107,8 +107,10 @@ def ConvertMSA(args):
                         pwd_aln_out_handle.write('>%s\n' % seq_id)
                         pwd_aln_out_handle.write('%s\n' % seq_sequence)
                     else:
-                        pwd_aln_out_handle.write('>%s\n' % seq_id)
-                        pwd_aln_out_handle.write('%s\n' % seq_sequence.replace('-', ''))
+                        sequence_no_gap = seq_sequence.replace('-', '')
+                        if len(sequence_no_gap) > 0:
+                            pwd_aln_out_handle.write('>%s\n' % seq_id)
+                            pwd_aln_out_handle.write('%s\n' % sequence_no_gap)
                 pwd_aln_out_handle.close()
                 os.system('rm %s' % pwd_aln_out_tmp)
         print('Done!')
