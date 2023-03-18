@@ -209,13 +209,17 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'AssessMarkerPA':
         from TreeSAK import AssessMarkerPA
         AssessMarkerPA_parser = subparsers.add_parser('AssessMarkerPA', usage=AssessMarkerPA.AssessMarkerPA_usage)
-        AssessMarkerPA_parser.add_argument('-a',          required=True,                               help='trimmed alignments')
-        AssessMarkerPA_parser.add_argument('-x',          required=True,                               help='extension of trimmed alignments')
+        AssessMarkerPA_parser.add_argument('-ta',         required=True,                               help='trimmed alignments')
+        AssessMarkerPA_parser.add_argument('-tax',        required=True,                               help='extension of trimmed alignments')
+        AssessMarkerPA_parser.add_argument('-aa',         required=True,                               help='faa file dir')
+        AssessMarkerPA_parser.add_argument('-aax',        required=True,                               help='faa file ext')
         AssessMarkerPA_parser.add_argument('-g',          required=True,                               help='genome group')
         AssessMarkerPA_parser.add_argument('-c',          required=False, default='25-50-75-85-100',   help='cutoffs, default: 25-50-75-85-100')
         AssessMarkerPA_parser.add_argument('-o',          required=True,                               help='output dir')
         AssessMarkerPA_parser.add_argument('-f',          required=False, action="store_true",         help='force overwrite existing output folder')
-
+        AssessMarkerPA_parser.add_argument('-pl',         required=True,                               help='path to catfasta2phyml.pl')
+        AssessMarkerPA_parser.add_argument('-jst',        required=False, default='3',                 help='threads to request in job script')
+        AssessMarkerPA_parser.add_argument('-qsub',       required=False, action="store_true",         help='submit job script')
         args = vars(parser.parse_args())
         AssessMarkerPA.AssessMarkerPA(args)
 

@@ -33,17 +33,21 @@ TreeSAK modules
     Marker-related
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
-
+       Marker2Tree            ->  Marker to Tree
+       AssessMarkerPA         ->  Assess Markers by P/A among groups
+       AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
+    
     Multiple Sequence Alignment
-       ConvertMSA             ->  Convert alignment format
+       ConvertMSA             ->  Convert MSA format
        OneLineAln             ->  One-line fasta format alignments
-       SubsetAlnCols          ->  Subset MSA by column    
-
+       SliceMSA               ->  Slice MSA by column 
+    
     Tree-related
+       GTDB_tree_r207         ->  Infer GTDB (r207) archaeal/bacterial tree
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
-
+    
     Dating-related
        AssessCVG              ->  Assess dating convergence

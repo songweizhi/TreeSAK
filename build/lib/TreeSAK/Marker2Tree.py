@@ -154,8 +154,8 @@ def Marker2Tree(args):
     for gnm_id in gnm_id_list_sorted:
         for each_cog in marker_id_set:
             #blastp_cmd = 'blastp -subject /home-user/wzsong/DateArTree/02_Williams_2017_45_arCOG/%s.fa -evalue 1e-30 -outfmt 6 -query /home-user/wzsong/DateArTree/01_genome_selection_Prokka/d__Archaea_o_rs_133_gnms_plus_27_mito_faa_files/%s.faa -out %s/%s_vs_%s_blastp.txt' % (each_cog, gnm_id, blast_op, gnm_id, each_cog)
-            pwd_blast_op = '%s/%s_vs_%s_blastp.txt'                                                     % (blast_op_dir, gnm_id, each_cog)
-            blastp_cmd   = 'blastp -subject %s/%s.fa -evalue 1e-%s -outfmt 6 -query %s/%s.faa -out %s'  % (marker_seq_dir, each_cog, e_value, faa_file_dir, gnm_id, pwd_blast_op)
+            pwd_blast_op = '%s/%s_vs_%s_blastp.txt'                                                    % (blast_op_dir, gnm_id, each_cog)
+            blastp_cmd   = 'blastp -subject %s/%s.fa -evalue 1e-%s -outfmt 6 -query %s/%s.faa -out %s' % (marker_seq_dir, each_cog, e_value, faa_file_dir, gnm_id, pwd_blast_op)
             blast_op_to_cmd_dict[pwd_blast_op] = blastp_cmd
             blastp_cmd_txt_handle.write(blastp_cmd + '\n')
             blast_cmd_list.append(blastp_cmd)
