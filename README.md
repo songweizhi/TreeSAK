@@ -28,7 +28,7 @@ Installation
 TreeSAK modules
 ---
 
-                 ...::: TreeSAK v1.3.1 :::...
+                 ...::: TreeSAK v1.7.7 :::...
 
     Marker-related
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
