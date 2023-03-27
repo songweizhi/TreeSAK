@@ -2,12 +2,13 @@ import os
 import glob
 import argparse
 from Bio import SeqIO
+from Bio import AlignIO
 
 
 AssessMarkerPA_usage = '''
 =========================== AssessMarkerPA example commands ===========================
 
-BioSAK AssessMarkerPA -ta trimmed_aln -tax aln -aa faa_files -aax faa -g gnm_group.txt -c 25-50-75-100 -o s10_assess_marker_PA -pl catfasta2phyml.pl
+BioSAK AssessMarkerPA -ta trimmed_aln -tax aln -aa faa_files -aax faa -g gnm_group.txt -c 25-50-75-100 -o s10_assess_marker_PA
 
 Note
 1. Extra genomes in gnm_metadata.txt won't affect assessment results.
@@ -27,6 +28,70 @@ def sep_path_basename_ext(file_in):
     return file_path, file_basename, file_extension
 
 
+def catfasta2phy(msa_dir, msa_ext, concatenated_msa_phy, partition_file):
+
+    concatenated_msa_fasta = '%s.fasta' % concatenated_msa_phy
+    msa_file_re            = '%s/*.%s'  % (msa_dir, msa_ext)
+    msa_file_list          = [os.path.basename(file_name) for file_name in glob.glob(msa_file_re)]
+    msa_file_list_sorted   = sorted(msa_file_list)
+
+    complete_gnm_set = set()
+    for each_msa_file in msa_file_list:
+        pwd_msa = '%s/%s' % (msa_dir, each_msa_file)
+        for each_seq in SeqIO.parse(pwd_msa, 'fasta'):
+            complete_gnm_set.add(each_seq.id)
+
+    complete_gnm_list_sorted = sorted([i for i in complete_gnm_set])
+
+    # initialize concatenated msa dict
+    gnm_to_seq_dict = {i: '' for i in complete_gnm_list_sorted}
+    msa_len_dict = dict()
+    for each_msa_file in msa_file_list_sorted:
+        gene_id = each_msa_file.split('.' + msa_ext)[0]
+
+        # read in msa
+        current_msa_len = 0
+        current_msa_len_set = set()
+        pwd_current_msa = '%s/%s' % (msa_dir, each_msa_file)
+        current_msa_seq_dict = dict()
+        for each_seq in SeqIO.parse(pwd_current_msa, 'fasta'):
+            complete_gnm_set.add(each_seq.id)
+            current_msa_seq_dict[each_seq.id] = str(each_seq.seq)
+            current_msa_len_set.add(len(each_seq.seq))
+            current_msa_len = len(each_seq.seq)
+
+        if len(current_msa_len_set) != 1:
+            print('Sequences with different length were found in %s, program exited!' % each_msa_file)
+            exit()
+
+        msa_len_dict[gene_id] = current_msa_len
+
+        # add sequence to concatenated msa dict
+        for each_gnm in complete_gnm_list_sorted:
+            msa_seq = current_msa_seq_dict.get(each_gnm, current_msa_len*'-')
+            gnm_to_seq_dict[each_gnm] += msa_seq
+
+    # write out concatenated msa
+    concatenated_msa_handle = open(concatenated_msa_fasta, 'w')
+    for each_gnm in complete_gnm_list_sorted:
+        concatenated_msa_handle.write('>%s\n' % each_gnm)
+        concatenated_msa_handle.write('%s\n' % gnm_to_seq_dict[each_gnm])
+    concatenated_msa_handle.close()
+
+    # write out partition file
+    end_pos = 0
+    partition_file_handle = open(partition_file, 'w')
+    for each_m in msa_file_list_sorted:
+        gene_id = each_m.split('.' + msa_ext)[0]
+        current_m_len = msa_len_dict[gene_id]
+        partition_file_handle.write('%s = %s-%s\n' % (each_m, (end_pos + 1), (end_pos + current_m_len)))
+        end_pos += current_m_len
+    partition_file_handle.close()
+
+    # convert msa in fasta to phy
+    AlignIO.convert(concatenated_msa_fasta, 'fasta', concatenated_msa_phy, 'phylip-relaxed')
+
+
 def AssessMarkerPA(args):
 
     trimmed_aln_dir   = args['ta']
@@ -37,7 +102,8 @@ def AssessMarkerPA(args):
     cutoff_str        = args['c']
     op_dir            = args['o']
     force_overwriting = args['f']
-    catfasta2phyml_pl = args['pl']
+    #catfasta2phyml_pl = args['pl']
+    js_cpu_num        = args['jst']
 
     # get gnm id list
     faa_file_re   = '%s/*.%s' % (faa_file_dir, faa_file_ext)
@@ -127,14 +193,13 @@ def AssessMarkerPA(args):
 
             if gnm_id in gnm_to_group_dict:
                 gnm_group = gnm_to_group_dict[gnm_id]
+                if gnm_group not in current_marker_num_by_group_dict:
+                    current_marker_num_by_group_dict[gnm_group] = 1
+                else:
+                    current_marker_num_by_group_dict[gnm_group] += 1
             else:
                 print('Not all genomes used to generate the MSA being found in -aa, program exited!')
                 exit()
-
-            if gnm_group not in current_marker_num_by_group_dict:
-                current_marker_num_by_group_dict[gnm_group] = 1
-            else:
-                current_marker_num_by_group_dict[gnm_group] += 1
 
         # write out assess_summary_1_txt
         pct_list = []
@@ -172,10 +237,13 @@ def AssessMarkerPA(args):
     # copy alignments of qualified marker to corresponding folders
     for each_cutoff in cutoff_to_qualified_marker_dict:
         qualified_marker_set = cutoff_to_qualified_marker_dict[each_cutoff]
+
+        qualified_marker_phy           = 'qualified_marker_PA_%s_concatenated.phy'               % each_cutoff
         pwd_qualified_marker_dir       = '%s/qualified_marker_PA_%s'                             % (op_dir, each_cutoff)
         pwd_qualified_marker_id_txt    = '%s/qualified_marker_PA_%s_id.txt'                      % (op_dir, each_cutoff)
         pwd_qualified_marker_phy       = '%s/qualified_marker_PA_%s_concatenated.phy'            % (op_dir, each_cutoff)
         pwd_qualified_marker_partition = '%s/qualified_marker_PA_%s_concatenated_partition.txt'  % (op_dir, each_cutoff)
+        pwd_js_iqtree                  = '%s/js_iqtree_PA_%s.sh'                                 % (op_dir, each_cutoff)
 
         os.system('mkdir %s' % pwd_qualified_marker_dir)
         for each_marker in qualified_marker_set:
@@ -188,9 +256,25 @@ def AssessMarkerPA(args):
             pwd_qualified_marker_id_txt_handle.write('%s\n' % '\n'.join(qualified_marker_set))
 
         # concatenate qualified alignments
-        catfasta2phyml_cmd = 'perl %s --sequential --concatenate %s/*.aln > %s 2> %s' % (catfasta2phyml_pl, pwd_qualified_marker_dir, pwd_qualified_marker_phy, pwd_qualified_marker_partition)
-        print('running: ' + catfasta2phyml_cmd)
-        os.system(catfasta2phyml_cmd)
+        #catfasta2phyml_cmd = 'perl %s --sequential --concatenate %s/*.aln > %s 2> %s' % (catfasta2phyml_pl, pwd_qualified_marker_dir, pwd_qualified_marker_phy, pwd_qualified_marker_partition)
+        #print('running: ' + catfasta2phyml_cmd)
+        #os.system(catfasta2phyml_cmd)
+        catfasta2phy(pwd_qualified_marker_dir, 'aln', pwd_qualified_marker_phy, pwd_qualified_marker_partition)
+
+        # write out iqtree js
+        guide_tree_dir          = 'qualified_marker_PA_%s_guide_tree'       % each_cutoff
+        iqtree_C60_PMSF_dir     = 'qualified_marker_PA_%s_iqtree_C60_PMSF'  % each_cutoff
+        pwd_guide_tree_dir      = '%s/%s'                                   % (op_dir, guide_tree_dir)
+        pwd_iqtree_C60_PMSF_dir = '%s/%s'                                   % (op_dir, iqtree_C60_PMSF_dir)
+
+        with open(pwd_js_iqtree, 'w') as pwd_js_iqtree_handle:
+            pwd_js_iqtree_handle.write('#!/bin/bash\n#SBATCH --ntasks 1\n#SBATCH --cpus-per-task %s\n' % js_cpu_num)
+            pwd_js_iqtree_handle.write('mkdir %s/%s\n' % (os.getcwd(), pwd_guide_tree_dir))
+            pwd_js_iqtree_handle.write('cd %s/%s\n'    % (os.getcwd(), pwd_guide_tree_dir))
+            pwd_js_iqtree_handle.write('iqtree -s ../%s --prefix guide_tree --seqtype AA -m LG -T %s -B 1000 --alrt 1000\n' % (qualified_marker_phy, js_cpu_num))
+            pwd_js_iqtree_handle.write('mkdir %s/%s\n' % (os.getcwd(), pwd_iqtree_C60_PMSF_dir))
+            pwd_js_iqtree_handle.write('cd %s/%s\n'    % (os.getcwd(), pwd_iqtree_C60_PMSF_dir))
+            pwd_js_iqtree_handle.write('iqtree -s ../%s --prefix concatenated --seqtype AA -m LG+G+F+C60 -T %s -B 1000 --alrt 1000 -ft ../%s/guide_tree.treefile\n' % (qualified_marker_phy, js_cpu_num, guide_tree_dir))
 
     # write out iTOL file
     itol_binary_txt_handle = open(itol_binary_txt, 'w')
@@ -223,9 +307,11 @@ if __name__ == '__main__':
     parser.add_argument('-aa',         required=True,                               help='faa file dir')
     parser.add_argument('-aax',        required=True,                               help='faa file ext')
     parser.add_argument('-g',          required=True,                               help='genome group')
-    parser.add_argument('-c',          required=False, default='25-50-75-85-100',   help='cutoffs, default: 25-50-75-85-100')
+    parser.add_argument('-c',          required=False, default='50-75-100',         help='cutoffs, default: 50-75-100')
     parser.add_argument('-o',          required=True,                               help='output dir')
     parser.add_argument('-f',          required=False, action="store_true",         help='force overwrite existing output folder')
-    parser.add_argument('-pl',         required=True,                               help='path to catfasta2phyml.pl')
+    #parser.add_argument('-pl',         required=True,                               help='path to catfasta2phyml.pl')
+    parser.add_argument('-jst',        required=False, default='3',                 help='threads to request in job script')
+    parser.add_argument('-qsub',       required=False, action="store_true",         help='submit job script')
     args = vars(parser.parse_args())
     AssessMarkerPA(args)

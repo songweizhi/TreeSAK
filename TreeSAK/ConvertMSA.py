@@ -5,19 +5,6 @@ from Bio import SeqIO
 from Bio import AlignIO
 
 
-def sep_path_basename_ext(file_in):
-
-    # separate path and file name
-    file_path, file_name = os.path.split(file_in)
-    if file_path == '':
-        file_path = '.'
-
-    # separate file basename and extension
-    file_basename, file_extension = os.path.splitext(file_name)
-
-    return file_path, file_basename, file_extension
-
-
 ConvertMSA_usage = '''
 ================================= ConvertMSA example commands =================================
 
@@ -30,6 +17,19 @@ fasta, phylip, phylip-relaxed, phylip-sequential, clustal
 
 ===============================================================================================
 '''
+
+
+def sep_path_basename_ext(file_in):
+
+    # separate path and file name
+    file_path, file_name = os.path.split(file_in)
+    if file_path == '':
+        file_path = '.'
+
+    # separate file basename and extension
+    file_basename, file_extension = os.path.splitext(file_name)
+
+    return file_path, file_basename, file_extension
 
 
 def ConvertMSA(args):

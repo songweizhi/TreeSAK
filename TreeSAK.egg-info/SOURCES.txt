@@ -4,8 +4,12 @@ MANIFEST.in
 README.md
 setup.py
 TreeSAK/AssessCVG.py
+TreeSAK/AssessMarker.py
+TreeSAK/AssessMarkerDeltaLL.py
 TreeSAK/AssessMarkerPA.py
 TreeSAK/ConvertMSA.py
+TreeSAK/Dating.py
+TreeSAK/KEGG_Luo17.py
 TreeSAK/Marker2Tree.py
 TreeSAK/OneLineAln.py
 TreeSAK/SliceMSA.py
@@ -17,10 +21,12 @@ TreeSAK/compare_trees.R
 TreeSAK/compare_trees.py
 TreeSAK/format_leaf_name.py
 TreeSAK/get_arCOG_seq.py
+TreeSAK/global_functions.py
 TreeSAK/iTOL.py
 TreeSAK/parse_deltall_stdout.py
 TreeSAK/rename_leaves.py
 TreeSAK/subset_tree.py
+TreeSAK/test_1.py
 TreeSAK.egg-info/PKG-INFO
 TreeSAK.egg-info/SOURCES.txt
 TreeSAK.egg-info/dependency_links.txt

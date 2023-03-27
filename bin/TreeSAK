@@ -35,9 +35,7 @@ def print_main_help():
     Marker-related
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
-       Marker2Tree            ->  Marker to Tree
        AssessMarkerPA         ->  Assess Markers by P/A among groups
-       AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
     
     Multiple Sequence Alignment
        ConvertMSA             ->  Convert MSA format
@@ -53,6 +51,11 @@ def print_main_help():
     
     Dating-related
        AssessCVG              ->  Assess dating convergence
+    
+    Dating workflow
+       Marker2Tree            ->  Marker to Tree
+       AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
+       Dating                 ->  Perform dating
     
     ''' % version(config_dict)
 
@@ -194,15 +197,20 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'Marker2Tree':
         from TreeSAK import Marker2Tree
         Marker2Tree_parser = subparsers.add_parser('Marker2Tree', usage=Marker2Tree.Marker2Tree_usage)
-        Marker2Tree_parser.add_argument('-m',           required=True,                          help='marker seq dir')
-        Marker2Tree_parser.add_argument('-mx',          required=True,                          help='marker seq ext')
-        Marker2Tree_parser.add_argument('-aa',          required=True,                          help='faa file dir')
-        Marker2Tree_parser.add_argument('-aax',         required=True,                          help='faa file ext')
-        Marker2Tree_parser.add_argument('-o',           required=True,                          help='output dir')
-        Marker2Tree_parser.add_argument('-e',           required=True,                          help='e-value')
-        Marker2Tree_parser.add_argument('-t',           required=True,  type=int,               help='num of threads')
-        Marker2Tree_parser.add_argument('-f',           required=False, action="store_true",    help='force overwrite')
-        Marker2Tree_parser.add_argument('-pl',          required=True,                          help='path to catfasta2phyml.pl')
+        Marker2Tree_parser.add_argument('-m',               required=True,                          help='marker seq dir')
+        Marker2Tree_parser.add_argument('-mx',              required=True,                          help='marker seq ext')
+        Marker2Tree_parser.add_argument('-aa',              required=True,                          help='faa file dir')
+        Marker2Tree_parser.add_argument('-aax',             required=True,                          help='faa file ext')
+        Marker2Tree_parser.add_argument('-g',               required=True,                          help='genome group')
+        Marker2Tree_parser.add_argument('-pac',             required=False, default='0-50-75-100',  help='cutoffs, default: 0-50-75-100')
+        Marker2Tree_parser.add_argument('-o',               required=True,                          help='output dir')
+        Marker2Tree_parser.add_argument('-e',               required=True,                          help='e-value')
+        Marker2Tree_parser.add_argument('-t',               required=True,  type=int,               help='num of threads')
+        Marker2Tree_parser.add_argument('-skip_align_trim', required=False, action="store_true",    help='skip extracting, aligning and trimming markers')
+        Marker2Tree_parser.add_argument('-mmn',             required=False, default=10, type=int,   help='minimal marker number, default: 10')
+        Marker2Tree_parser.add_argument('-jst',             required=False, default='6',            help='threads to request in job script, for running iqtree')
+        Marker2Tree_parser.add_argument('-qsub',            required=False, action="store_true",    help='submit job scripts')
+        Marker2Tree_parser.add_argument('-f',               required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         Marker2Tree.Marker2Tree(args)
 
@@ -217,11 +225,35 @@ if __name__ == '__main__':
         AssessMarkerPA_parser.add_argument('-c',          required=False, default='25-50-75-85-100',   help='cutoffs, default: 25-50-75-85-100')
         AssessMarkerPA_parser.add_argument('-o',          required=True,                               help='output dir')
         AssessMarkerPA_parser.add_argument('-f',          required=False, action="store_true",         help='force overwrite existing output folder')
-        AssessMarkerPA_parser.add_argument('-pl',         required=True,                               help='path to catfasta2phyml.pl')
-        AssessMarkerPA_parser.add_argument('-jst',        required=False, default='3',                 help='threads to request in job script')
-        AssessMarkerPA_parser.add_argument('-qsub',       required=False, action="store_true",         help='submit job script')
         args = vars(parser.parse_args())
         AssessMarkerPA.AssessMarkerPA(args)
+
+    elif sys.argv[1] == 'AssessMarkerDeltaLL':
+        from TreeSAK import AssessMarkerDeltaLL
+        AssessMarkerDeltaLL_parser = subparsers.add_parser('AssessMarkerDeltaLL', usage=AssessMarkerDeltaLL.AssessMarkerDeltaLL_usage)
+        AssessMarkerDeltaLL_parser.add_argument('-deltall',     required=True,                          help='DeltaLL stdout')
+        AssessMarkerDeltaLL_parser.add_argument('-o',           required=True,                          help='output dir')
+        AssessMarkerDeltaLL_parser.add_argument('-c',           required=False, default='25-50-75-100', help='cutoffs, default: 25-50-75-100')
+        AssessMarkerDeltaLL_parser.add_argument('-mmn',         required=False, default=20, type=int,   help='minimal marker number, default: 20')
+        AssessMarkerDeltaLL_parser.add_argument('-aln',         required=True,                          help='faa file dir')
+        AssessMarkerDeltaLL_parser.add_argument('-jst',         required=False, default='6',            help='threads to request in job script, for running iqtree')
+        AssessMarkerDeltaLL_parser.add_argument('-qsub',        required=False, action="store_true",    help='submit job scripts')
+        AssessMarkerDeltaLL_parser.add_argument('-f',           required=False, action="store_true",    help='force overwrite')
+        args = vars(parser.parse_args())
+        AssessMarkerDeltaLL.AssessMarkerDeltaLL(args)
+
+    elif sys.argv[1] == 'Dating':
+        from TreeSAK import Dating
+        Dating_parser = subparsers.add_parser('Dating', usage=Dating.Dating_usage)
+        Dating_parser.add_argument('-deltall', required=True,                          help='DeltaLL stdout')
+        Dating_parser.add_argument('-aod',     required=True,                          help='AssessMarkerDeltaLL output dir')
+        Dating_parser.add_argument('-o',       required=True,                          help='dating wd')
+        Dating_parser.add_argument('-c',       required=False, default='25-50-75-100', help='cutoffs, default: 25-50-75-100')
+        Dating_parser.add_argument('-mmn',     required=False, default=20, type=int,   help='minimal marker number, default: 20')
+        Dating_parser.add_argument('-jst',     required=False, default='6',            help='threads to request in job script, for performing dating')
+        Dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
+        args = vars(parser.parse_args())
+        Dating.Dating(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])
