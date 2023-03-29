@@ -19,12 +19,16 @@ TreeSAK/VERSION
 TreeSAK/__init__.py
 TreeSAK/compare_trees.R
 TreeSAK/compare_trees.py
+TreeSAK/fa2phy.py
 TreeSAK/format_leaf_name.py
 TreeSAK/get_arCOG_seq.py
 TreeSAK/global_functions.py
 TreeSAK/iTOL.py
 TreeSAK/parse_deltall_stdout.py
+TreeSAK/prep_mcmctree_ctl.py
 TreeSAK/rename_leaves.py
+TreeSAK/replace_clades.py
+TreeSAK/root_with_out_group.py
 TreeSAK/subset_tree.py
 TreeSAK/test_1.py
 TreeSAK.egg-info/PKG-INFO

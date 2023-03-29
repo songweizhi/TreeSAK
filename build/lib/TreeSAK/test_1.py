@@ -72,6 +72,76 @@ msa_dir                = '/Users/songweizhi/Desktop/s06_identified_marker_aln_tr
 msa_ext                = 'aln'
 concatenated_msa_phy   = '/Users/songweizhi/Desktop/s06_identified_marker_aln_trimmed_concatenated.phy'
 partition_file         = '/Users/songweizhi/Desktop/s06_identified_marker_aln_trimmed_concatenated_partition.txt'
+# catfasta2phy(msa_dir, msa_ext, concatenated_msa_phy, partition_file)
 
-catfasta2phy(msa_dir, msa_ext, concatenated_msa_phy, partition_file)
+
+
+msa_file = '/Users/songweizhi/Desktop/PA_75_DeltaLL_75_concatenated.phy'
+msa_file_subset = '/Users/songweizhi/Desktop/PA_75_DeltaLL_75_concatenated_subset.phy'
+
+from Bio import AlignIO
+
+
+def slice_msa_by_col(msa_in, range_str, msa_out):
+    alignment = AlignIO.read(msa_in, 'phylip-relaxed')
+
+    range_l = int(range_str.split('-')[0]) - 1
+    range_r = int(range_str.split('-')[1])
+
+    aln_subset = alignment[:, range_l:range_r]
+    AlignIO.write(aln_subset, msa_out, 'phylip-relaxed')
+
+
+def slice_msa_by_col_manual(msa_in, range_str, msa_out):
+    alignment = AlignIO.read(msa_in, 'phylip-relaxed')
+
+    range_l = int(range_str.split('-')[0]) - 1
+    range_r = int(range_str.split('-')[1])
+    aln_subset = alignment[:, range_l:range_r]
+
+    max_seq_id_len = 0
+    for each_seq in aln_subset:
+        seq_id_len = len(each_seq.id)
+        if seq_id_len > max_seq_id_len:
+            max_seq_id_len = seq_id_len
+    print(max_seq_id_len)
+
+    with open(msa_out, 'w') as msa_out_handle:
+        msa_out_handle.write('%s %s\n' % (len(aln_subset), aln_subset.get_alignment_length()))
+        for each_seq in aln_subset:
+            seq_id = each_seq.id
+            seq_id_with_space = '%s%s' % (seq_id, ' '*(max_seq_id_len + 2 - len(seq_id)))
+            print(seq_id_with_space)
+            msa_out_handle.write('%s%s\n' % (seq_id_with_space, str(each_seq.seq)))
+
+
+#    AlignIO.write(aln_subset, msa_out, 'phylip-relaxed')
+
+
+slice_range = ['1-500', '501-1000', '1001-1500', '1501-2000', '2001-2500', '2501-3000', '3001-3500', '3501-4000', '4001-4500', '4501-4879']
+
+for each_range in slice_range:
+    pwd_msa_op = '/Users/songweizhi/Desktop/%s.phy' % each_range
+    slice_msa_by_col_manual(msa_file, each_range, pwd_msa_op)
+
+
+def fa2phy(fasta_in, phy_out):
+
+    alignment = AlignIO.read(fasta_in, 'fasta')
+
+    max_seq_id_len = 0
+    for each_seq in alignment:
+        seq_id_len = len(each_seq.id)
+        if seq_id_len > max_seq_id_len:
+            max_seq_id_len = seq_id_len
+
+    with open(phy_out, 'w') as msa_out_handle:
+        msa_out_handle.write('%s %s\n' % (len(alignment), alignment.get_alignment_length()))
+        for each_seq in alignment:
+            seq_id = each_seq.id
+            seq_id_with_space = '%s%s' % (seq_id, ' ' * (max_seq_id_len + 2 - len(seq_id)))
+            msa_out_handle.write('%s%s\n' % (seq_id_with_space, str(each_seq.seq)))
+
+
+
 

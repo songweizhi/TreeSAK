@@ -109,7 +109,6 @@ def AssessMarkerDeltaLL(args):
     deltall_keep_pct_str    = args['c']
     min_marker_num          = args['mmn']
     trimmed_aln_dir         = args['aln']
-    #catfasta2phyml_pl       = args['pl']
     js_cpu_num              = args['jst']
     submit_job              = args['qsub']
     force_overwrite         = args['f']
@@ -213,8 +212,6 @@ def AssessMarkerDeltaLL(args):
                 os.system(cp_cmd)
 
             # concatenate msa
-            #catfasta2phyml_cmd = 'perl %s --sequential --concatenate %s/*.aln > %s 2> %s' % (catfasta2phyml_pl, pwd_aln_dir, pwd_aln_concatenated, pwd_aln_concatenated_partitions)
-            #os.system(catfasta2phyml_cmd)
             catfasta2phy(pwd_aln_dir, 'aln', pwd_aln_concatenated, pwd_aln_concatenated_partitions)
 
             # create dir
@@ -253,7 +250,6 @@ if __name__ == '__main__':
     parser.add_argument('-c',       required=False, default='25-50-75-100', help='cutoffs, default: 25-50-75-100')
     parser.add_argument('-mmn',     required=False, default=20, type=int,   help='minimal marker number, default: 20')
     parser.add_argument('-aln',     required=True,                          help='faa file dir')
-    #parser.add_argument('-pl',      required=True,                          help='path to catfasta2phyml.pl')
     parser.add_argument('-jst',     required=False, default='6',            help='threads to request in job script, for running iqtree')
     parser.add_argument('-qsub',    required=False, action="store_true",    help='submit job scripts')
     parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')

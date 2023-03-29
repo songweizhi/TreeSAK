@@ -39,6 +39,7 @@ def print_main_help():
     
     Multiple Sequence Alignment
        ConvertMSA             ->  Convert MSA format
+       fa2phy                 ->  Convert MSA format (fasta to phylip)
        OneLineAln             ->  One-line fasta format alignments
        SliceMSA               ->  Slice MSA by column 
     
@@ -247,13 +248,25 @@ if __name__ == '__main__':
         Dating_parser = subparsers.add_parser('Dating', usage=Dating.Dating_usage)
         Dating_parser.add_argument('-deltall', required=True,                          help='DeltaLL stdout')
         Dating_parser.add_argument('-aod',     required=True,                          help='AssessMarkerDeltaLL output dir')
+        Dating_parser.add_argument('-og',      required=True,                          help='outgroup leaves, one leaf id per line')
+        Dating_parser.add_argument('-eu',      required=True,                          help='EU tree with time constraints')
         Dating_parser.add_argument('-o',       required=True,                          help='dating wd')
         Dating_parser.add_argument('-c',       required=False, default='25-50-75-100', help='cutoffs, default: 25-50-75-100')
         Dating_parser.add_argument('-mmn',     required=False, default=20, type=int,   help='minimal marker number, default: 20')
+        Dating_parser.add_argument('-ra',      required=False, default=45, type=int,   help='root age, default: 45')
         Dating_parser.add_argument('-jst',     required=False, default='6',            help='threads to request in job script, for performing dating')
+        Dating_parser.add_argument('-qsub',    required=False, action="store_true",    help='submit job scripts for getting in.BV')
         Dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         Dating.Dating(args)
+
+    elif sys.argv[1] == 'fa2phy':
+        from TreeSAK import fa2phy
+        fa2phy_parser = subparsers.add_parser('fa2phy', usage=fa2phy.fa2phy_usage)
+        fa2phy_parser.add_argument('-i', required=True, help='input MSA in fasta format')
+        fa2phy_parser.add_argument('-o', required=True, help='output MSA in phylip format')
+        args = vars(parser.parse_args())
+        fa2phy.fa2phy(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

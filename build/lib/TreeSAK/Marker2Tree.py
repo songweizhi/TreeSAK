@@ -779,7 +779,6 @@ if __name__ == '__main__':
     parser.add_argument('-mmn',             required=False, default=10, type=int,   help='minimal marker number, default: 10')
     parser.add_argument('-jst',             required=False, default='6',            help='threads to request in job script, for running iqtree')
     parser.add_argument('-qsub',            required=False, action="store_true",    help='submit job scripts')
-    #parser.add_argument('-pl',              required=True,                          help='path to catfasta2phyml.pl')
     parser.add_argument('-f',               required=False, action="store_true",    help='force overwrite')
     args = vars(parser.parse_args())
     Marker2Tree(args)
