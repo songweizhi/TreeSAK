@@ -52,7 +52,9 @@ def print_main_help():
     
     Dating-related
        AssessCVG              ->  Assess dating convergence
-    
+       CompareMCMC            ->  Compare MCMCTree outputs
+       PlotMcmcNode           ->  distribution of node's age estimation 
+       
     Dating workflow
        Marker2Tree            ->  Marker to Tree
        AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
@@ -111,10 +113,12 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'SliceMSA':
         from TreeSAK import SliceMSA
         SliceMSA_parser = subparsers.add_parser('SliceMSA', description='Slice MSA by column', usage=SliceMSA.SliceMSA_usage)
-        SliceMSA_parser.add_argument('-i',   required=True,                         help='input MSA in fasta format')
-        SliceMSA_parser.add_argument('-s',   required=True,                         help='columns to export, e.g. 200-300, -100, 50-')
-        SliceMSA_parser.add_argument('-o',   required=True,                         help='output folder')
-        SliceMSA_parser.add_argument('-f',   required=False, action="store_true",   help='force overwrite existing output folder')
+        SliceMSA_parser.add_argument('-i',      required=True,                         help='input MSA in fasta format')
+        SliceMSA_parser.add_argument('-fi',     required=False, default='fasta',       help='format of input MSA (this is not file extension), default: fasta')
+        SliceMSA_parser.add_argument('-s',      required=True,                         help='columns to export, e.g. 200-300, -100, 50-')
+        SliceMSA_parser.add_argument('-o',      required=True,                         help='output file or folder')
+        SliceMSA_parser.add_argument('-fo',     required=False, default='fasta',       help='format of output MSA, select from fasta and phylip-relaxed, default: fasta')
+        SliceMSA_parser.add_argument('-force',  required=False, action="store_true",   help='force overwrite existing output folder')
         args = vars(parser.parse_args())
         SliceMSA.SliceMSA(args)
 
@@ -268,6 +272,27 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         fa2phy.fa2phy(args)
 
+    elif sys.argv[1] == 'CompareMCMC':
+        from TreeSAK import CompareMCMC
+        CompareMCMC_parser = subparsers.add_parser('CompareMCMC', usage=CompareMCMC.CompareMCMC_usage)
+        CompareMCMC_parser.add_argument('-mx',      required=True,                  help='mcmc.txt for x axis')
+        CompareMCMC_parser.add_argument('-my',      required=True,                  help='mcmc.txt for y axis')
+        CompareMCMC_parser.add_argument('-lx',      required=False, default=None,   help='label for x axis')
+        CompareMCMC_parser.add_argument('-ly',      required=False, default=None,   help='label for y axis')
+        CompareMCMC_parser.add_argument('-o',       required=True,                  help='output plot')
+        args = vars(parser.parse_args())
+        CompareMCMC.CompareMCMC(args)
+
+    elif sys.argv[1] == 'PlotMcmcNode':
+        from TreeSAK import PlotMcmcNode
+        PlotMcmcNode_parser = subparsers.add_parser('PlotMcmcNode', usage=PlotMcmcNode.PlotMcmcNode_usage)
+        PlotMcmcNode_parser.add_argument('-i',      required=True,                   help='MCMCTree output file or folder')
+        PlotMcmcNode_parser.add_argument('-x',      required=False, default='txt',   help='Extension of MCMCTree output file')
+        PlotMcmcNode_parser.add_argument('-n',      required=True,                   help='Nodes to plot')
+        PlotMcmcNode_parser.add_argument('-o',      required=True,                   help='Output plot')
+        args = vars(parser.parse_args())
+        PlotMcmcNode.PlotMcmcNode(args)
+
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])
         exit()
@@ -281,5 +306,6 @@ twine upload dist/*
 
 songweizhi  shan88
 pip3 install --upgrade TreeSAK
+TreeSAK -h
 '''
 

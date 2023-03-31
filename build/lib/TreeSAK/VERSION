@@ -1,5 +1,11 @@
-1.10.1
+1.12.0
+- added module PlotMcmcNode
+
+1.11.1
 - fixed bugs
+
+1.11.0
+- added module CompareMCMC
 
 1.10.0
 - added module fa2phy

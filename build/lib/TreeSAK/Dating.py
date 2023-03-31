@@ -63,30 +63,30 @@ def replace_clades(main_tree, sub_tree, tree_out):
 
 def prep_mcmctree_ctl(ctl_para_dict, mcmctree_ctl_file):
     with open(mcmctree_ctl_file, 'w') as ctl_file_handle:
-        ctl_file_handle.write('      finetune = %s\n' % ctl_para_dict.get('seed',           '-1'))
+        ctl_file_handle.write('      finetune = %s\n' % ctl_para_dict.get('seed',         '-1'))
         ctl_file_handle.write('       seqfile = %s\n' % ctl_para_dict['seqfile'])
         ctl_file_handle.write('      treefile = %s\n' % ctl_para_dict['treefile'])
         ctl_file_handle.write('      mcmcfile = %s\n' % ctl_para_dict['mcmcfile'])
         ctl_file_handle.write('       outfile = %s\n' % ctl_para_dict['outfile'])
-        ctl_file_handle.write('         ndata = %s\n' % ctl_para_dict.get('ndata',          1))
-        ctl_file_handle.write('       seqtype = %s\n' % ctl_para_dict['seqtype'])
-        ctl_file_handle.write('       usedata = %s\n' % ctl_para_dict['usedata'])
-        ctl_file_handle.write('         clock = %s\n' % ctl_para_dict['clock'])
-        ctl_file_handle.write('       RootAge = %s\n' % ctl_para_dict.get('RootAge',        '<1.0'))
-        ctl_file_handle.write('         model = %s\n' % ctl_para_dict.get('model',          0))
-        ctl_file_handle.write('         alpha = %s\n' % ctl_para_dict.get('alpha',          0.5))
-        ctl_file_handle.write('         ncatG = %s\n' % ctl_para_dict.get('ncatG',          4))
-        ctl_file_handle.write('     cleandata = %s\n' % ctl_para_dict.get('cleandata',      0))
-        ctl_file_handle.write('       BDparas = %s\n' % ctl_para_dict.get('BDparas',        '1 1 0.1'))
-        ctl_file_handle.write('   kappa_gamma = %s\n' % ctl_para_dict.get('kappa_gamma',    '6 2'))
-        ctl_file_handle.write('   alpha_gamma = %s\n' % ctl_para_dict.get('alpha_gamma',    '1 1'))
-        ctl_file_handle.write('   rgene_gamma = %s\n' % ctl_para_dict.get('rgene_gamma',    '1 50 1'))
-        ctl_file_handle.write('  sigma2_gamma = %s\n' % ctl_para_dict.get('sigma2_gamma',   '1 10 1'))
-        ctl_file_handle.write('      finetune = %s\n' % ctl_para_dict.get('finetune',       '1: .1 .1 .1 .1 .1 .1'))
-        ctl_file_handle.write('         print = %s\n' % ctl_para_dict.get('print',          1))
-        ctl_file_handle.write('        burnin = %s\n' % ctl_para_dict.get('burnin',         50000))
-        ctl_file_handle.write('      sampfreq = %s\n' % ctl_para_dict.get('sampfreq',       5))
-        ctl_file_handle.write('       nsample = %s\n' % ctl_para_dict.get('nsample',        50000))
+        ctl_file_handle.write('         ndata = %s\n' % ctl_para_dict.get('ndata',        1))
+        ctl_file_handle.write('       seqtype = %s    	* 0: nucleotides; 1:codons; 2:AAs\n'                                    % ctl_para_dict['seqtype'])
+        ctl_file_handle.write('       usedata = %s    	* 0: no data; 1:seq like; 2:normal approximation; 3:out.BV (in.BV)\n'   % ctl_para_dict['usedata'])
+        ctl_file_handle.write('         clock = %s    	* 1: global clock; 2: independent rates; 3: correlated rates\n'         % ctl_para_dict['clock'])
+        ctl_file_handle.write('       RootAge = %s      * safe constraint on root age, used if no fossil for root.\n'           % ctl_para_dict.get('RootAge',      '<1.0'))
+        ctl_file_handle.write('         model = %s    	* 0:JC69, 1:K80, 2:F81, 3:F84, 4:HKY85\n'                               % ctl_para_dict.get('model',        0))
+        ctl_file_handle.write('         alpha = %s  	* alpha for gamma rates at sites\n'                                     % ctl_para_dict.get('alpha',        0.5))
+        ctl_file_handle.write('         ncatG = %s    	* No. categories in discrete gamma\n'                                   % ctl_para_dict.get('ncatG',        4))
+        ctl_file_handle.write('     cleandata = %s    	* remove sites with ambiguity data (1:yes, 0:no)?\n'                    % ctl_para_dict.get('cleandata',    0))
+        ctl_file_handle.write('       BDparas = %s      * birth, death, sampling\n'                                             % ctl_para_dict.get('BDparas',      '1 1 0.1'))
+        ctl_file_handle.write('   kappa_gamma = %s      * gamma prior for kappa\n'                                              % ctl_para_dict.get('kappa_gamma',  '6 2'))
+        ctl_file_handle.write('   alpha_gamma = %s      * gamma prior for alpha\n'                                              % ctl_para_dict.get('alpha_gamma',  '1 1'))
+        ctl_file_handle.write('   rgene_gamma = %s      * gammaDir prior for rate for genes\n'                                  % ctl_para_dict.get('rgene_gamma',  '1 50 1'))
+        ctl_file_handle.write('  sigma2_gamma = %s      * gammaDir prior for sigma^2     (for clock=2 or 3)\n'                  % ctl_para_dict.get('sigma2_gamma', '1 10 1'))
+        ctl_file_handle.write('      finetune = %s      * auto (0 or 1): times, musigma2, rates, mixing, paras, FossilErr\n'    % ctl_para_dict.get('finetune',     '1: .1 .1 .1 .1 .1 .1'))
+        ctl_file_handle.write('         print = %s      * 0: no mcmc sample; 1: everything except branch rates 2: everything\n' % ctl_para_dict.get('print',        1))
+        ctl_file_handle.write('        burnin = %s\n'                                                                           % ctl_para_dict.get('burnin',       50000))
+        ctl_file_handle.write('      sampfreq = %s\n'                                                                           % ctl_para_dict.get('sampfreq',     5))
+        ctl_file_handle.write('       nsample = %s\n'                                                                           % ctl_para_dict.get('nsample',      50000))
 
 
 def get_parameter_combinations(para_to_test_dict):
@@ -328,6 +328,5 @@ python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/Dating.py -deltall Mar
 
 cd /home-user/wzsong/DateArTree
 python3 Dating.py -deltall Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s10_assess_marker_deltaLL/PA_75_DeltaLL_stdout.txt -aod Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s11_marker_sets_by_DeltaLL -og out_group.txt -eu 27.nwk -o Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s12_dating_wd -c 25-50-75-100 -mmn 20 -f 
-
 
 '''
