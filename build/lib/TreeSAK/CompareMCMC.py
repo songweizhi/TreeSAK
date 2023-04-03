@@ -9,11 +9,11 @@ from matplotlib.pyplot import figure
 
 
 CompareMCMC_usage = '''
-=============================== CompareMCMC example commands ===============================
+================================== CompareMCMC example commands ==================================
 
-TreeSAK CompareMCMC -mx IR_mcmc.txt -my AR_mcmc.txt -lx IR -ly AR -o convergence_plot.png
+TreeSAK CompareMCMC -mx IR_mcmc.txt -my AR_mcmc.txt -lx IR -ly AR -o convergence_plot.png -max 40
 
-============================================================================================
+==================================================================================================
 '''
 
 
@@ -27,11 +27,12 @@ def sep_path_basename_ext(file_in):
 
 def CompareMCMC(args):
 
-    mcmc_txt_x  = args['mx']
-    mcmc_txt_y  = args['my']
-    label_x     = args['lx']
-    label_y     = args['ly']
-    pwd_figure  = args['o']
+    mcmc_txt_x      = args['mx']
+    mcmc_txt_y      = args['my']
+    label_x         = args['lx']
+    label_y         = args['ly']
+    pwd_figure      = args['o']
+    max_axis_value  = args['max']
 
     x_path, x_basename, x_ext = sep_path_basename_ext(mcmc_txt_x)
     y_path, y_basename, y_ext = sep_path_basename_ext(mcmc_txt_y)
@@ -99,6 +100,10 @@ def CompareMCMC(args):
     plt.scatter(num_list_x, num_list_y, s=0)
     plt.errorbar(num_list_x, num_list_y, xerr=[x_err_l, x_err_r], yerr=[y_err_l, y_err_u],
                  ls='none', ecolor='skyblue', elinewidth=1, alpha=0.5)
+
+    if max_axis_value is not None:
+        plt.xlim([0, max_axis_value])
+        plt.ylim([0, max_axis_value])
     plt.xlabel(label_x)
     plt.ylabel(label_y)
     plt.tight_layout()
@@ -112,10 +117,11 @@ if __name__ == '__main__':
 
     # initialize the options parser
     parser = argparse.ArgumentParser()
-    parser.add_argument('-mx',      required=True,                  help='mcmc.txt for x axis')
-    parser.add_argument('-my',      required=True,                  help='mcmc.txt for y axis')
-    parser.add_argument('-lx',      required=False, default=None,   help='label for x axis')
-    parser.add_argument('-ly',      required=False, default=None,   help='label for y axis')
-    parser.add_argument('-o',       required=True,                  help='output plot')
+    parser.add_argument('-mx',      required=True,                          help='mcmc.txt for x axis')
+    parser.add_argument('-my',      required=True,                          help='mcmc.txt for y axis')
+    parser.add_argument('-lx',      required=False, default=None,           help='label for x axis')
+    parser.add_argument('-ly',      required=False, default=None,           help='label for y axis')
+    parser.add_argument('-max',     required=False, default=None, type=int, help='maximum axis value')
+    parser.add_argument('-o',       required=True,                          help='output plot')
     args = vars(parser.parse_args())
     CompareMCMC(args)

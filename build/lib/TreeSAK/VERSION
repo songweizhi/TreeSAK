@@ -1,41 +1,41 @@
-1.12.0
-- added module PlotMcmcNode
-
-1.11.1
+1.12.1
 - fixed bugs
 
+1.12.0
+- new module added: PlotMcmcNode
+
 1.11.0
-- added module CompareMCMC
+- new module added: CompareMCMC
 
 1.10.0
-- added module fa2phy
+- new module added: fa2phy
 
 1.9.0
-- added module Dating
+- new module added: Dating
 
 1.8.0
-- added module AssessMarkerDeltaLL
+- new module added: AssessMarkerDeltaLL
 
 1.7.0
-- added module AssessMarkerPA
+- new module added: AssessMarkerPA
 
 1.6.0
-- added module Marker2Tree
+- new module added: Marker2Tree
 
 1.5.0
-- added module SliceMSA
+- new module added: SliceMSA
 
 1.4.0
-- added module ConvertMSA
+- new module added: ConvertMSA
 
 1.3.0
-- added module get_arCOG_seq
+- new module added: get_arCOG_seq
 
 1.2.0
-- added module parse_deltall_stdout
+- new module added: parse_deltall_stdout
 
 1.1.0
-- added module AssessCVG
+- new module added: AssessCVG
 
 1.0.0
 - initial release

@@ -68,7 +68,7 @@ def prep_mcmctree_ctl(ctl_para_dict, mcmctree_ctl_file):
         ctl_file_handle.write('      treefile = %s\n' % ctl_para_dict['treefile'])
         ctl_file_handle.write('      mcmcfile = %s\n' % ctl_para_dict['mcmcfile'])
         ctl_file_handle.write('       outfile = %s\n' % ctl_para_dict['outfile'])
-        ctl_file_handle.write('         ndata = %s\n' % ctl_para_dict.get('ndata',        1))
+        ctl_file_handle.write('         ndata = %s\n'                                                                           % ctl_para_dict.get('ndata',        1))
         ctl_file_handle.write('       seqtype = %s    	* 0: nucleotides; 1:codons; 2:AAs\n'                                    % ctl_para_dict['seqtype'])
         ctl_file_handle.write('       usedata = %s    	* 0: no data; 1:seq like; 2:normal approximation; 3:out.BV (in.BV)\n'   % ctl_para_dict['usedata'])
         ctl_file_handle.write('         clock = %s    	* 1: global clock; 2: independent rates; 3: correlated rates\n'         % ctl_para_dict['clock'])
@@ -86,7 +86,7 @@ def prep_mcmctree_ctl(ctl_para_dict, mcmctree_ctl_file):
         ctl_file_handle.write('         print = %s      * 0: no mcmc sample; 1: everything except branch rates 2: everything\n' % ctl_para_dict.get('print',        1))
         ctl_file_handle.write('        burnin = %s\n'                                                                           % ctl_para_dict.get('burnin',       50000))
         ctl_file_handle.write('      sampfreq = %s\n'                                                                           % ctl_para_dict.get('sampfreq',     5))
-        ctl_file_handle.write('       nsample = %s\n'                                                                           % ctl_para_dict.get('nsample',      50000))
+        ctl_file_handle.write('       nsample = %s\n'                                                                           % ctl_para_dict.get('nsample',      150000))
 
 
 def get_parameter_combinations(para_to_test_dict):
@@ -139,6 +139,14 @@ def Dating(args):
     force_overwrite         = args['f']
     root_age                = args['ra']
     submit_job              = args['qsub']
+    para_to_test            = args['to_test']
+
+    para_to_test_dict = dict()
+    for each_para in open(para_to_test):
+        each_para_split = each_para.strip().split()
+        para_list = each_para_split[1].split(',')
+        para_to_test_dict[each_para_split[0]] = para_list
+    print('Parameters to test: %s' % para_to_test_dict)
 
     if os.path.isfile(eu_tree) is False:
         print('%s not found, program exited!' % eu_tree)
@@ -267,14 +275,12 @@ def Dating(args):
                 get_BV_js_handle.write('mcmctree %s\n' % get_BV_mcmctree_ctl)
 
             # prepare files for dating
-            para_to_test_dict = {'clock': [2, 3], 'model': [0, 4]}
-            para_to_test_dict = {'clock': [2, 3]}
             para_dod = get_parameter_combinations(para_to_test_dict)
             for para_combination in para_dod:
                 mcmctree_ctl        = '%s_%s_mcmctree.ctl'              % (prefix_base, para_combination)
                 current_dating_wd   = '%s/%s_DeltaLL_%s_%s_dating_wd'   % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct, para_combination)
                 pwd_mcmctree_ctl    = '%s/%s_%s_mcmctree.ctl'           % (current_dating_wd, prefix_base, para_combination)
-                js_mcmctree         = '%s/%s_DeltaLL_%s_%s.sh'          % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct, para_combination)
+                js_mcmctree         = '%s/js_%s_DeltaLL_%s_%s.sh'       % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct, para_combination)
 
                 # create dating wd and copy tree and alignment files into it
                 os.mkdir(current_dating_wd)
@@ -317,6 +323,7 @@ if __name__ == '__main__':
     parser.add_argument('-jst',     required=False, default='6',            help='threads to request in job script, for performing dating')
     parser.add_argument('-qsub',    required=False, action="store_true",    help='submit job scripts for getting in.BV')
     parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
+    parser.add_argument('-to_test', required=True,                          help='Settings to test')
     args = vars(parser.parse_args())
     Dating(args)
 
