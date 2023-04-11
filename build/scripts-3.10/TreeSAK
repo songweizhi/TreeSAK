@@ -84,10 +84,9 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'subset_tree':
         from TreeSAK import subset_tree
         subset_tree_parser = subparsers.add_parser('subset_tree', description='Subset tree', usage=subset_tree.subset_tree_usage)
-        subset_tree_parser.add_argument('-tree',            required=True,                                  help='input tree file')
-        subset_tree_parser.add_argument('-taxon',           required=True,                                  help='A file containing list of nodes to keep, one node per line')
-        subset_tree_parser.add_argument('-out',             required=True,                                  help='Output tree file')
-        subset_tree_parser.add_argument('-q',               required=False, action="store_true",            help='do not report progress')
+        subset_tree_parser.add_argument('-i',               required=True,                                  help='input tree file')
+        subset_tree_parser.add_argument('-k',               required=True,                                  help='leaves to keep, one id per line')
+        subset_tree_parser.add_argument('-o',               required=True,                                  help='output tree file')
         args = vars(parser.parse_args())
         subset_tree.subset_tree(args)
 
@@ -258,9 +257,10 @@ if __name__ == '__main__':
         Dating_parser.add_argument('-c',       required=False, default='25-50-75-100', help='cutoffs, default: 25-50-75-100')
         Dating_parser.add_argument('-mmn',     required=False, default=20, type=int,   help='minimal marker number, default: 20')
         Dating_parser.add_argument('-ra',      required=False, default=45, type=int,   help='root age, default: 45')
-        Dating_parser.add_argument('-jst',     required=False, default='6',            help='threads to request in job script, for performing dating')
+        #Dating_parser.add_argument('-jst',     required=False, default='6',            help='threads to request in job script, for performing dating')
         Dating_parser.add_argument('-qsub',    required=False, action="store_true",    help='submit job scripts for getting in.BV')
         Dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
+        Dating_parser.add_argument('-to_test', required=True,                          help='Settings to test')
         args = vars(parser.parse_args())
         Dating.Dating(args)
 
@@ -309,4 +309,3 @@ songweizhi  shan88
 pip3 install --upgrade TreeSAK
 TreeSAK -h
 '''
-

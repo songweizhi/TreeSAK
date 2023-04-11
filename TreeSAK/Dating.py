@@ -44,9 +44,9 @@ def root_with_out_group(tree_file, out_group_txt, tree_file_rooted):
     tre.write(outfile=tree_file_rooted)
 
 
-def replace_clades(main_tree, sub_tree, tree_out):
+def replace_clades(main_tree, sub_tree, tree_out, quote_node_name):
 
-    tre_sub = Tree(sub_tree, format=1)
+    tre_sub = Tree(sub_tree, format=1, quoted_node_names=quote_node_name)
     subtree_leaf_name_list = tre_sub.get_leaf_names()
     tre_main = Tree(main_tree)
     lca = tre_main.get_common_ancestor(subtree_leaf_name_list)
@@ -58,7 +58,7 @@ def replace_clades(main_tree, sub_tree, tree_out):
     lca_p = lca.up
     lca_p.remove_child(lca)
     lca_p.add_child(tre_sub)
-    tre_main.write(outfile=tree_out, format=8)
+    tre_main.write(outfile=tree_out, format=8, quoted_node_names=quote_node_name)
 
 
 def prep_mcmctree_ctl(ctl_para_dict, mcmctree_ctl_file):
@@ -135,11 +135,15 @@ def Dating(args):
     op_dir                  = args['o']
     deltall_keep_pct_str    = args['c']
     min_marker_num          = args['mmn']
-    js_cpu_num              = args['jst']
+    #js_cpu_num              = args['jst']
     force_overwrite         = args['f']
     root_age                = args['ra']
     submit_job              = args['qsub']
     para_to_test            = args['to_test']
+
+    # hard coded parameters
+    js_cpu_num              = 1
+    quote_node_name         = False
 
     para_to_test_dict = dict()
     for each_para in open(para_to_test):
@@ -233,17 +237,18 @@ def Dating(args):
             root_with_out_group(pwd_c60_tree_file_renamed, out_group_txt, pwd_c60_tree_file_rooted)
 
             # add time constraints
-            replace_clades(pwd_c60_tree_file_rooted, eu_tree, pwd_c60_tree_file_rooted_with_time)
+            replace_clades(pwd_c60_tree_file_rooted, eu_tree, pwd_c60_tree_file_rooted_with_time, quote_node_name)
 
             # remove "NoName" from the rooted tree with time constraints
             tree_str = open(pwd_c60_tree_file_rooted_with_time).readline().strip().replace('NoName', '')
 
             # add root age
             tree_str = tree_str.replace(';', '<%s;' % root_age)
-            tre_object = Tree(tree_str, format=1)
+            tre_object = Tree(tree_str, format=8, quoted_node_names=quote_node_name)
             with open(pwd_c60_tree_file_rooted_with_time_final, 'w') as pwd_c60_tree_file_rooted_with_time_final_hanlde:
                 pwd_c60_tree_file_rooted_with_time_final_hanlde.write('%s\t1\n' % len(tre_object.get_leaf_names()))
-                pwd_c60_tree_file_rooted_with_time_final_hanlde.write(tree_str + '\n')
+                pwd_c60_tree_file_rooted_with_time_final_hanlde.write(tree_str.replace('""', '') + '\n')
+                #pwd_c60_tree_file_rooted_with_time_final_hanlde.write(tree_str + '\n')
 
             # rm tmp tree files
             os.system('rm %s' % pwd_c60_tree_file_renamed)
@@ -270,7 +275,7 @@ def Dating(args):
             prep_mcmctree_ctl(get_BV_para_dict, pwd_get_BV_mcmctree_ctl)
 
             with open(get_BV_js, 'w') as get_BV_js_handle:
-                get_BV_js_handle.write('#!/bin/bash\n\n')
+                get_BV_js_handle.write('#!/bin/bash\n#SBATCH --ntasks 1\n#SBATCH --cpus-per-task %s\n\n' % js_cpu_num)
                 get_BV_js_handle.write('cd %s/%s\n' % (os.getcwd(), get_BV_wd))
                 get_BV_js_handle.write('mcmctree %s\n' % get_BV_mcmctree_ctl)
 
@@ -310,7 +315,6 @@ def Dating(args):
 
 if __name__ == '__main__':
 
-    # initialize the options parser
     parser = argparse.ArgumentParser()
     parser.add_argument('-deltall', required=True,                          help='DeltaLL stdout')
     parser.add_argument('-aod',     required=True,                          help='AssessMarkerDeltaLL output dir')
@@ -320,7 +324,7 @@ if __name__ == '__main__':
     parser.add_argument('-c',       required=False, default='25-50-75-100', help='cutoffs, default: 25-50-75-100')
     parser.add_argument('-mmn',     required=False, default=20, type=int,   help='minimal marker number, default: 20')
     parser.add_argument('-ra',      required=False, default=45, type=int,   help='root age, default: 45')
-    parser.add_argument('-jst',     required=False, default='6',            help='threads to request in job script, for performing dating')
+    #parser.add_argument('-jst',     required=False, default='1',            help='threads to request in job script, default: 1')
     parser.add_argument('-qsub',    required=False, action="store_true",    help='submit job scripts for getting in.BV')
     parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
     parser.add_argument('-to_test', required=True,                          help='Settings to test')

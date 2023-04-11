@@ -11,6 +11,7 @@ TreeSAK/CompareMCMC.py
 TreeSAK/ConvertMSA.py
 TreeSAK/Dating.py
 TreeSAK/KEGG_Luo17.py
+TreeSAK/MCMCtreeR.py
 TreeSAK/Marker2Tree.py
 TreeSAK/OneLineAln.py
 TreeSAK/PlotMcmcNode.py
@@ -34,6 +35,7 @@ TreeSAK/rename_leaves.py
 TreeSAK/replace_clades.py
 TreeSAK/root_with_out_group.py
 TreeSAK/subset_tree.py
+TreeSAK/subset_tree_stupid_old_way.py
 TreeSAK/test_1.py
 TreeSAK/test_2.py
 TreeSAK/tmp_3.py
