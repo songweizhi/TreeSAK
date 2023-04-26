@@ -3,7 +3,6 @@ from setuptools import setup
 
 
 def version():
-
     setup_dir = os.path.dirname(os.path.realpath(__file__))
     version_file = open(os.path.join(setup_dir, 'TreeSAK', 'VERSION'))
     return version_file.readline().strip()

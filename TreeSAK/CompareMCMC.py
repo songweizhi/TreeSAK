@@ -9,11 +9,11 @@ from matplotlib.pyplot import figure
 
 
 CompareMCMC_usage = '''
-================================== CompareMCMC example commands ==================================
+====================================== CompareMCMC example commands ======================================
 
-TreeSAK CompareMCMC -mx IR_mcmc.txt -my AR_mcmc.txt -lx IR -ly AR -o convergence_plot.png -max 40
+TreeSAK CompareMCMC -mx IR_mcmc.txt -my AR_mcmc.txt -lx IR -ly AR -o convergence_plot.png -max 40 -fs 12
 
-==================================================================================================
+==========================================================================================================
 '''
 
 
@@ -33,6 +33,7 @@ def CompareMCMC(args):
     label_y         = args['ly']
     pwd_figure      = args['o']
     max_axis_value  = args['max']
+    label_fs        = args['fs']
 
     x_path, x_basename, x_ext = sep_path_basename_ext(mcmc_txt_x)
     y_path, y_basename, y_ext = sep_path_basename_ext(mcmc_txt_y)
@@ -104,8 +105,14 @@ def CompareMCMC(args):
     if max_axis_value is not None:
         plt.xlim([0, max_axis_value])
         plt.ylim([0, max_axis_value])
-    plt.xlabel(label_x)
-    plt.ylabel(label_y)
+
+    # Set the font size of xticks and yticks
+    plt.xticks(fontsize=label_fs)
+    plt.yticks(fontsize=label_fs)
+    plt.xlabel(label_x, fontsize=label_fs)
+    plt.ylabel(label_y, fontsize=label_fs)
+
+    # write out
     plt.tight_layout()
     plt.savefig(pwd_figure)
     plt.close()
@@ -122,6 +129,7 @@ if __name__ == '__main__':
     parser.add_argument('-lx',      required=False, default=None,           help='label for x axis')
     parser.add_argument('-ly',      required=False, default=None,           help='label for y axis')
     parser.add_argument('-max',     required=False, default=None, type=int, help='maximum axis value')
+    parser.add_argument('-fs',      required=False, default=16, type=int,   help='label font size, default: 16')
     parser.add_argument('-o',       required=True,                          help='output plot')
     args = vars(parser.parse_args())
     CompareMCMC(args)

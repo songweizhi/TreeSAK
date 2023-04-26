@@ -49,7 +49,8 @@ def print_main_help():
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
-    
+       ModifyTopo             ->  Modify tree topology
+        
     Dating-related
        AssessCVG              ->  Assess dating convergence
        CompareMCMC            ->  Compare MCMCTree outputs
@@ -280,6 +281,7 @@ if __name__ == '__main__':
         CompareMCMC_parser.add_argument('-lx',      required=False, default=None,           help='label for x axis')
         CompareMCMC_parser.add_argument('-ly',      required=False, default=None,           help='label for y axis')
         CompareMCMC_parser.add_argument('-max',     required=False, default=None, type=int, help='maximum axis value')
+        CompareMCMC_parser.add_argument('-fs',      required=False, default=16, type=int,   help='label font size, default: 16')
         CompareMCMC_parser.add_argument('-o',       required=True,                          help='output plot')
         args = vars(parser.parse_args())
         CompareMCMC.CompareMCMC(args)
@@ -287,9 +289,9 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'PlotMcmcNode':
         from TreeSAK import PlotMcmcNode
         PlotMcmcNode_parser = subparsers.add_parser('PlotMcmcNode', usage=PlotMcmcNode.PlotMcmcNode_usage)
-        PlotMcmcNode_parser.add_argument('-i',      required=True,                   help='MCMCTree output file or folder')
-        PlotMcmcNode_parser.add_argument('-x',      required=False, default='txt',   help='Extension of MCMCTree output file')
+        PlotMcmcNode_parser.add_argument('-i',      required=True,                   help='mcmc.txt file or folder')
         PlotMcmcNode_parser.add_argument('-n',      required=True,                   help='Nodes to plot')
+        PlotMcmcNode_parser.add_argument('-label',  required=False, default=None,    help='labels on y axis')
         PlotMcmcNode_parser.add_argument('-o',      required=True,                   help='Output plot')
         args = vars(parser.parse_args())
         PlotMcmcNode.PlotMcmcNode(args)

@@ -723,10 +723,10 @@ outgroup                        = '%s/out_group.txt'                            
 ar_phylum_color_code_txt        = '/Users/songweizhi/Desktop/DateArTree/ar_phylum_color_code.txt'
 min_og_genome_num               = 50                        # filter OG groups
 min_og_phylum_num               = 2                         # filter OG groups
-hgt_freq_cutoff                 = 0.3                       # filter ALE predicted HGTs
+hgt_freq_cutoff                 = 0.1                       # filter ALE predicted HGTs
 ignore_vertical_hgt             = True                      # filter ALE predicted HGTs
-donor_node_min_leaf_num         = 5                         # filter ALE predicted HGTs
-recipient_node_min_leaf_num     = 5                         # filter ALE predicted HGTs
+donor_node_min_leaf_num         = 2                         # filter ALE predicted HGTs
+recipient_node_min_leaf_num     = 2                         # filter ALE predicted HGTs
 ignore_leaf_hgt                 = True                      # filter ALE predicted HGTs
 interal_node_prefix             = 'IN'                      # plot tree with HGT
 API_key                         = 'S1kZZuDHc0d5M7J5vLnUNQ'  # plot tree with HGT
@@ -741,6 +741,7 @@ root_gene_tree_at_midpoint      = True                      # plot tree with HGT
 num_threads                     = 10
 js_num_threads                  = 2
 ale_splitter_py                 = '/home-user/wzsong/Tests/ALE/ALEtutorial/ale_splitter_modified.py'
+
 force_create_op_dir             = True
 force_create_ale_wd             = True
 extract_sequence                = False
@@ -758,12 +759,13 @@ ale_hgt_plot_dir                = '/Users/songweizhi/Desktop/DateArTree/0_HGT_AL
 
 # specify OGs to process
 # designate_ogs = next(os.walk(gene_tree_dir))[1]
-designate_ogs = [i.strip() for i in open('/Users/songweizhi/Desktop/DateArTree/0_HGT_ALE/interestong_OGs.txt')]
+# designate_ogs = [i.strip() for i in open('/Users/songweizhi/Desktop/DateArTree/0_HGT_ALE/interestong_OGs.txt')]
 # designate_ogs = ['OG0000016', 'OG0000032']
+designate_ogs = ['OG0000468', 'OG0000525']
+designate_ogs = ['OG0000468']
 
 '''
 The number of orthogroups spanning >= 50 genomes and >= 2 phyla is 763.
-OG0000294 is very interesting!!!
 '''
 
 ########################################################################################################################
