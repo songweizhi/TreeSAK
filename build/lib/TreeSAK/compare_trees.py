@@ -3,7 +3,8 @@ import glob
 import argparse
 from ete3 import Tree
 import multiprocessing as mp
-from BioSAK.BioSAK_config import config_dict
+from TreeSAK.TreeSAK_config import config_dict
+
 
 compare_trees_usage = '''
 ================ compare_trees example command ================

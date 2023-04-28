@@ -1,0 +1,17 @@
+Test Var  Mean  Low High
+Topo_1   Bacteria  1.03    0.95    1.10
+Topo_1   Archaea    0.93    0.86    1.01
+Topo_1   Eukaryota  1.01    0.97    1.06
+Topo_1   Virus 0.94    0.84    1.04
+Topo_2   Bacteria  1.09    1.02    1.16
+Topo_2   Archaea    1.04    0.96    1.13
+Topo_2   Eukaryota  1.04    1.00    1.08
+Topo_2   Virus 1.05    0.95    1.17
+Topo_3   Bacteria  0.98    0.91    1.06
+Topo_3   Archaea    1.14    1.05    1.24
+Topo_3   Eukaryota  0.99    0.95    1.04
+Topo_3   Virus 1.11    1.00    1.23
+Topo_4   Bacteria  0.97    0.90    1.06
+Topo_4   Archaea    1.00    0.91    1.09
+Topo_4   Eukaryota  0.97    0.92    1.02
+Topo_4   Virus 0.97    0.85    1.11

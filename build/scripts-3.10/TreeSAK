@@ -296,6 +296,17 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         PlotMcmcNode.PlotMcmcNode(args)
 
+    elif sys.argv[1] == 'VisHPD95':
+        from TreeSAK import VisHPD95
+        VisHPD95_parser = subparsers.add_parser('VisHPD95', usage=VisHPD95.VisHPD95_usage)
+        VisHPD95_parser.add_argument('-i',  required=True,                      help='input data matrix')
+        VisHPD95_parser.add_argument('-x',  required=False, default=8,type=int, help='plot width, default: 8')
+        VisHPD95_parser.add_argument('-y',  required=False, default=5,type=int, help='plot height, default: 5')
+        VisHPD95_parser.add_argument('-o',  required=True,                      help='output plot')
+        args = vars(parser.parse_args())
+        args['plot_grouped_HPD95_R'] = config_dict['plot_grouped_HPD95_R']
+        VisHPD95.VisHPD95(args)
+
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])
         exit()

@@ -44,7 +44,7 @@ def sep_path_basename_ext(file_in):
     return f_path, f_base, f_ext
 
 
-def mamctree_out_to_tree_str(mamctree_out):
+def mcmctree_out_to_tree_str(mamctree_out):
 
     # get tree string from mamctree_out
     tree_str = ''
@@ -77,17 +77,22 @@ def plot_distribution(df_txt, output_plot):
 
     df = pd.read_table(df_txt, sep=',')
     run_id_list = df['Setting'].unique()
+    node_id_list = df['Node'].unique()
 
     # sort dataframe by run id
     df = df.sort_values(by='Setting', ascending=False)
 
     plot_width  = 900
     plot_height = len(run_id_list)*100
-    if plot_height < 600:
+    if plot_height < 360:
         plot_height = 360
 
-    fig = px.violin(df, y="Setting", x="Value", color="Node", points=False, orientation="h", width=plot_width, height=plot_height)
-    fig.update_traces(side="positive", fillcolor='rgba(0,0,0,0)', width=1.8)
+    fig = px.violin(df, x="Value", y="Setting", color="Node", points=False, orientation="h", width=plot_width, height=plot_height)
+    if len(node_id_list) == 1:
+        fig.update_traces(side="positive", fillcolor='lightblue', width=1.6, opacity=0.75)
+    else:
+        fig.update_traces(side="positive", fillcolor='rgba(0,0,0,0)', width=1.6)
+
     fig.update_traces(showlegend=True)
     fig.layout.template = "simple_white"
     # fig.layout.width = 700
@@ -101,7 +106,7 @@ def get_internal_node_to_plot(node_txt, mo_file):
 
     tree_str = ''
     if os.path.isfile(mo_file):
-        tree_str = mamctree_out_to_tree_str(mo_file)
+        tree_str = mcmctree_out_to_tree_str(mo_file)
 
     # get nodes to plot
     node_set = set()
