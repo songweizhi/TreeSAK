@@ -1,5 +1,5 @@
 
-def red_in_posterior_mean(mcmctree_out):
+def read_in_posterior_mean(mcmctree_out):
 
     # read in Posterior mean
     node_to_mean_hpd95_dict = dict()
@@ -31,8 +31,8 @@ def red_in_posterior_mean(mcmctree_out):
 mcmctree_out_1 = '/Users/songweizhi/Desktop/777/M1_mcmc_txt/M1_PA_75_DeltaLL_100_clock3_nsample500000_out.txt'
 mcmctree_out_2 = '/Users/songweizhi/Desktop/777/M1_mcmc_txt/M1_PA_75_DeltaLL_100_clock2_nsample500000_out.txt'
 
-node_to_mean_95_hpd_dict_1 = red_in_posterior_mean(mcmctree_out_1)
-node_to_mean_95_hpd_dict_2 = red_in_posterior_mean(mcmctree_out_2)
+node_to_mean_95_hpd_dict_1 = read_in_posterior_mean(mcmctree_out_1)
+node_to_mean_95_hpd_dict_2 = read_in_posterior_mean(mcmctree_out_2)
 
 print('node_to_mean_95_hpd_dict_1\t%s' % node_to_mean_95_hpd_dict_1)
 print('node_to_mean_95_hpd_dict_2\t%s' % node_to_mean_95_hpd_dict_2)

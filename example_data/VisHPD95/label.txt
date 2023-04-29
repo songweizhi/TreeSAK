@@ -1,0 +1,7 @@
+Sample	color_by	shape_by
+M1_PA_75_DeltaLL_50_clock2_nsample500000_out.txt	DeltaLL_50	IR
+M1_PA_75_DeltaLL_50_clock3_nsample500000_out.txt	DeltaLL_50	AR
+M1_PA_75_DeltaLL_75_clock2_nsample500000_out.txt	DeltaLL_75	IR
+M1_PA_75_DeltaLL_75_clock3_nsample500000_out.txt	DeltaLL_75	AR
+M1_PA_75_DeltaLL_100_clock2_nsample500000_out.txt	DeltaLL_100	IR
+M1_PA_75_DeltaLL_100_clock3_nsample500000_out.txt	DeltaLL_100	AR

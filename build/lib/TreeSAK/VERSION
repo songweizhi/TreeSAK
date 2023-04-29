@@ -1,11 +1,8 @@
-1.13.1
+1.13.6
 - fixed bugs
 
 1.13.0
 - new module added: VisHPD95
-
-1.12.6
-- fixed bugs
 
 1.12.0
 - new module added: PlotMcmcNode
