@@ -18,8 +18,6 @@ def batch_iter(iter, batch_size):
     n_iter.append(iter[batch_d : len(iter) + 1])
     return n_iter
 
-print(batch_iter([1,2,3,4,5,6,7,8], 3))
-
 
 def sbatch_all(cmds, reset_workdir=False, thread_per_tasks=1, fixed_cluster="", prefix_name="job", batch_size=1):
 

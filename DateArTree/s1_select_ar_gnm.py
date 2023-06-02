@@ -33,3 +33,5 @@ print('GTDB r207 genera\t%s' % len(ar_g_set))
 
 for each_p in sorted([i for i in ar_p_set]):
     print(each_p)
+
+
