@@ -44,6 +44,7 @@ def print_main_help():
        SliceMSA               ->  Slice MSA by column 
     
     Tree-related
+       PMSF                   ->  get tree using PMSF model
        GTDB_tree_r207         ->  Infer GTDB (r207) archaeal/bacterial tree
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
@@ -309,6 +310,19 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         args['plot_grouped_HPD95_R'] = config_dict['plot_grouped_HPD95_R']
         VisHPD95.VisHPD95(args)
+
+    elif sys.argv[1] == 'PMSF':
+        from TreeSAK import PMSF
+        PMSF_parser = subparsers.add_parser('PMSF', usage=PMSF.PMSF_usage)
+        PMSF_parser.add_argument('-s',   required=True,                          help='MSA file')
+        PMSF_parser.add_argument('-gm',  required=False, default='LG+F+G',       help='iqtree model for guide tree, default: LG+F+G')
+        PMSF_parser.add_argument('-m',   required=False, default='LG+C60+F+G',   help='iqtree model, default: LG+C60+F+G')
+        PMSF_parser.add_argument('-o',   required=True,                          help='output plot')
+        PMSF_parser.add_argument('-p',   required=False, default='PMSF',         help='tree prefix, default: PMSF')
+        PMSF_parser.add_argument('-t',   required=False, type=int, default=1,    help='num of threads')
+        PMSF_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
+        args = vars(parser.parse_args())
+        PMSF.PMSF(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])
