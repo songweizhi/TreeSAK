@@ -68,6 +68,7 @@ TreeSAK/ModifyTopo.py
 TreeSAK/OneLineAln.py
 TreeSAK/PMSF.py
 TreeSAK/PlotMcmcNode.py
+TreeSAK/SingleLinePhy.py
 TreeSAK/SliceMSA.py
 TreeSAK/TreeSAK_config copy.py
 TreeSAK/TreeSAK_config.py

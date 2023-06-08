@@ -2,6 +2,7 @@ import os
 import argparse
 import itertools
 from ete3 import Tree
+from Bio import AlignIO
 
 
 Dating_usage = '''
@@ -126,6 +127,24 @@ def get_parameter_combinations(para_to_test_dict):
     return para_dod
 
 
+def fa2phy(fasta_in, phy_out):
+
+    alignment = AlignIO.read(fasta_in, 'fasta')
+
+    max_seq_id_len = 0
+    for each_seq in alignment:
+        seq_id_len = len(each_seq.id)
+        if seq_id_len > max_seq_id_len:
+            max_seq_id_len = seq_id_len
+
+    with open(phy_out, 'w') as msa_out_handle:
+        msa_out_handle.write('%s %s\n' % (len(alignment), alignment.get_alignment_length()))
+        for each_seq in alignment:
+            seq_id = each_seq.id
+            seq_id_with_space = '%s%s' % (seq_id, ' ' * (max_seq_id_len + 2 - len(seq_id)))
+            msa_out_handle.write('%s%s\n' % (seq_id_with_space, str(each_seq.seq)))
+
+
 def Dating(args):
 
     deltall_stdout_txt      = args['deltall']
@@ -221,16 +240,20 @@ def Dating(args):
         else:
             prefix_base                              = '%s_DeltaLL_%s'                                          % (deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
             aln_concatenated                         = '%s_DeltaLL_%s_concatenated.phy'                         % (deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
+            aln_concatenated_in_aod_wd_fasta         = '%s_DeltaLL_%s_concatenated.phy.fasta'                   % (deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
             c60_tree_file_rooted_with_time_final     = '%s_DeltaLL_%s_rooted_with_time_final.treefile'          % (deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
             pwd_c60_tree_file                        = '%s/%s_DeltaLL_%s_iqtree_C60_PMSF/concatenated.treefile' % (aod, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
             pwd_c60_tree_file_renamed                = '%s/%s_DeltaLL_%s_raw.treefile'                          % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
             pwd_c60_tree_file_rooted                 = '%s/%s_DeltaLL_%s_rooted.treefile'                       % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
             pwd_c60_tree_file_rooted_with_time       = '%s/%s_DeltaLL_%s_rooted_with_time.treefile'             % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
             pwd_aln_concatenated                     = '%s/%s'                                                  % (aod, aln_concatenated)
+            pwd_aln_concatenated_in_aod_wd_fasta     = '%s/%s'                                                  % (aod, aln_concatenated_in_aod_wd_fasta)
+            pwd_aln_concatenated_in_op_wd_phylip     = '%s/%s'                                                  % (op_dir, aln_concatenated)
             pwd_c60_tree_file_rooted_with_time_final = '%s/%s'                                                  % (op_dir, c60_tree_file_rooted_with_time_final)
             get_BV_wd                                = '%s/%s_get_BV_wd'                                        % (op_dir, prefix_base)
+            pwd_aln_concatenated_in_bv_wd_phylip     = '%s/%s'                                                  % (get_BV_wd, aln_concatenated)
 
-            os.system('cp %s %s/' % (pwd_aln_concatenated, op_dir))
+            fa2phy(pwd_aln_concatenated_in_aod_wd_fasta, pwd_aln_concatenated_in_op_wd_phylip)
             os.system('cp %s %s'  % (pwd_c60_tree_file, pwd_c60_tree_file_renamed))
 
             # root genome tree with outgroup
@@ -257,7 +280,7 @@ def Dating(args):
 
             # get BV file
             os.mkdir(get_BV_wd)
-            os.system('cp %s %s/' % (pwd_aln_concatenated, get_BV_wd))
+            fa2phy(pwd_aln_concatenated_in_aod_wd_fasta, pwd_aln_concatenated_in_bv_wd_phylip)  # sequence in phylip format need to be in one line
             os.system('cp %s %s/' % (pwd_c60_tree_file_rooted_with_time_final, get_BV_wd))
 
             get_BV_js                       = '%s/%s_get_BV.sh'         % (op_dir, prefix_base)
@@ -282,15 +305,16 @@ def Dating(args):
             # prepare files for dating
             para_dod = get_parameter_combinations(para_to_test_dict)
             for para_combination in para_dod:
-                mcmctree_ctl        = '%s_%s_mcmctree.ctl'              % (prefix_base, para_combination)
-                current_dating_wd   = '%s/%s_DeltaLL_%s_%s_dating_wd'   % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct, para_combination)
-                pwd_mcmctree_ctl    = '%s/%s_%s_mcmctree.ctl'           % (current_dating_wd, prefix_base, para_combination)
-                js_mcmctree         = '%s/js_%s_DeltaLL_%s_%s.sh'       % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct, para_combination)
+                mcmctree_ctl         = '%s_%s_mcmctree.ctl'             % (prefix_base, para_combination)
+                current_dating_wd    = '%s/%s_DeltaLL_%s_%s_dating_wd'  % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct, para_combination)
+                pwd_mcmctree_ctl     = '%s/%s_%s_mcmctree.ctl'          % (current_dating_wd, prefix_base, para_combination)
+                js_mcmctree          = '%s/js_%s_DeltaLL_%s_%s.sh'      % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct, para_combination)
+                pwd_aln_in_dating_wd = '%s/%s'                          % (current_dating_wd, aln_concatenated)
 
                 # create dating wd and copy tree and alignment files into it
                 os.mkdir(current_dating_wd)
-                os.system('cp %s %s/'       % (pwd_aln_concatenated, current_dating_wd))
-                os.system('cp %s %s/'       % (pwd_c60_tree_file_rooted_with_time_final, current_dating_wd))
+                fa2phy(pwd_aln_concatenated_in_aod_wd_fasta, pwd_aln_in_dating_wd)  # sequence in phylip format need to be in one line
+                os.system('cp %s %s/' % (pwd_c60_tree_file_rooted_with_time_final, current_dating_wd))
 
                 current_para_dict = para_dod[para_combination]
                 current_para_dict['seqfile']  = aln_concatenated

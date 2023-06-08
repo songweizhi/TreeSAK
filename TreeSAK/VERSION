@@ -1,8 +1,11 @@
+1.15.1
+- fixed bugs
+
+1.15.0
+- new module added: SingleLinePhy
+
 1.14.0
 - new module added: PMSF
-
-1.13.6
-- fixed bugs
 
 1.13.0
 - new module added: VisHPD95
