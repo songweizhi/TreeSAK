@@ -8,8 +8,6 @@ from Bio import AlignIO
 Dating_usage = '''
 ============================= Dating example commands =============================
 
-Dependencies:
-
 # example commands
 TreeSAK Dating -deltall DeltaLL_stdout.txt -aod s11_marker_sets_by_DeltaLL -o s12_dating_wd -c 25-50-75-100 -mmn 20 -f
 
@@ -63,8 +61,9 @@ def replace_clades(main_tree, sub_tree, tree_out, quote_node_name):
 
 
 def prep_mcmctree_ctl(ctl_para_dict, mcmctree_ctl_file):
+
     with open(mcmctree_ctl_file, 'w') as ctl_file_handle:
-        ctl_file_handle.write('      finetune = %s\n' % ctl_para_dict.get('seed',         '-1'))
+        ctl_file_handle.write('      finetune = %s\n' % ctl_para_dict.get('seed', '-1'))
         ctl_file_handle.write('       seqfile = %s\n' % ctl_para_dict['seqfile'])
         ctl_file_handle.write('      treefile = %s\n' % ctl_para_dict['treefile'])
         ctl_file_handle.write('      mcmcfile = %s\n' % ctl_para_dict['mcmcfile'])
@@ -154,13 +153,10 @@ def Dating(args):
     op_dir                  = args['o']
     deltall_keep_pct_str    = args['c']
     min_marker_num          = args['mmn']
-    #js_cpu_num              = args['jst']
     force_overwrite         = args['f']
     root_age                = args['ra']
     submit_job              = args['qsub']
     para_to_test            = args['to_test']
-
-    # hard coded parameters
     js_cpu_num              = 1
     quote_node_name         = False
 
@@ -246,7 +242,6 @@ def Dating(args):
             pwd_c60_tree_file_renamed                = '%s/%s_DeltaLL_%s_raw.treefile'                          % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
             pwd_c60_tree_file_rooted                 = '%s/%s_DeltaLL_%s_rooted.treefile'                       % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
             pwd_c60_tree_file_rooted_with_time       = '%s/%s_DeltaLL_%s_rooted_with_time.treefile'             % (op_dir, deltall_stdout_basename.split('_DeltaLL_stdout')[0], each_keep_pct)
-            pwd_aln_concatenated                     = '%s/%s'                                                  % (aod, aln_concatenated)
             pwd_aln_concatenated_in_aod_wd_fasta     = '%s/%s'                                                  % (aod, aln_concatenated_in_aod_wd_fasta)
             pwd_aln_concatenated_in_op_wd_phylip     = '%s/%s'                                                  % (op_dir, aln_concatenated)
             pwd_c60_tree_file_rooted_with_time_final = '%s/%s'                                                  % (op_dir, c60_tree_file_rooted_with_time_final)
@@ -348,7 +343,6 @@ if __name__ == '__main__':
     parser.add_argument('-c',       required=False, default='25-50-75-100', help='cutoffs, default: 25-50-75-100')
     parser.add_argument('-mmn',     required=False, default=20, type=int,   help='minimal marker number, default: 20')
     parser.add_argument('-ra',      required=False, default=45, type=int,   help='root age, default: 45')
-    #parser.add_argument('-jst',     required=False, default='1',            help='threads to request in job script, default: 1')
     parser.add_argument('-qsub',    required=False, action="store_true",    help='submit job scripts for getting in.BV')
     parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
     parser.add_argument('-to_test', required=True,                          help='Settings to test')

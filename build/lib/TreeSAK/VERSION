@@ -1,5 +1,8 @@
-1.15.1
+1.16.4
 - fixed bugs
+
+1.16.0
+- new module added: SplitScoreStep1 and SplitScoreStep2
 
 1.15.0
 - new module added: SingleLinePhy

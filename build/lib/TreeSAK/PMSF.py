@@ -25,8 +25,9 @@ def PMSF(args):
     force_overwrite         = args['f']
     num_of_threads          = args['t']
 
-    guide_tree_wd  = '%s/guide_tree'          % op_dir
-    pwd_guide_tree = '%s/guide_tree.treefile' % guide_tree_wd
+    guide_tree_wd  = '%s/guide_tree'           % op_dir
+    pwd_guide_tree = '%s/guide_tree.treefile'  % guide_tree_wd
+    pwd_cmd_txt    = '%s/cmds.txt'             % op_dir
 
     # check input file
     if os.path.isfile(msa_in) is False:
@@ -45,14 +46,17 @@ def PMSF(args):
 
     # get guide tree
     guidetree_cmd = 'iqtree -s %s --prefix %s/guide_tree --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet' % (msa_in, guide_tree_wd, iqtree_model_guide_tree, num_of_threads)
-    print('running: %s' % guidetree_cmd)
     os.system(guidetree_cmd)
 
     # get PMSF tree
     iqtree_cmd = 'iqtree -s %s --prefix %s/%s --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet -ft %s' % (msa_in, op_dir, tree_prefix, iqtree_model, num_of_threads, pwd_guide_tree)
-    print('running: %s' % iqtree_cmd)
     os.system(iqtree_cmd)
 
+    # write out commands
+    pwd_cmd_txt_handle = open(pwd_cmd_txt, 'w')
+    pwd_cmd_txt_handle.write(guidetree_cmd + '\n')
+    pwd_cmd_txt_handle.write(iqtree_cmd + '\n')
+    pwd_cmd_txt_handle.close()
     print('Done!')
 
 

@@ -36,6 +36,8 @@ def print_main_help():
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
        AssessMarkerPA         ->  Assess Markers by P/A among groups
+       SplitScoreStep1        ->  Assess marker genes with split score (step 1, get gene tree)
+       SplitScoreStep2        ->  Assess marker genes with split score (step 2)
     
     Multiple Sequence Alignment
        ConvertMSA             ->  Convert MSA format
@@ -332,6 +334,32 @@ if __name__ == '__main__':
         SingleLinePhy_parser.add_argument('-o', required=True, help='output file')
         args = vars(parser.parse_args())
         SingleLinePhy.SingleLinePhy(args)
+
+    elif sys.argv[1] == 'SplitScoreStep1':
+        from TreeSAK import SplitScore
+        SplitScoreStep1_parser = subparsers.add_parser('SplitScoreStep1', usage=SplitScore.SplitScore_usage)
+        SplitScoreStep1_parser.add_argument('-i', required=True,                        help='OrthologousGroups.txt, produced by OMA')
+        SplitScoreStep1_parser.add_argument('-s', required=True,                        help='OrthologousGroupsFasta, produced by OMA')
+        SplitScoreStep1_parser.add_argument('-o', required=True,                        help='output directory')
+        SplitScoreStep1_parser.add_argument('-m', required=False, default='LG+G+I',     help='iqtree_model, default: LG+G+I')
+        SplitScoreStep1_parser.add_argument('-c', required=False, type=int, default=80, help='coverage cutoff, default: 80')
+        SplitScoreStep1_parser.add_argument('-f', required=False, action="store_true",  help='force overwrite')
+        SplitScoreStep1_parser.add_argument('-t', required=False, type=int, default=1,  help='num of threads, default: 1')
+        args = vars(parser.parse_args())
+        SplitScore.SplitScoreStep1(args)
+
+    elif sys.argv[1] == 'SplitScoreStep2':
+        from TreeSAK import SplitScore
+        SplitScoreStep2_parser = subparsers.add_parser('SplitScoreStep2', usage=SplitScore.SplitScore_usage)
+        SplitScoreStep2_parser.add_argument('-i', required=True,                        help='outputs of iqtree from step 1, only needs the contree and ufboot files')
+        SplitScoreStep2_parser.add_argument('-g', required=True,                        help='genome group')
+        SplitScoreStep2_parser.add_argument('-d', required=True,                        help='GTDB file, ar53_metadata_r221.tsv')
+        SplitScoreStep2_parser.add_argument('-k', required=True,                        help='taxonomic classification')
+        SplitScoreStep2_parser.add_argument('-f', required=False, action="store_true",  help='force overwrite')
+        SplitScoreStep2_parser.add_argument('-t', required=False, type=int, default=1,  help='num of threads, default: 1')
+        SplitScoreStep2_parser.add_argument('-o', required=True,                        help='output directory')
+        args = vars(parser.parse_args())
+        SplitScore.SplitScoreStep2(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])
