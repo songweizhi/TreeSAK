@@ -15,9 +15,8 @@ SplitScore_usage = '''
 TreeSAK SplitScoreStep1 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o step1_op_dir -t 6 -f
 # Please ensure that all the commands in iqtree_cmds.txt have been executed before proceeding to step 2.
 
-
 # SplitScoreStep2
-TreeSAK SplitScoreStep2 -i step_1_op_dir -o step_2_op_dir
+TreeSAK SplitScoreStep2 -i qualified_OGs_contree_ufboot_files -s OrthologousGroupsFasta -g combined_374_genomes.clusters.tsv -d ar53_metadata_r214.tsv -k combined_374_genomes.GTDB.r214.ar53.summary.tsv -f -t 10 -o step_2_op_dir
 
 =============================================================================
 '''
@@ -171,14 +170,14 @@ def parse_taxonomy(taxon_name):  # given a taxon name, try to return whatever ta
         print("Nonstandard!")
         quit()
 
-    name_map = {}
+    name_map = dict()
     name_map['cluster'] = name_elements[0]
-    name_map['domain'] = name_elements[1]
-    name_map['phylum'] = name_elements[2]
-    name_map['class'] = name_elements[3]
-    name_map['order'] = name_elements[4]
-    name_map['family'] = name_elements[5]
-    name_map['genus'] = name_elements[6]
+    name_map['domain']  = name_elements[1]
+    name_map['phylum']  = name_elements[2]
+    name_map['class']   = name_elements[3]
+    name_map['order']   = name_elements[4]
+    name_map['family']  = name_elements[5]
+    name_map['genus']   = name_elements[6]
     name_map['species'] = name_elements[7]
     if len(name_elements) == 9:
         name_map['ncbi_id'] = name_elements[8]
@@ -553,9 +552,63 @@ def SplitScoreStep1(args):
     get_gene_tree(oma_op_txt, oma_op_fasta, cov_cutoff, qualified_og_dir, iqtree_model, num_of_threads, force_overwrite, iqtree_cmds_txt)
 
 
+def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, op_dir):
+
+    # define file name
+    marker_set_top_25_txt       = '%s/top25.txt'    % op_dir
+    marker_set_top_50_txt       = '%s/top50.txt'    % op_dir
+    marker_set_top_75_txt       = '%s/top75.txt'    % op_dir
+    marker_set_top_100_txt      = '%s/top100.txt'   % op_dir
+    marker_set_top_25_seq_dir   = '%s/top25'        % op_dir
+    marker_set_top_50_seq_dir   = '%s/top50'        % op_dir
+    marker_set_top_75_seq_dir   = '%s/top75'        % op_dir
+    marker_set_top_100_seq_dir  = '%s/top100'       % op_dir
+
+    os.system('mkdir %s' % marker_set_top_25_seq_dir)
+    os.system('mkdir %s' % marker_set_top_50_seq_dir)
+    os.system('mkdir %s' % marker_set_top_75_seq_dir)
+    os.system('mkdir %s' % marker_set_top_100_seq_dir)
+
+    marker_set_top_25 = set()
+    marker_set_top_50 = set()
+    marker_set_top_75 = set()
+    marker_set_top_100 = set()
+    header_index_dict = {}
+    for each_marker in open(taxa_counts_tats_op_txt):
+        each_marker_split = each_marker.replace('\n', '').split('\t')
+        if each_marker.startswith('MarkerID\t'):
+            header_index_dict = {k: v for v, k in enumerate(each_marker_split)}
+        else:
+            marker_id = each_marker_split[header_index_dict['MarkerID']]
+            best_25perc = each_marker_split[header_index_dict['best_25perc']]
+            best_50perc = each_marker_split[header_index_dict['best_50perc']]
+            worst_25perc = each_marker_split[header_index_dict['worst_25perc']]
+            if best_25perc != '':
+                marker_set_top_25.add(marker_id)
+                os.system('cp %s/%s.fa %s/' % (marker_seq_dir, marker_id, marker_set_top_25_seq_dir))
+            if best_50perc != '':
+                marker_set_top_50.add(marker_id)
+                os.system('cp %s/%s.fa %s/' % (marker_seq_dir, marker_id, marker_set_top_50_seq_dir))
+            if worst_25perc == '':
+                marker_set_top_75.add(marker_id)
+                os.system('cp %s/%s.fa %s/' % (marker_seq_dir, marker_id, marker_set_top_75_seq_dir))
+            marker_set_top_100.add(marker_id)
+            os.system('cp %s/%s.fa %s/' % (marker_seq_dir, marker_id, marker_set_top_100_seq_dir))
+
+    with open(marker_set_top_25_txt, 'w') as marker_set_top_25_txt_handle:
+        marker_set_top_25_txt_handle.write('\n'.join(sorted([i for i in marker_set_top_25])))
+    with open(marker_set_top_50_txt, 'w') as marker_set_top_50_txt_handle:
+        marker_set_top_50_txt_handle.write('\n'.join(sorted([i for i in marker_set_top_50])))
+    with open(marker_set_top_75_txt, 'w') as marker_set_top_75_txt_handle:
+        marker_set_top_75_txt_handle.write('\n'.join(sorted([i for i in marker_set_top_75])))
+    with open(marker_set_top_100_txt, 'w') as marker_set_top_100_txt_handle:
+        marker_set_top_100_txt_handle.write('\n'.join(sorted([i for i in marker_set_top_100])))
+
+
 def SplitScoreStep2(args):
 
     step_1_op_dir               = args['i']
+    oma_op_fasta                = args['s']
     gnm_group_txt               = args['g']
     gtdb_metadata_ar53          = args['d']
     gtdb_classification_txt     = args['k']
@@ -565,12 +618,12 @@ def SplitScoreStep2(args):
     target_label                = 'cluster'
 
     current_file_path           = '/'.join(os.path.realpath(__file__).split('/')[:-1])
-    TaxaCountStats_Rscript      = '%s/TaxaCountStats.R'         % current_file_path
-    hog_id_txt                  = '%s/qualified_OGs_id.txt'     % step_1_op_dir
-    count_sister_taxa_op_dir    = '%s/count_sister_taxa_wd'     % step_2_op_dir
-    get_taxa_count_stats_op_dir = '%s/get_taxa_count_stats_wd'  % step_2_op_dir
-    contree_file_re             = '%s/*.contree'                % step_1_op_dir
-    ufboot_file_re              = '%s/*.ufboot'                 % step_1_op_dir
+    TaxaCountStats_Rscript      = '%s/TaxaCountStats.R'                                     % current_file_path
+    contree_file_re             = '%s/*.contree'                                            % step_1_op_dir
+    ufboot_file_re              = '%s/*.ufboot'                                             % step_1_op_dir
+    count_sister_taxa_op_dir    = '%s/count_sister_taxa_wd'                                 % step_2_op_dir
+    get_taxa_count_stats_op_dir = '%s/get_taxa_count_stats_wd'                              % step_2_op_dir
+    TaxaCountStats_output_txt   = '%s/get_taxa_count_stats_wd/TaxaCountStats_output.txt'    % step_2_op_dir
 
     contree_file_set_base = set()
     for each_contree_file in glob.glob(contree_file_re):
@@ -596,7 +649,7 @@ def SplitScoreStep2(args):
 
     run_count_sister_taxa(gtdb_metadata_ar53, gtdb_classification_txt, contree_ufboot_shared_sorted, step_1_op_dir, step_1_op_dir, gnm_group_txt, target_label, num_of_threads, count_sister_taxa_op_dir, force_overwrite)
     get_taxa_count_stats(count_sister_taxa_op_dir, contree_ufboot_shared_sorted, get_taxa_count_stats_op_dir, force_overwrite, TaxaCountStats_Rscript)
-
+    group_marker(TaxaCountStats_output_txt, oma_op_fasta, step_2_op_dir)
 
 #     ################################################ count_sister_taxa_1 ###############################################
 #
@@ -611,8 +664,9 @@ def SplitScoreStep2(args):
 #         ufboot_dir                              = '%s/ufboot_files'                                     % count_sister_taxa_demo_wd
 #         gnm_cluster_txt                         = '%s/genome_clusters_v1.txt'                           % count_sister_taxa_demo_wd
 #         target_label                            = 'cluster'
-#         # ################## current ones ##################
-#         #
+#
+#         ################## current ones ##################
+#
 #         # gtdb_classification_txts                = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/0_metadata/combined_374_genomes.GTDB.r214.ar53.summary.tsv'
 #         # gnm_cluster_txt                         = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/0_metadata/combined_374_genomes.clusters.tsv'
 #         # contree_dir                             = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/5_OMA_wd_r214/Output/OrthologousGroupsFasta_cov80_contree'
@@ -631,6 +685,7 @@ def SplitScoreStep2(args):
 #         ufboot_dir                              = '%s/OrthologousGroupsFasta_cov80_ufboot'              % count_sister_taxa_demo_wd
 #         gnm_cluster_txt                         = '%s/combined_374_genomes.clusters.tsv'                % count_sister_taxa_demo_wd
 #         target_label                            = 'cluster'
+#
 #     ####################################################################################################################
 
 

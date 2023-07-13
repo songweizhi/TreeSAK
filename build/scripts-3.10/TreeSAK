@@ -36,8 +36,8 @@ def print_main_help():
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
        AssessMarkerPA         ->  Assess Markers by P/A among groups
-       SplitScoreStep1        ->  Assess marker genes with split score (step 1, get gene tree)
-       SplitScoreStep2        ->  Assess marker genes with split score (step 2)
+       SplitScoreStep1        ->  Assess markers by split score (step 1, get gene tree)
+       SplitScoreStep2        ->  Assess markers by split score (step 2)
     
     Multiple Sequence Alignment
        ConvertMSA             ->  Convert MSA format
@@ -47,14 +47,14 @@ def print_main_help():
        SliceMSA               ->  Slice MSA by column 
     
     Tree-related
+       GTDB_tree              ->  get GTDB tree
        PMSF                   ->  run iqtree with PMSF
-       GTDB_tree_r207         ->  Infer GTDB (r207) archaeal/bacterial tree
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
        ModifyTopo             ->  Modify tree topology
-        
+       
     Dating-related
        AssessCVG              ->  Assess dating convergence
        CompareMCMC            ->  Compare MCMCTree outputs
@@ -62,10 +62,12 @@ def print_main_help():
        VisHPD95               ->  HPD95 of estimated node age 
        
     Dating workflow
-       Marker2Tree            ->  Marker to Tree
+       Marker2Tree            ->  Marker (reference sequence) to Tree, rename to MarkerRef2Tree
+       MarkerSeq2Tree         ->  Marker sequence to tree
        AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
        Dating                 ->  Perform dating
     
+    Note: use "pip3 install --upgrade TreeSAK" to get the latest version of TreeSAK.
     ''' % version(config_dict)
 
     print(help_message)
@@ -352,6 +354,7 @@ if __name__ == '__main__':
         from TreeSAK import SplitScore
         SplitScoreStep2_parser = subparsers.add_parser('SplitScoreStep2', usage=SplitScore.SplitScore_usage)
         SplitScoreStep2_parser.add_argument('-i', required=True,                        help='outputs of iqtree from step 1, only needs the contree and ufboot files')
+        SplitScoreStep2_parser.add_argument('-s', required=True,                        help='OrthologousGroupsFasta, produced by OMA')
         SplitScoreStep2_parser.add_argument('-g', required=True,                        help='genome group')
         SplitScoreStep2_parser.add_argument('-d', required=True,                        help='GTDB file, ar53_metadata_r221.tsv')
         SplitScoreStep2_parser.add_argument('-k', required=True,                        help='taxonomic classification')
@@ -360,6 +363,27 @@ if __name__ == '__main__':
         SplitScoreStep2_parser.add_argument('-o', required=True,                        help='output directory')
         args = vars(parser.parse_args())
         SplitScore.SplitScoreStep2(args)
+
+    elif sys.argv[1] == 'MarkerSeq2Tree':
+        from TreeSAK import MarkerSeq2Tree
+        MarkerSeq2Tree_parser = subparsers.add_parser('MarkerSeq2Tree', usage=MarkerSeq2Tree.MarkerSeq2Tree_usage)
+        MarkerSeq2Tree_parser.add_argument('-i',   required=True,                          help='marker seq dir')
+        MarkerSeq2Tree_parser.add_argument('-x',   required=True,                          help='marker seq ext')
+        MarkerSeq2Tree_parser.add_argument('-o',   required=True,                          help='output dir')
+        MarkerSeq2Tree_parser.add_argument('-t',   required=False, type=int, default=1,    help='num of threads')
+        MarkerSeq2Tree_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
+        args = vars(parser.parse_args())
+        MarkerSeq2Tree.MarkerSeq2Tree(args)
+
+    elif sys.argv[1] == 'GTDB_tree':
+        from TreeSAK import GTDB_tree
+        GTDB_tree_parser = subparsers.add_parser('GTDB_tree', usage=GTDB_tree.GTDB_tree_usage)
+        GTDB_tree_parser.add_argument('-p', required=True,                         help='output prefix')
+        GTDB_tree_parser.add_argument('-i', required=True,                         help='genome folder')
+        GTDB_tree_parser.add_argument('-x', required=True,                         help='genome file extension')
+        GTDB_tree_parser.add_argument('-t', required=False, type=int, default=1,   help='number of threads')
+        args = vars(parser.parse_args())
+        GTDB_tree.GTDB_tree(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

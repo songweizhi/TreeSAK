@@ -311,7 +311,6 @@ def Marker2Tree(args):
     e_value                 = args['e']
     num_of_threads          = args['t']
     force_overwrite         = args['f']
-    #catfasta2phyml_pl       = args['pl']
     js_cpu_num              = args['jst']
     pa_cutoff_str           = args['pac']
     skip_align_trim         = args['skip_align_trim']

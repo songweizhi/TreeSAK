@@ -1,5 +1,8 @@
-1.16.4
+1.17.2
 - fixed bugs
+
+1.17.0
+- new module added: MarkerSeq2Tree
 
 1.16.0
 - new module added: SplitScoreStep1 and SplitScoreStep2
