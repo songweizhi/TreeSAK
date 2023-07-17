@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import glob
 import numpy
+from Bio import SeqIO
 from ete3 import Tree
 import multiprocessing as mp
 from operator import itemgetter
@@ -13,6 +14,7 @@ SplitScore_usage = '''
 
 # SplitScoreStep1
 TreeSAK SplitScoreStep1 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o step1_op_dir -t 6 -f
+TreeSAK SplitScoreStep1 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o step1_op_dir -t 6 -f -u interested_gnm.txt
 # Please ensure that all the commands in iqtree_cmds.txt have been executed before proceeding to step 2.
 
 # SplitScoreStep2
@@ -23,15 +25,10 @@ TreeSAK SplitScoreStep2 -i qualified_OGs_contree_ufboot_files -s OrthologousGrou
 
 
 def sep_path_basename_ext(file_in):
-
-    # separate path and file name
     f_path, file_name = os.path.split(file_in)
     if f_path == '':
         f_path = '.'
-
-    # separate file basename and extension
     f_base, f_ext = os.path.splitext(file_name)
-
     return f_path, f_base, f_ext
 
 
@@ -41,7 +38,6 @@ def gtdb_gnm_metadata_parser(gtdb_genome_metadata):
     genome_to_completeness_dict = {}
     genome_to_contamination_dict = {}
     genome_to_biosample_dict = {}
-
     col_index = {}
     for each_ref in open(gtdb_genome_metadata):
         each_ref_split = each_ref.strip().split('\t')
@@ -61,7 +57,32 @@ def gtdb_gnm_metadata_parser(gtdb_genome_metadata):
     return genome_to_completeness_dict, genome_to_contamination_dict, genome_to_taxon_dict, genome_to_biosample_dict
 
 
-def get_gene_tree(oma_op_txt, oma_op_fasta, cov_cutoff, oma_op_fasta_qualified, iqtree_model, num_of_threads, force_overwrite, get_gene_tree_cmd_txt):
+def select_seq(seq_file, seq_id_list, output_file):
+    output_file_handle = open(output_file, 'w')
+    for seq_record in SeqIO.parse(seq_file, 'fasta'):
+        seq_id = seq_record.id
+        if seq_id in seq_id_list:
+            output_file_handle.write('>%s\n' % seq_id)
+            output_file_handle.write('%s\n' % str(seq_record.seq))
+    output_file_handle.close()
+
+
+def get_gene_tree(oma_op_txt, oma_op_fasta, interested_gnm_txt, cov_cutoff, oma_op_fasta_qualified, iqtree_model, num_of_threads, force_overwrite, get_gene_tree_cmd_txt):
+
+    # get the total number of genome
+    genome_id_set = set()
+    for each_group in open(oma_op_txt):
+        if not each_group.startswith('#'):
+            for each_gene in each_group.strip().split('\t')[1:]:
+                gnm_id = '_'.join(each_gene.split(':')[1].split(' ')[0].split('_')[:-1])
+                genome_id_set.add(gnm_id)
+
+    interested_gnm_set = set()
+    if interested_gnm_txt is not None:
+        for each_gnm in open(interested_gnm_txt):
+            interested_gnm_set.add(each_gnm.strip())
+    else:
+        interested_gnm_set = genome_id_set
 
     # create output folder
     if os.path.isdir(oma_op_fasta_qualified) is True:
@@ -72,30 +93,31 @@ def get_gene_tree(oma_op_txt, oma_op_fasta, cov_cutoff, oma_op_fasta_qualified, 
             exit()
     os.system('mkdir %s' % oma_op_fasta_qualified)
 
-    # get the total number of genome
-    genome_id_set = set()
-    for each_group in open(oma_op_txt):
-        if not each_group.startswith('#'):
-            for each_gene in each_group.strip().split('\t')[1:]:
-                gnm_id = each_gene.split(':')[0]
-                genome_id_set.add(gnm_id)
-
     # filter OMA output
-    qualified_grp_id_set = set()
+    qualified_grp_to_gene_dict = dict()
     for each_group in open(oma_op_txt):
         if not each_group.startswith('#'):
-            each_group_split = each_group.strip().split('\t')
-            group_id = each_group_split[0]
-            gene_list_by_gnm = each_group_split[1:]
-            cov = len(gene_list_by_gnm) * 100 / len(genome_id_set)
-            if cov >= cov_cutoff:
-                qualified_grp_id_set.add(group_id)
-    print('The number of orthologous groups with coverage >= %s is %s.' % (cov_cutoff, len(qualified_grp_id_set)))
+            each_group_split  = each_group.strip().split('\t')
+            group_id          = each_group_split[0]
+            gene_list_by_gnm  = each_group_split[1:]
+            current_gene_list = [i.split(':')[1].split(' ')[0] for i in gene_list_by_gnm]
+            current_gnm_list_interested = []
+            current_gene_list_interested = []
+            for gene in current_gene_list:
+                gnm = '_'.join(gene.split('_')[:-1])
+                if gnm in interested_gnm_set:
+                    current_gnm_list_interested.append(gnm)
+                    current_gene_list_interested.append(gene)
+
+            current_cov = len(current_gnm_list_interested) * 100 / len(interested_gnm_set)
+            if current_cov >= cov_cutoff:
+                qualified_grp_to_gene_dict[group_id] = current_gene_list_interested
+
+    print('The number of orthologous groups with coverage >= %s is %s.' % (cov_cutoff, len(qualified_grp_to_gene_dict)))
 
     # prepare commands for getting gene tree
     get_gene_tree_cmd_txt_handle = open(get_gene_tree_cmd_txt, 'w')
-    for qualified_grp in sorted([i for i in qualified_grp_id_set]):
-
+    for qualified_grp in sorted(list(qualified_grp_to_gene_dict.keys())):
         group_id_only_num = qualified_grp.replace('OMA', '')
         while group_id_only_num[0] == '0':
             group_id_only_num = group_id_only_num[1:]
@@ -107,9 +129,12 @@ def get_gene_tree(oma_op_txt, oma_op_fasta, cov_cutoff, oma_op_fasta_qualified, 
         pwd_og_aln          = '%s/%s.aln'           % (oma_op_fasta_qualified, og_id)
         pwd_og_aln_trimmed  = '%s/%s_trimmed.aln'   % (oma_op_fasta_qualified, og_id)
 
-        # copy files
-        cp_cmd = 'cp %s %s' % (pwd_seq_file_in, pwd_og_seq)
-        os.system(cp_cmd)
+        # get sequence
+        if len(interested_gnm_set) == len(genome_id_set):
+            cp_cmd = 'cp %s %s' % (pwd_seq_file_in, pwd_og_seq)
+            os.system(cp_cmd)
+        else:
+            select_seq(pwd_seq_file_in, qualified_grp_to_gene_dict[qualified_grp], pwd_og_seq)
 
         # align, trim and iqtree
         mafft_cmd       = 'mafft-einsi --thread %s --quiet %s > %s'                                         % (num_of_threads, pwd_og_seq, pwd_og_aln)
@@ -388,13 +413,13 @@ def count_sister_taxa_worker(arg_list):
 def run_count_sister_taxa(genome_metadata_ar53, sponge_MAG_GTDB_archaea, hog_list, contree_dir, ufboot_dir, gnm_cluster_txt, target_label, num_threads, output_dir, force_overwrite):
 
     # define file name
-    renamed_gnm_to_cluster_dir              = '%s/renamed_genome_to_cluster'            % output_dir
-    renamed_gnm_to_cluster_tmp_txt          = '%s/renamed_genome_to_cluster_tmp.txt'    % output_dir
-    renamed_gnm_to_cluster_txt              = '%s/renamed_genome_to_cluster.txt'        % output_dir
-    renamed_gnm_to_cluster_iTOL_txt         = '%s/renamed_genome_to_cluster_iTOL.txt'   % output_dir
-    renamed_contree_dir                     = '%s/renamed_contree'                      % output_dir
-    renamed_ufboot_dir                      = '%s/renamed_ufboot'                       % output_dir
-    count_sister_taxa_op_dir                = '%s/count_sister_taxa_op'                 % output_dir
+    renamed_gnm_to_cluster_dir      = '%s/renamed_genome_to_cluster'            % output_dir
+    renamed_gnm_to_cluster_tmp_txt  = '%s/renamed_genome_to_cluster_tmp.txt'    % output_dir
+    renamed_gnm_to_cluster_txt      = '%s/renamed_genome_to_cluster.txt'        % output_dir
+    renamed_gnm_to_cluster_iTOL_txt = '%s/renamed_genome_to_cluster_iTOL.txt'   % output_dir
+    renamed_contree_dir             = '%s/renamed_contree'                      % output_dir
+    renamed_ufboot_dir              = '%s/renamed_ufboot'                       % output_dir
+    count_sister_taxa_op_dir        = '%s/count_sister_taxa_op'                 % output_dir
 
     if os.path.isdir(output_dir) is True:
         if force_overwrite is True:
@@ -528,6 +553,7 @@ def SplitScoreStep1(args):
 
     oma_op_txt              = args['i']
     oma_op_fasta            = args['s']
+    interested_gnm_txt      = args['u']
     iqtree_model            = args['m']
     cov_cutoff              = args['c']
     force_overwrite         = args['f']
@@ -549,7 +575,7 @@ def SplitScoreStep1(args):
     os.mkdir(qualified_og_dir)
 
     # get get_gene_tree
-    get_gene_tree(oma_op_txt, oma_op_fasta, cov_cutoff, qualified_og_dir, iqtree_model, num_of_threads, force_overwrite, iqtree_cmds_txt)
+    get_gene_tree(oma_op_txt, oma_op_fasta, interested_gnm_txt, cov_cutoff, qualified_og_dir, iqtree_model, num_of_threads, force_overwrite, iqtree_cmds_txt)
 
 
 def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, op_dir):
@@ -647,56 +673,10 @@ def SplitScoreStep2(args):
             exit()
     os.mkdir(step_2_op_dir)
 
+    print('Counting sister taxa')
     run_count_sister_taxa(gtdb_metadata_ar53, gtdb_classification_txt, contree_ufboot_shared_sorted, step_1_op_dir, step_1_op_dir, gnm_group_txt, target_label, num_of_threads, count_sister_taxa_op_dir, force_overwrite)
+    print('Summarising sister taxa')
     get_taxa_count_stats(count_sister_taxa_op_dir, contree_ufboot_shared_sorted, get_taxa_count_stats_op_dir, force_overwrite, TaxaCountStats_Rscript)
+    print('Exporting markers by split score')
     group_marker(TaxaCountStats_output_txt, oma_op_fasta, step_2_op_dir)
-
-#     ################################################ count_sister_taxa_1 ###############################################
-#
-#         ################## Test 2023-07-11 (this one works) ##################
-#
-#         # file in
-#         count_sister_taxa_demo_wd               = '/Users/songweizhi/Desktop/count_sister_taxa_demo'
-#         gtdb_metadata_ar53                      = '%s/ar53_metadata_r207.tsv'                           % count_sister_taxa_demo_wd
-#         gtdb_classification_txts                = '%s/Sponge_MAGs_1677.ar53.summary.tsv'                % count_sister_taxa_demo_wd
-#         hog_id_txt                              = '%s/HOG_id.txt'                                       % count_sister_taxa_demo_wd
-#         contree_dir                             = '%s/contree_files'                                    % count_sister_taxa_demo_wd
-#         ufboot_dir                              = '%s/ufboot_files'                                     % count_sister_taxa_demo_wd
-#         gnm_cluster_txt                         = '%s/genome_clusters_v1.txt'                           % count_sister_taxa_demo_wd
-#         target_label                            = 'cluster'
-#
-#         ################## current ones ##################
-#
-#         # gtdb_classification_txts                = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/0_metadata/combined_374_genomes.GTDB.r214.ar53.summary.tsv'
-#         # gnm_cluster_txt                         = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/0_metadata/combined_374_genomes.clusters.tsv'
-#         # contree_dir                             = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/5_OMA_wd_r214/Output/OrthologousGroupsFasta_cov80_contree'
-#         # ufboot_dir                              = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/5_OMA_wd_r214/Output/OrthologousGroupsFasta_cov80_ufboot'
-#         # archaeal_mags_renamed_for_prokka_txt    = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/5_OMA_wd_r214/Output/Archaeal_mags_renamed_for_prokka.txt'
-#         # count_sister_taxa_op_dir                = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/5_OMA_wd_r214/Output/OrthologousGroupsFasta_cov80_count_sister_taxa_wd'
-#
-#         ################## current ones ##################
-#
-#         # file in
-#         count_sister_taxa_demo_wd               = '/Users/songweizhi/Desktop/test_current'
-#         gtdb_metadata_ar53                      = '%s/ar53_metadata_r214.tsv'                           % count_sister_taxa_demo_wd
-#         gtdb_classification_txts                = '%s/combined_374_genomes.GTDB.r214.ar53.summary.tsv'  % count_sister_taxa_demo_wd
-#         hog_id_txt                              = '%s/OrthologousGroupsFasta_cov80_id.txt'              % count_sister_taxa_demo_wd
-#         contree_dir                             = '%s/OrthologousGroupsFasta_cov80_contree'             % count_sister_taxa_demo_wd
-#         ufboot_dir                              = '%s/OrthologousGroupsFasta_cov80_ufboot'              % count_sister_taxa_demo_wd
-#         gnm_cluster_txt                         = '%s/combined_374_genomes.clusters.tsv'                % count_sister_taxa_demo_wd
-#         target_label                            = 'cluster'
-#
-#     ####################################################################################################################
-
-
-'''
-
-module load python/3.7.4
-source ~/mypython3env/bin/activate
-cd /srv/scratch/z5265700/Shan_z5095298/z5095298/Weizhi/Sponge
-TreeSAK SplitScoreStep1 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o step_1_op_dir -t 6 -f
-
-cd /Users/songweizhi/Desktop/test_current
-TreeSAK SplitScoreStep2 -i qualified_OGs_contree_ufboot_files -g combined_374_genomes.clusters.tsv -d ar53_metadata_r214.tsv -k combined_374_genomes.GTDB.r214.ar53.summary.tsv -f -t 10 -o step_2_op_dir
-
-'''
+    print('Done!')

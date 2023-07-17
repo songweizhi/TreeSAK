@@ -62,7 +62,7 @@ def print_main_help():
        VisHPD95               ->  HPD95 of estimated node age 
        
     Dating workflow
-       Marker2Tree            ->  Marker (reference sequence) to Tree, rename to MarkerRef2Tree
+       Marker2Tree            ->  Marker (reference sequence) to Tree (rename to MarkerRef2Tree)
        MarkerSeq2Tree         ->  Marker sequence to tree
        AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
        Dating                 ->  Perform dating
@@ -265,7 +265,6 @@ if __name__ == '__main__':
         Dating_parser.add_argument('-c',       required=False, default='25-50-75-100', help='cutoffs, default: 25-50-75-100')
         Dating_parser.add_argument('-mmn',     required=False, default=20, type=int,   help='minimal marker number, default: 20')
         Dating_parser.add_argument('-ra',      required=False, default=45, type=int,   help='root age, default: 45')
-        #Dating_parser.add_argument('-jst',     required=False, default='6',            help='threads to request in job script, for performing dating')
         Dating_parser.add_argument('-qsub',    required=False, action="store_true",    help='submit job scripts for getting in.BV')
         Dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
         Dating_parser.add_argument('-to_test', required=True,                          help='Settings to test')
@@ -342,6 +341,7 @@ if __name__ == '__main__':
         SplitScoreStep1_parser = subparsers.add_parser('SplitScoreStep1', usage=SplitScore.SplitScore_usage)
         SplitScoreStep1_parser.add_argument('-i', required=True,                        help='OrthologousGroups.txt, produced by OMA')
         SplitScoreStep1_parser.add_argument('-s', required=True,                        help='OrthologousGroupsFasta, produced by OMA')
+        SplitScoreStep1_parser.add_argument('-u', required=False, default= None,        help='ID of interested genomes, no file extension')
         SplitScoreStep1_parser.add_argument('-o', required=True,                        help='output directory')
         SplitScoreStep1_parser.add_argument('-m', required=False, default='LG+G+I',     help='iqtree_model, default: LG+G+I')
         SplitScoreStep1_parser.add_argument('-c', required=False, type=int, default=80, help='coverage cutoff, default: 80')

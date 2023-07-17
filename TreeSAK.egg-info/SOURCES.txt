@@ -46,10 +46,12 @@ TreeSAK/rename_leaves.py
 TreeSAK/replace_clades.py
 TreeSAK/root_with_out_group.py
 TreeSAK/run_TaxaCountStats_R_s1.py
+TreeSAK/subsample_drep_gnms.py
 TreeSAK/subset_tree.py
 TreeSAK/subset_tree_stupid_old_way.py
 TreeSAK/test_1.py
 TreeSAK/test_2.py
+TreeSAK/tmp_1.py
 TreeSAK.egg-info/PKG-INFO
 TreeSAK.egg-info/SOURCES.txt
 TreeSAK.egg-info/dependency_links.txt
@@ -110,6 +112,7 @@ TreeSAK_Sponge/prep_metadata.py
 TreeSAK_Sponge/tmp_1.py
 bin/TreeSAK
 bin/__init__.py
+example_data/count_sister_taxa_demo.zip
 example_data/PlotMcmcNode/nodes.txt
 example_data/PlotMcmcNode/y_label.txt
 example_data/VisHPD95/M1_HPD95.pdf
