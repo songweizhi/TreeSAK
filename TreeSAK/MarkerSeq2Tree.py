@@ -166,6 +166,8 @@ def MarkerSeq2Tree(args):
     os.mkdir(iqtree_dir)
     get_guide_tree_cmd  = 'iqtree2 --seqtype AA -T %s -B 1000 --alrt 1000 --quiet -s %s --prefix %s/guide_tree -m LG '                  % (num_of_threads, concatenated_phy, iqtree_dir, )
     get_c60_tree_cmd    = 'iqtree2 --seqtype AA -T %s -B 1000 --alrt 1000 --quiet -s %s --prefix %s/concatenated -m LG+C60+G+F -ft %s'  % (num_of_threads, concatenated_phy, iqtree_dir, pwd_guide_tree)
+    print(get_guide_tree_cmd)
+    print(get_c60_tree_cmd)
     os.system(get_guide_tree_cmd)
     os.system(get_c60_tree_cmd)
 

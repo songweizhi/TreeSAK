@@ -18,7 +18,7 @@ TreeSAK SplitScoreStep1 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o st
 # Please ensure that all the commands in iqtree_cmds.txt have been executed before proceeding to step 2.
 
 # SplitScoreStep2
-TreeSAK SplitScoreStep2 -i qualified_OGs_contree_ufboot_files -s OrthologousGroupsFasta -g combined_374_genomes.clusters.tsv -d ar53_metadata_r214.tsv -k combined_374_genomes.GTDB.r214.ar53.summary.tsv -f -t 10 -o step_2_op_dir
+TreeSAK SplitScoreStep2 -i step1_op_dir -g combined_374_genomes.clusters.tsv -d ar53_metadata_r214.tsv -k combined_374_genomes.GTDB.r214.ar53.summary.tsv -f -t 10 -o step_2_op_dir
 
 =============================================================================
 '''
@@ -634,7 +634,6 @@ def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, op_dir):
 def SplitScoreStep2(args):
 
     step_1_op_dir               = args['i']
-    oma_op_fasta                = args['s']
     gnm_group_txt               = args['g']
     gtdb_metadata_ar53          = args['d']
     gtdb_classification_txt     = args['k']
@@ -645,8 +644,9 @@ def SplitScoreStep2(args):
 
     current_file_path           = '/'.join(os.path.realpath(__file__).split('/')[:-1])
     TaxaCountStats_Rscript      = '%s/TaxaCountStats.R'                                     % current_file_path
-    contree_file_re             = '%s/*.contree'                                            % step_1_op_dir
-    ufboot_file_re              = '%s/*.ufboot'                                             % step_1_op_dir
+    qualified_og_seq_dir        = '%s/qualified_OGs'                                        % step_1_op_dir
+    contree_file_re             = '%s/*.contree'                                            % qualified_og_seq_dir
+    ufboot_file_re              = '%s/*.ufboot'                                             % qualified_og_seq_dir
     count_sister_taxa_op_dir    = '%s/count_sister_taxa_wd'                                 % step_2_op_dir
     get_taxa_count_stats_op_dir = '%s/get_taxa_count_stats_wd'                              % step_2_op_dir
     TaxaCountStats_output_txt   = '%s/get_taxa_count_stats_wd/TaxaCountStats_output.txt'    % step_2_op_dir
@@ -674,12 +674,12 @@ def SplitScoreStep2(args):
     os.mkdir(step_2_op_dir)
 
     print('Counting sister taxa')
-    run_count_sister_taxa(gtdb_metadata_ar53, gtdb_classification_txt, contree_ufboot_shared_sorted, step_1_op_dir, step_1_op_dir, gnm_group_txt, target_label, num_of_threads, count_sister_taxa_op_dir, force_overwrite)
+    run_count_sister_taxa(gtdb_metadata_ar53, gtdb_classification_txt, contree_ufboot_shared_sorted, qualified_og_seq_dir, qualified_og_seq_dir, gnm_group_txt, target_label, num_of_threads, count_sister_taxa_op_dir, force_overwrite)
 
     print('Summarising sister taxa')
     get_taxa_count_stats(count_sister_taxa_op_dir, contree_ufboot_shared_sorted, get_taxa_count_stats_op_dir, force_overwrite, TaxaCountStats_Rscript)
 
     print('Exporting markers by split score')
-    group_marker(TaxaCountStats_output_txt, oma_op_fasta, step_2_op_dir)
+    group_marker(TaxaCountStats_output_txt, qualified_og_seq_dir, step_2_op_dir)
 
     print('Done!')

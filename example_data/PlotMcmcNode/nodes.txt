@@ -1,4 +1,0 @@
-t_n161	Bacteria
-t_n293	Animal
-t_n280
-t_n186

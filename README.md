@@ -28,32 +28,40 @@ Installation
 TreeSAK modules
 ---
 
-                 ...::: TreeSAK v1.12.0 :::...
+                 ...::: TreeSAK v1.18.0 :::...
 
     Marker-related
+       ExtractMarkerSeq       ->  Extract marker by blastn  
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
        AssessMarkerPA         ->  Assess Markers by P/A among groups
+       SplitScoreStep1        ->  Assess markers by split score (step 1, get gene tree)
+       SplitScoreStep2        ->  Assess markers by split score (step 2)
     
     Multiple Sequence Alignment
        ConvertMSA             ->  Convert MSA format
        fa2phy                 ->  Convert MSA format (fasta to phylip)
+       SingleLinePhy          ->  Put sequences in single line in phylip format
        OneLineAln             ->  One-line fasta format alignments
        SliceMSA               ->  Slice MSA by column 
     
     Tree-related
-       GTDB_tree_r207         ->  Infer GTDB (r207) archaeal/bacterial tree
+       GTDB_tree              ->  get GTDB tree
+       PMSF                   ->  run iqtree with PMSF
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
-    
+       ModifyTopo             ->  Modify tree topology
+       
     Dating-related
        AssessCVG              ->  Assess dating convergence
        CompareMCMC            ->  Compare MCMCTree outputs
        PlotMcmcNode           ->  distribution of node's age estimation 
+       VisHPD95               ->  HPD95 of estimated node age 
        
     Dating workflow
-       Marker2Tree            ->  Marker to Tree
+       MarkerSeq2Tree         ->  Marker sequence to tree
+       MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
        Dating                 ->  Perform dating

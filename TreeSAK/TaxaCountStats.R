@@ -64,7 +64,6 @@ suppressMessages(library(ggplot2))
 suppressMessages(library(data.table))
 suppressMessages(library(RColorBrewer))
 suppressMessages(library(gplots))
-suppressMessages(library(data.table))
 suppressMessages(library(ape))
 
 ################################################################################

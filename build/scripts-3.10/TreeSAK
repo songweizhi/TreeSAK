@@ -33,6 +33,7 @@ def print_main_help():
                  ...::: TreeSAK v%s :::...
                  
     Marker-related
+       ExtractMarkerSeq       ->  Extract marker by blastn  
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
        AssessMarkerPA         ->  Assess Markers by P/A among groups
@@ -62,8 +63,8 @@ def print_main_help():
        VisHPD95               ->  HPD95 of estimated node age 
        
     Dating workflow
-       Marker2Tree            ->  Marker (reference sequence) to Tree (rename to MarkerRef2Tree)
        MarkerSeq2Tree         ->  Marker sequence to tree
+       MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
        Dating                 ->  Perform dating
     
@@ -206,25 +207,25 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ConvertMSA.ConvertMSA(args)
 
-    elif sys.argv[1] == 'Marker2Tree':
-        from TreeSAK import Marker2Tree
-        Marker2Tree_parser = subparsers.add_parser('Marker2Tree', usage=Marker2Tree.Marker2Tree_usage)
-        Marker2Tree_parser.add_argument('-m',               required=True,                          help='marker seq dir')
-        Marker2Tree_parser.add_argument('-mx',              required=True,                          help='marker seq ext')
-        Marker2Tree_parser.add_argument('-aa',              required=True,                          help='faa file dir')
-        Marker2Tree_parser.add_argument('-aax',             required=True,                          help='faa file ext')
-        Marker2Tree_parser.add_argument('-g',               required=True,                          help='genome group')
-        Marker2Tree_parser.add_argument('-pac',             required=False, default='0-50-75-100',  help='cutoffs, default: 0-50-75-100')
-        Marker2Tree_parser.add_argument('-o',               required=True,                          help='output dir')
-        Marker2Tree_parser.add_argument('-e',               required=True,                          help='e-value')
-        Marker2Tree_parser.add_argument('-t',               required=True,  type=int,               help='num of threads')
-        Marker2Tree_parser.add_argument('-skip_align_trim', required=False, action="store_true",    help='skip extracting, aligning and trimming markers')
-        Marker2Tree_parser.add_argument('-mmn',             required=False, default=10, type=int,   help='minimal marker number, default: 10')
-        Marker2Tree_parser.add_argument('-jst',             required=False, default='6',            help='threads to request in job script, for running iqtree')
-        Marker2Tree_parser.add_argument('-qsub',            required=False, action="store_true",    help='submit job scripts')
-        Marker2Tree_parser.add_argument('-f',               required=False, action="store_true",    help='force overwrite')
+    elif sys.argv[1] == 'MarkerRef2Tree':
+        from TreeSAK import MarkerRef2Tree
+        MarkerRef2Tree_parser = subparsers.add_parser('MarkerRef2Tree', usage=MarkerRef2Tree.MarkerRef2Tree_usage)
+        MarkerRef2Tree_parser.add_argument('-m',               required=True,                          help='marker seq dir')
+        MarkerRef2Tree_parser.add_argument('-mx',              required=True,                          help='marker seq ext')
+        MarkerRef2Tree_parser.add_argument('-aa',              required=True,                          help='faa file dir')
+        MarkerRef2Tree_parser.add_argument('-aax',             required=True,                          help='faa file ext')
+        MarkerRef2Tree_parser.add_argument('-g',               required=True,                          help='genome group')
+        MarkerRef2Tree_parser.add_argument('-pac',             required=False, default='0-50-75-100',  help='cutoffs, default: 0-50-75-100')
+        MarkerRef2Tree_parser.add_argument('-o',               required=True,                          help='output dir')
+        MarkerRef2Tree_parser.add_argument('-e',               required=True,                          help='e-value')
+        MarkerRef2Tree_parser.add_argument('-t',               required=True,  type=int,               help='num of threads')
+        MarkerRef2Tree_parser.add_argument('-skip_align_trim', required=False, action="store_true",    help='skip extracting, aligning and trimming markers')
+        MarkerRef2Tree_parser.add_argument('-mmn',             required=False, default=10, type=int,   help='minimal marker number, default: 10')
+        MarkerRef2Tree_parser.add_argument('-jst',             required=False, default='6',            help='threads to request in job script, for running iqtree')
+        MarkerRef2Tree_parser.add_argument('-qsub',            required=False, action="store_true",    help='submit job scripts')
+        MarkerRef2Tree_parser.add_argument('-f',               required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
-        Marker2Tree.Marker2Tree(args)
+        MarkerRef2Tree.MarkerRef2Tree(args)
 
     elif sys.argv[1] == 'AssessMarkerPA':
         from TreeSAK import AssessMarkerPA
@@ -354,7 +355,6 @@ if __name__ == '__main__':
         from TreeSAK import SplitScore
         SplitScoreStep2_parser = subparsers.add_parser('SplitScoreStep2', usage=SplitScore.SplitScore_usage)
         SplitScoreStep2_parser.add_argument('-i', required=True,                        help='outputs of iqtree from step 1, only needs the contree and ufboot files')
-        SplitScoreStep2_parser.add_argument('-s', required=True,                        help='OrthologousGroupsFasta, produced by OMA')
         SplitScoreStep2_parser.add_argument('-g', required=True,                        help='genome group')
         SplitScoreStep2_parser.add_argument('-d', required=True,                        help='GTDB file, ar53_metadata_r221.tsv')
         SplitScoreStep2_parser.add_argument('-k', required=True,                        help='taxonomic classification')
@@ -384,6 +384,20 @@ if __name__ == '__main__':
         GTDB_tree_parser.add_argument('-t', required=False, type=int, default=1,   help='number of threads')
         args = vars(parser.parse_args())
         GTDB_tree.GTDB_tree(args)
+
+    elif sys.argv[1] == 'ExtractMarkerSeq':
+        from TreeSAK import ExtractMarkerSeq
+        ExtractMarkerSeq_parser = subparsers.add_parser('ExtractMarkerSeq', usage=ExtractMarkerSeq.ExtractMarkerSeq_usage)
+        ExtractMarkerSeq_parser.add_argument('-m',               required=True,                          help='marker seq dir')
+        ExtractMarkerSeq_parser.add_argument('-mx',              required=True,                          help='marker seq ext')
+        ExtractMarkerSeq_parser.add_argument('-aa',              required=True,                          help='faa file dir')
+        ExtractMarkerSeq_parser.add_argument('-aax',             required=True,                          help='faa file ext')
+        ExtractMarkerSeq_parser.add_argument('-o',               required=True,                          help='output dir')
+        ExtractMarkerSeq_parser.add_argument('-e',               required=True,  default=1e-30,          help='e-value cutoff, default: 1e-30')
+        ExtractMarkerSeq_parser.add_argument('-t',               required=True,  type=int,               help='num of threads')
+        ExtractMarkerSeq_parser.add_argument('-f',               required=False, action="store_true",    help='force overwrite')
+        args = vars(parser.parse_args())
+        ExtractMarkerSeq.ExtractMarkerSeq(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])
