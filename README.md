@@ -31,10 +31,11 @@ TreeSAK modules
                  ...::: TreeSAK v1.18.0 :::...
 
     Marker-related
-       get_arCOG_seq          ->  Retrieve arCOG sequences
+       OMA                    ->  Prepare input files for running OMA 
        ExtractMarkerSeq       ->  Extract marker by blastn  
-       AssessMarkerPA         ->  Assess Markers by P/A among groups
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
+       get_arCOG_seq          ->  Retrieve arCOG sequences
+       AssessMarkerPA         ->  Assess Markers by P/A among groups
        SplitScoreStep1        ->  Assess markers by split score (step 1, get gene tree)
        SplitScoreStep2        ->  Assess markers by split score (step 2)
     
@@ -51,8 +52,11 @@ TreeSAK modules
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
+       print_leaves           ->  print out tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
        ModifyTopo             ->  Modify tree topology
+       GeneRax                ->  Run GeneRax (to be added)    
+       ALE                    ->  Modules for running ALE
        
     Dating-related
        AssessCVG              ->  Assess dating convergence
