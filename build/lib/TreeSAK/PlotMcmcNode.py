@@ -13,9 +13,10 @@ TreeSAK PlotMcmcNode -i Clock2.txt -n n179 -o Clock2_n179.pdf
 TreeSAK PlotMcmcNode -i Clock2.txt -n n161,n186 -o Clock2_n161_n186.pdf
 TreeSAK PlotMcmcNode -i MCMC_op -n nodes.txt -o multi_runs_multi_nodes.pdf
 
-# file format (-label, tab separated)
-PA_75_DeltaLL_50_clock3_mcmc.txt	DeltaLL_50
-PA_75_DeltaLL_75_clock3_mcmc.txt	DeltaLL_75
+# File name of the mcmc.txt and the corresponding mcmc out file need to follow 
+# the rule as specified below:
+[prefix]_mcmc.txt
+[prefix]_out.txt
 
 # file format (-n, tab separated)
 # leave the 2nd column blank for nodes without renaming
@@ -23,10 +24,9 @@ node1	Bacteria
 node2
 node3,node9	Archaea
 
-# File name of the mcmc.txt and the corresponding mcmc out file need to follow 
-# the rule as specified below:
-[prefix]_mcmc.txt
-[prefix]_out.txt
+# file format (-label, tab separated)
+PA_75_DeltaLL_50_clock3_mcmc.txt	DeltaLL_50
+PA_75_DeltaLL_75_clock3_mcmc.txt	DeltaLL_75
 
 =================================================================================
 '''
@@ -87,7 +87,7 @@ def plot_distribution(df_txt, output_plot):
     if plot_height < 360:
         plot_height = 360
 
-    fig = px.violin(df, x="Value", y="Setting", color="Node", points=False, orientation="h", width=plot_width, height=plot_height)
+    fig = px.violin(df, x="Distribution", y="Setting", color="Node", points=False, orientation="h", width=plot_width, height=plot_height)
     if len(node_id_list) == 1:
         fig.update_traces(side="positive", fillcolor='lightblue', width=1.6, opacity=0.75)
     else:
@@ -172,9 +172,9 @@ def PlotMcmcNode(args):
                 exit()
 
     found_matched_node = False
-    op_df_tmp       = '%s.txt'          % output_plot
-    op_label_tmp    = '%s.label.txt'    % output_plot
-    op_tree_tmp     = '%s.tree.txt'     % output_plot
+    op_df_tmp    = '%s.txt'       % output_plot
+    op_label_tmp = '%s.label.txt' % output_plot
+    op_tree_tmp  = '%s.tree.txt'  % output_plot
 
     op_label_tmp_handle = open(op_label_tmp, 'w')
     op_tree_tmp_handle = open(op_tree_tmp, 'w')
@@ -214,8 +214,6 @@ def PlotMcmcNode(args):
 
 
 if __name__ == '__main__':
-
-    # initialize the options parser
     parser = argparse.ArgumentParser()
     parser.add_argument('-i',      required=True,                   help='mcmc.txt file or folder')
     parser.add_argument('-n',      required=True,                   help='Nodes to plot')

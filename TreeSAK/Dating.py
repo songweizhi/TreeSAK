@@ -337,7 +337,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-deltall', required=True,                          help='DeltaLL stdout')
     parser.add_argument('-aod',     required=True,                          help='AssessMarkerDeltaLL output dir')
-    parser.add_argument('-og',      required=True,                          help='outgroup leaves, one leaf id per line')
+    parser.add_argument('-og',      required=True,                          help='outgroup leaves, one id per line')
     parser.add_argument('-eu',      required=True,                          help='EU tree with time constraints')
     parser.add_argument('-o',       required=True,                          help='dating wd')
     parser.add_argument('-c',       required=False, default='25-50-75-100', help='cutoffs, default: 25-50-75-100')

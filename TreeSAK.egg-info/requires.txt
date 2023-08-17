@@ -10,3 +10,5 @@ beautifulsoup4
 ete3
 arviz
 plotly
+kaleido
+PyPDF3

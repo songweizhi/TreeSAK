@@ -1,8 +1,17 @@
+1.21.4
+- fixed bugs
+
+1.21.0
+- new module added: print_leaves
+
+1.20.0
+- new module added: ALE1, ALE2, ALE3, ALE4
+
+1.19.0
+- new module added: OMA
+
 1.18.0
 - new module added: ExtractMarkerSeq
-
-1.17.9
-- fixed bugs
 
 1.17.0
 - new module added: MarkerSeq2Tree

@@ -1,5 +1,5 @@
 
-## TreeSAK (A Swiss-Army-Knife for manipulating phylogenetic tree related files)
+## TreeSAK (A Swiss-Army-Knife for phylogenomic analysis)
 
 [![pypi licence ](https://img.shields.io/pypi/l/TreeSAK.svg)](https://opensource.org/licenses/gpl-3.0.html)
 [![pypi version ](https://img.shields.io/pypi/v/TreeSAK.svg)](https://pypi.python.org/pypi/TreeSAK) 
@@ -31,10 +31,10 @@ TreeSAK modules
                  ...::: TreeSAK v1.18.0 :::...
 
     Marker-related
-       ExtractMarkerSeq       ->  Extract marker by blastn  
-       parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
+       ExtractMarkerSeq       ->  Extract marker by blastn  
        AssessMarkerPA         ->  Assess Markers by P/A among groups
+       parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        SplitScoreStep1        ->  Assess markers by split score (step 1, get gene tree)
        SplitScoreStep2        ->  Assess markers by split score (step 2)
     

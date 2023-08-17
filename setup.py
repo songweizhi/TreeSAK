@@ -7,9 +7,7 @@ def version():
     version_file = open(os.path.join(setup_dir, 'TreeSAK', 'VERSION'))
     return version_file.readline().strip()
 
-
 __long_description__ = ''' TreeSAK v%s ''' % version()
-
 
 setup(name="TreeSAK",
       version=version(),
@@ -23,5 +21,5 @@ setup(name="TreeSAK",
       packages=['TreeSAK'],
       package_data={'': ['*.r', '*.R', '*.py', '*.pl', 'VERSION', '*.hmm']},
       include_package_data=True,
-      install_requires=['biopython', 'matplotlib', 'numpy', 'scipy', 'itolapi', 'networkx', 'seaborn', 'lxml', 'beautifulsoup4', 'ete3', 'arviz', 'plotly'],  # reportlab
+      install_requires=['biopython', 'matplotlib', 'numpy', 'scipy', 'itolapi', 'networkx', 'seaborn', 'lxml', 'beautifulsoup4', 'ete3', 'arviz', 'plotly', 'kaleido', 'PyPDF3'],  # reportlab
       scripts=['bin/TreeSAK'])
