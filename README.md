@@ -28,7 +28,7 @@ Installation
 TreeSAK modules
 ---
 
-                 ...::: TreeSAK v1.18.0 :::...
+                 ...::: TreeSAK v1.21.0 :::...
 
     Marker-related
        OMA                    ->  Prepare input files for running OMA 
