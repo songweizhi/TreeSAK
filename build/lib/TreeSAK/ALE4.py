@@ -4,11 +4,11 @@ import pandas as pd
 
 
 ALE4_usage = '''
-================ ALE4 example commands ================
+================= ALE4 example commands =================
 
 TreeSAK ALE4 -i ALE2_op_dir -o ALE4_op_dir -f -c 0.8
 
-=======================================================
+=========================================================
 '''
 
 
@@ -78,7 +78,9 @@ def get_verticality_and_transfer_propensity(TableEvents_tsv, verticality_txt, tr
     with open(transfer_propensity_txt, 'w') as transfer_propensity_txt_handle:
         transfer_propensity_txt_handle.write('OG\tTransfer_propensity\n')
         for each_key in sorted(list(transfer_propensity_dict.keys())):
-            transfer_propensity_txt_handle.write('%s\t%s\n' % (each_key, transfer_propensity_dict[each_key]))
+            transfer_propensity = transfer_propensity_dict[each_key]
+            transfer_propensity = float("{0:.3f}".format(transfer_propensity))
+            transfer_propensity_txt_handle.write('%s\t%s\n' % (each_key, transfer_propensity))
 
 
 def ALE4(args):
