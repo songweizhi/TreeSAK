@@ -1,5 +1,11 @@
-1.21.6
+1.23.2
 - fixed bugs
+
+1.23.0
+- new module added: root_tree
+
+1.22.0
+- new module added: OMA2
 
 1.21.0
 - new module added: print_leaves

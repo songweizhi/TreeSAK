@@ -34,6 +34,7 @@ def print_main_help():
                  
     Marker-related
        OMA                    ->  Prepare input files for running OMA 
+       OMA2                   ->  Filter OMA predicted OGs
        ExtractMarkerSeq       ->  Extract marker by blastn  
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
@@ -59,6 +60,7 @@ def print_main_help():
        ModifyTopo             ->  Modify tree topology
        GeneRax                ->  Run GeneRax (to be added)    
        ALE                    ->  Modules for running ALE
+       RootTree               ->  Root tree with outgroup leaves
        
     Dating-related
        AssessCVG              ->  Assess dating convergence
@@ -423,6 +425,18 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         OMA.OMA(args)
 
+    elif sys.argv[1] == 'OMA2':
+        from TreeSAK import OMA2
+        OMA2_parser = subparsers.add_parser('OMA2', usage=OMA2.OMA2_usage)
+        OMA2_parser.add_argument('-i',   required=True,                          help='OrthologousGroups.txt')
+        OMA2_parser.add_argument('-s',   required=True,                          help='sequence dir, OrthologousGroupsFasta')
+        OMA2_parser.add_argument('-g',   required=True,                          help='id of interested genomes')
+        OMA2_parser.add_argument('-o',   required=True,  default=None,           help='output directory')
+        OMA2_parser.add_argument('-n',   required=False, type=int, default=3,    help='minimal number of gene in a OG, deafult: 3')
+        OMA2_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
+        args = vars(parser.parse_args())
+        OMA2.OMA2(args)
+
     elif sys.argv[1] == 'ALE':
         from TreeSAK import ALE
         print(ALE.ALE_usage)
@@ -435,12 +449,10 @@ if __name__ == '__main__':
         ALE1_parser.add_argument('-s',   required=True,                         help='sequence file, e.g., combined.faa')
         ALE1_parser.add_argument('-p',   required=True,                         help='orthologous identification program, orthofinder or oma')
         ALE1_parser.add_argument('-m',   required=False, type=int, default=50,  help='min_og_genome_num, default: 50')
-        ALE1_parser.add_argument('-n',   required=False, type=int, default=2,   help='min_og_phylum_num, default: 2')
         ALE1_parser.add_argument('-o',   required=True,                         help='output dir, i.e., OMA working directory')
         ALE1_parser.add_argument('-t',   required=False, type=int, default=6,   help='number of threads, default: 6')
         ALE1_parser.add_argument('-jt',  required=False, type=int, default=3,   help='number of threads for job script, default: 3')
         ALE1_parser.add_argument('-f',   required=False, action="store_true",   help='force overwrite')
-        ALE1_parser.add_argument('-c',   required=True,                         help='genome_taxon_txt')
         args = vars(parser.parse_args())
         ALE1.ALE1(args)
 
@@ -460,29 +472,38 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'ALE3':
         from TreeSAK import ALE3
         ALE3_parser = subparsers.add_parser('ALE3', usage=ALE3.ALE3_usage)
-        ALE3_parser.add_argument('-i1',     required=True,                          help='ALE1 output directory')
-        ALE3_parser.add_argument('-i2',     required=True,                          help='ALE2 output directory')
-        ALE3_parser.add_argument('-c',      required=True,                          help='genome_taxon_txt')
-        ALE3_parser.add_argument('-color',  required=True,                          help='phylum_color_code.txt')
-        ALE3_parser.add_argument('-o',      required=True,                          help='output dir, i.e., ALE3_op_dir')
-        ALE3_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
-        ALE3_parser.add_argument('-api',    required=True,                          help='iTOL API key')
-        ALE3_parser.add_argument('-fc',     required=False, type=float, default=0.5,help='hgt_freq_cutoff, default: 0.5')
-        ALE3_parser.add_argument('-mld',    required=False, type=int, default=5,    help='donor_node_min_leaf_num, default: 5')
-        ALE3_parser.add_argument('-mlr',    required=False, type=int, default=5,    help='recipient_node_min_leaf_num, default: 5')
-        ALE3_parser.add_argument('-itol',   required=False, default='batch_access_tmp',    help='iTOL project_name, default: batch_access_tmp')
+        ALE3_parser.add_argument('-i',   required=True,                              help='Folder with uml_rec files')
+        ALE3_parser.add_argument('-c',   required=False, type=float, default=0.8,    help='gene family presence cutoff, default: 0.8')
+        ALE3_parser.add_argument('-o',   required=True,                              help='output convergence plot')
+        ALE3_parser.add_argument('-f',   required=False, action="store_true",        help='force overwrite')
         args = vars(parser.parse_args())
         ALE3.ALE3(args)
 
     elif sys.argv[1] == 'ALE4':
         from TreeSAK import ALE4
         ALE4_parser = subparsers.add_parser('ALE4', usage=ALE4.ALE4_usage)
-        ALE4_parser.add_argument('-i',   required=True,                              help='Folder with uml_rec files')
-        ALE4_parser.add_argument('-c',   required=False, type=float, default=0.8,    help='gene family presence cutoff, default: 0.8')
-        ALE4_parser.add_argument('-o',   required=True,                              help='output convergence plot')
-        ALE4_parser.add_argument('-f',   required=False, action="store_true",        help='force overwrite')
+        ALE4_parser.add_argument('-i1',     required=True,                          help='ALE1 output directory')
+        ALE4_parser.add_argument('-i2',     required=True,                          help='ALE2 output directory')
+        ALE4_parser.add_argument('-c',      required=True,                          help='genome_taxon_txt')
+        ALE4_parser.add_argument('-color',  required=True,                          help='phylum_color_code.txt')
+        ALE4_parser.add_argument('-o',      required=True,                          help='output dir, i.e., ALE3_op_dir')
+        ALE4_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
+        ALE4_parser.add_argument('-api',    required=True,                          help='iTOL API key')
+        ALE4_parser.add_argument('-fc',     required=False, type=float, default=0.5,help='hgt_freq_cutoff, default: 0.5')
+        ALE4_parser.add_argument('-mld',    required=False, type=int, default=5,    help='donor_node_min_leaf_num, default: 5')
+        ALE4_parser.add_argument('-mlr',    required=False, type=int, default=5,    help='recipient_node_min_leaf_num, default: 5')
+        ALE4_parser.add_argument('-itol',   required=False, default='batch_access_tmp',    help='iTOL project_name, default: batch_access_tmp')
         args = vars(parser.parse_args())
         ALE4.ALE4(args)
+
+    elif sys.argv[1] == 'RootTree':
+        from TreeSAK import root_tree
+        root_tree_parser = subparsers.add_parser('root_tree', usage=root_tree.root_tree_usage)
+        root_tree_parser.add_argument('-i',     required=True,  help='input tree')
+        root_tree_parser.add_argument('-og',    required=True,  help='rename file')
+        root_tree_parser.add_argument('-o',     required=True,  help='output tree')
+        args = vars(parser.parse_args())
+        root_tree.root_tree(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

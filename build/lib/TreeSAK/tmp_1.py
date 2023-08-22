@@ -2,15 +2,31 @@ import glob
 from ete3 import Tree
 
 
-gnm_tree_file_re = '/Users/songweizhi/Desktop/in_files/*_genome_tree_for_ALE.treefile'
+tree_file = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/8_ALE_wd_all_OGs/ALE3_op_dir_c0.75/SpeciesTreeRef.newick'
 
 
-gnm_tree_file_list = glob.glob(gnm_tree_file_re)
+tree_in = Tree(tree_file, format=1)
 
-for each_tree in gnm_tree_file_list:
-    t = Tree(each_tree, format=1)
-    leaf_set = set()
-    for leaf in t.iter_leaves():
-        leaf_set.add(leaf.name)
-    print('%s\t%s\t%s' % (each_tree, len(leaf_set), leaf_set))
+
+# n = 0
+# for leaf in tree_in:
+#     print(leaf.name)
+#     n += 1
+# print(n)
+
+leaf_node_num = 0
+nonleaf_node_num = 0
+nonleaf_node_list = []
+for node in tree_in.traverse():
+    if node.is_leaf():
+        leaf_node_num += 1
+    else:
+        nonleaf_node_num += 1
+        print(node.name)
+        nonleaf_node_list.append(node.name)
+
+print(leaf_node_num)
+print(nonleaf_node_num)
+print(sorted(nonleaf_node_list))
+
 

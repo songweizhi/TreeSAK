@@ -6,11 +6,11 @@ import multiprocessing as mp
 
 
 ALE1_usage = '''
-========================= ALE1 example commands =========================
+=============================================== ALE1 example commands ===============================================
 
-TreeSAK ALE1 -i OrthologousGroups.txt -s combined_d__Archaea_o_rs.faa -p oma -c genome_taxon.txt -m 50 -n 2 -t 6 -jt 3 -f -o ALE1_op_dir
+TreeSAK ALE1 -i OrthologousGroups.txt -s OrthologousGroups_combined.fasta -p oma -m 50 -t 6 -jt 3 -f -o ALE1_op_dir
 
-========================================================================
+=====================================================================================================================
 '''
 
 
@@ -143,9 +143,7 @@ def ALE1(args):
     orthogroups_op_txt  = args['i']
     combined_faa        = args['s']
     og_program          = args['p']
-    genome_taxon_txt    = args['c']
     min_og_genome_num   = args['m']
-    min_og_phylum_num   = args['n']
     num_threads         = args['t']
     js_num_threads      = args['jt']
     force_create_op_dir = args['f']
@@ -168,23 +166,6 @@ def ALE1(args):
             os.system('rm -r %s' % op_dir)
     os.system('mkdir %s' % op_dir)
 
-    # read in genome taxonomy
-    gnm_p_dict   = dict()
-    gnm_c_dict   = dict()
-    gnm_o_dict   = dict()
-    gnm_pco_dict = dict()
-    for each_gnm in open(genome_taxon_txt):
-        each_gnm_split = each_gnm.strip().split('\t')
-        gnm_id     = each_gnm_split[0]
-        taxon_str  = each_gnm_split[1]
-        gnm_phylum = taxon_str.split(';')[1]
-        gnm_class  = taxon_str.split(';')[2]
-        gnm_order  = taxon_str.split(';')[3]
-        gnm_p_dict[gnm_id] = gnm_phylum
-        gnm_c_dict[gnm_id] = gnm_class
-        gnm_o_dict[gnm_id] = gnm_order
-        gnm_pco_dict[gnm_id] = '%s__%s__%s__%s' % (gnm_phylum[3:], gnm_class[3:], gnm_order[3:], gnm_id)
-
     # get ortho_to_gene_dict
     ortho_to_gene_dict = get_ortho_to_gene_dict(orthogroups_op_txt, og_program)
 
@@ -192,17 +173,14 @@ def ALE1(args):
     qualified_og_set = set()
     for each_ortho in ortho_to_gene_dict:
         ortho_gene_set = ortho_to_gene_dict[each_ortho]
-        ortho_p_set = set()
         ortho_gnm_set = set()
         for each_gene in ortho_gene_set:
             gene_gnm = '_'.join(each_gene.split('_')[:-1])
-            gnm_taxon = gnm_p_dict[gene_gnm]
             ortho_gnm_set.add(gene_gnm)
-            ortho_p_set.add(gnm_taxon)
-        if (len(ortho_gnm_set) >= min_og_genome_num) and (len(ortho_p_set) >= min_og_phylum_num):
+        if len(ortho_gnm_set) >= min_og_genome_num:
             qualified_og_set.add(each_ortho)
     print('The total number of identified orthogroups is %s.' % len(ortho_to_gene_dict))
-    print('The number of orthogroups spanning >= %s genomes and >= %s phyla is %s.' % (min_og_genome_num, min_og_phylum_num, len(qualified_og_set)))
+    print('The number of orthogroups spanning >= %s genomes is %s.' % (min_og_genome_num, len(qualified_og_set)))
 
     # process qualified OG
     og_to_process = sorted([i for i in qualified_og_set])
@@ -224,9 +202,6 @@ def ALE1(args):
         qualified_og_gene_set         = ortho_to_gene_dict[qualified_og]
         qualified_og_gene_txt         = '%s/%s.txt'         % (op_dir, qualified_og)
         qualified_og_gene_faa         = '%s/%s.faa'         % (op_dir, qualified_og)
-        qualified_og_gene_aln         = '%s/%s.aln'         % (op_dir, qualified_og)
-        qualified_og_gene_aln_trimmed = '%s/%s_trimmed.aln' % (op_dir, qualified_og)
-        pwd_gene_tree_ufboot          = '%s/%s.ufboot'      % (op_dir, qualified_og)
 
         # write out the id of genes
         with open(qualified_og_gene_txt, 'w') as qualified_og_gene_txt_handle:
@@ -237,9 +212,7 @@ def ALE1(args):
 
         # write out js for mafft, trimal and iqtree
         mafft_cmd           = 'mafft-einsi --thread %s --quiet %s.faa > %s.aln'                     % (js_num_threads, qualified_og, qualified_og)
-        trimal_cmd          = 'trimal -in %s.aln -out %s -automated1'                               % (qualified_og, qualified_og_gene_aln_trimmed)
         iqtree_cmd          = 'iqtree -m LG+G+I -bb 1000 --wbtl -nt %s -s %s.aln -pre %s'           % (js_num_threads, qualified_og, qualified_og)
-        iqtree_cmd_trimmed  = 'iqtree -m LG+G+I -bb 1000 --wbtl -nt %s -s %s -pre %s_trimmed'       % (js_num_threads, qualified_og_gene_aln_trimmed, qualified_og)
         get_gene_tree_cmds_txt_handle.write('%s; %s\n' % (mafft_cmd, iqtree_cmd))
     get_gene_tree_cmds_txt_handle.close()
 
@@ -252,7 +225,6 @@ def ALE1(args):
 
 
 if __name__ == '__main__':
-    pass
 
     ALE1_parser = argparse.ArgumentParser()
     ALE1_parser.add_argument('-i',   required=True,                         help='orthologous groups, either from orthofinder or oma')
@@ -264,6 +236,5 @@ if __name__ == '__main__':
     ALE1_parser.add_argument('-t',   required=False, type=int, default=6,   help='number of threads, default: 6')
     ALE1_parser.add_argument('-jt',  required=False, type=int, default=3,   help='number of threads for job script, default: 3')
     ALE1_parser.add_argument('-f',   required=False, action="store_true",   help='force overwrite')
-    ALE1_parser.add_argument('-c',   required=True,                         help='genome_taxon_txt')
     args = vars(ALE1_parser.parse_args())
     ALE1(args)
