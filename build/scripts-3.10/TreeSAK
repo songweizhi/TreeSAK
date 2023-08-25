@@ -92,7 +92,7 @@ if __name__ == '__main__':
     warnings.filterwarnings('ignore')
 
     # parse options
-    if (len(sys.argv) == 1) or (sys.argv[1] in ['-h', '-help', '--help']):
+    if (len(sys.argv) == 1) or (sys.argv[1] in ['-h', '-H', '-help', '-Help', '--help', '--Help']):
         print_main_help()
         sys.exit(0)
 
@@ -472,10 +472,11 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'ALE3':
         from TreeSAK import ALE3
         ALE3_parser = subparsers.add_parser('ALE3', usage=ALE3.ALE3_usage)
-        ALE3_parser.add_argument('-i',   required=True,                              help='Folder with uml_rec files')
-        ALE3_parser.add_argument('-c',   required=False, type=float, default=0.8,    help='gene family presence cutoff, default: 0.8')
-        ALE3_parser.add_argument('-o',   required=True,                              help='output convergence plot')
-        ALE3_parser.add_argument('-f',   required=False, action="store_true",        help='force overwrite')
+        ALE3_parser.add_argument('-i',   required=True,                             help='Folder with uml_rec files')
+        ALE3_parser.add_argument('-c',   required=False, type=float, default=0.8,   help='gene family presence cutoff, default: 0.8')
+        ALE3_parser.add_argument('-a',   required=False, default=None,              help='OG functional description')
+        ALE3_parser.add_argument('-o',   required=True,                             help='output dir')
+        ALE3_parser.add_argument('-f',   required=False, action="store_true",       help='force overwrite')
         args = vars(parser.parse_args())
         ALE3.ALE3(args)
 

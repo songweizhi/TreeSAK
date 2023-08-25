@@ -44,7 +44,17 @@ cd /Users/songweizhi/Documents/Research/Sponge_Hologenome/6_ALE_wd
 python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/ALE1.py -i OMA_op_filtered/OrthologousGroups.txt -s OMA_op_filtered/OrthologousGroups.fasta -p oma -m 3 -t 10 -jt 2 -f -o ALE1_op_dir
 TreeSAK ALE2 -i ALE1_op_dir -s genome_tree_rooted_noEU.treefile -t 10 -f -o ALE2_op_dir -runALE -docker gregmich/alesuite_new
 
-cd /Users/songweizhi/Documents/Research/Sponge_Hologenome/7_ALE_wd_all_OGs
+cd /Users/songweizhi/Documents/Research/Sponge_Hologenome/8_ALE_wd_all_OGs
 TreeSAK ALE2 -i ALE1_op_dir_ufboot -s concatenated_rooted.treefile -t 10 -f -o ALE2_op_dir -runALE -docker gregmich/alesuite_new
+
+cd /home-user/wzsong/tmp
+TreeSAK ALE2 -i ALE1_op_dir_ufboot -s concatenated_rooted.treefile -t 32 -f -o ALE2_op_dir -runALE -docker gregmich/alesuite_new
+
+cd /Users/songweizhi/Documents/Research/Sponge_Hologenome/8_ALE_wd_all_OGs
+#TreeSAK ALE3 -i ALE2_op_dir -o ALE3_op_dir_c0.75 -f -c 0.75
+/usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/ALE3.py -i ALE2_op_dir -o ALE3_op_dir_c0.75 -f -c 0.75 -a ALE1_arcog_description.txt
+
+ 
+
 
 '''
