@@ -1,8 +1,7 @@
 
 prokaryotes_txt = '/Users/songweizhi/Desktop/prokaryotes.txt'
-gnm_id_txt = '/Users/songweizhi/Desktop/2.txt'
-# meta_1     = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/0_metadata/0_metadata.txt'
-
+gnm_id_txt      = '/Users/songweizhi/Desktop/2.txt'
+# meta_1        = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/0_metadata/0_metadata.txt'
 
 
 def get_gnm_to_biosample_dict(meta_1, prokaryotes_txt):
@@ -46,5 +45,3 @@ def get_gnm_to_biosample_dict(meta_1, prokaryotes_txt):
 gnm_id_to_biosample_dict = get_gnm_to_biosample_dict(gnm_id_txt, prokaryotes_txt)
 print(gnm_id_to_biosample_dict)
 print(len(gnm_id_to_biosample_dict))
-
-

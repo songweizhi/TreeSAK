@@ -14,9 +14,11 @@ def sep_path_basename_ext(file_in):
 
 ########################################################################################################################
 
+# file in
 file_dir = '/Users/songweizhi/Desktop/ALE1_arcog_stats_copy_pct'
 file_ext = 'txt'
 
+# file out
 summary_txt = '/Users/songweizhi/Desktop/ALE1_arcog_stats_copy_pct.txt'
 
 ########################################################################################################################

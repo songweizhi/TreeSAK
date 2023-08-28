@@ -48,6 +48,7 @@ def print_main_help():
        SingleLinePhy          ->  Put sequences in single line in phylip format
        OneLineAln             ->  One-line fasta format alignments
        SliceMSA               ->  Slice MSA by column 
+       AlignmentPruner        ->  Remove heterogenous sites from MSA
     
     Tree-related
        GTDB_tree              ->  get GTDB tree
@@ -332,7 +333,7 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'PMSF':
         from TreeSAK import PMSF
         PMSF_parser = subparsers.add_parser('PMSF', usage=PMSF.PMSF_usage)
-        PMSF_parser.add_argument('-s',   required=True,                          help='MSA file')
+        PMSF_parser.add_argument('-i',   required=True,                          help='input MSA file')
         PMSF_parser.add_argument('-gm',  required=False, default='LG+F+G',       help='iqtree model for guide tree, default: LG+F+G')
         PMSF_parser.add_argument('-m',   required=False, default='LG+C60+F+G',   help='iqtree model, default: LG+C60+F+G')
         PMSF_parser.add_argument('-o',   required=True,                          help='output plot')
@@ -498,13 +499,22 @@ if __name__ == '__main__':
         ALE4.ALE4(args)
 
     elif sys.argv[1] == 'RootTree':
-        from TreeSAK import root_tree
-        root_tree_parser = subparsers.add_parser('root_tree', usage=root_tree.root_tree_usage)
-        root_tree_parser.add_argument('-i',     required=True,  help='input tree')
-        root_tree_parser.add_argument('-og',    required=True,  help='rename file')
-        root_tree_parser.add_argument('-o',     required=True,  help='output tree')
+        from TreeSAK import RootTree
+        RootTree_parser = subparsers.add_parser('RootTree', usage=RootTree.RootTree_usage)
+        RootTree_parser.add_argument('-i',     required=True,  help='input tree')
+        RootTree_parser.add_argument('-og',    required=True,  help='rename file')
+        RootTree_parser.add_argument('-o',     required=True,  help='output tree')
         args = vars(parser.parse_args())
-        root_tree.root_tree(args)
+        RootTree.RootTree(args)
+
+    elif sys.argv[1] == 'AlignmentPruner':
+        from TreeSAK import AlignmentPruner
+        AlignmentPruner_parser = subparsers.add_parser('AlignmentPruner', usage=AlignmentPruner.AlignmentPruner_usage)
+        AlignmentPruner_parser.add_argument('-i', required=True, help='input MSA')
+        AlignmentPruner_parser.add_argument('-c', required=True, help='heterogeneity cutoff')
+        AlignmentPruner_parser.add_argument('-o', required=True, help='output MSA')
+        args = vars(parser.parse_args())
+        AlignmentPruner.AlignmentPruner(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

@@ -1,6 +1,7 @@
 
 meta_final                              = '/Users/songweizhi/Documents/Research/Sponge_Hologenome/0_metadata/0_metadata_final.txt'
 
+
 col_index = {}
 for each_gnm in open(meta_final):
     each_gnm_split = each_gnm.strip().split('\t')

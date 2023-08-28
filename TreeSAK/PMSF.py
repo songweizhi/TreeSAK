@@ -1,11 +1,12 @@
 import os
 import argparse
+from distutils.spawn import find_executable
 
 
 PMSF_usage = '''
 ==================== PMSF example commands ====================
 
-# Dependency: iqtree
+# Dependency: iqtree2
 
 TreeSAK PMSF -i concatenated.phy -o get_PMSF_tree_wd -t 12
 
@@ -17,7 +18,7 @@ TreeSAK PMSF -i concatenated.phy -o get_PMSF_tree_wd -t 12
 
 def PMSF(args):
 
-    msa_in                  = args['s']
+    msa_in                  = args['i']
     iqtree_model_guide_tree = args['gm']
     iqtree_model            = args['m']
     op_dir                  = args['o']
@@ -28,6 +29,15 @@ def PMSF(args):
     guide_tree_wd  = '%s/guide_tree'           % op_dir
     pwd_guide_tree = '%s/guide_tree.treefile'  % guide_tree_wd
     pwd_cmd_txt    = '%s/cmds.txt'             % op_dir
+
+    iqtree_exe = ''
+    if find_executable('iqtree2'):
+        iqtree_exe = 'iqtree2'
+    elif find_executable('iqtree'):
+        iqtree_exe = 'iqtree'
+    else:
+        print('iqtree not detected, program exited!')
+        exit()
 
     # check input file
     if os.path.isfile(msa_in) is False:
@@ -44,19 +54,25 @@ def PMSF(args):
     os.system('mkdir %s' % op_dir)
     os.system('mkdir %s' % guide_tree_wd)
 
-    # get guide tree
-    guidetree_cmd = 'iqtree -s %s --prefix %s/guide_tree --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet' % (msa_in, guide_tree_wd, iqtree_model_guide_tree, num_of_threads)
-    os.system(guidetree_cmd)
-
-    # get PMSF tree
-    iqtree_cmd = 'iqtree -s %s --prefix %s/%s --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet -ft %s' % (msa_in, op_dir, tree_prefix, iqtree_model, num_of_threads, pwd_guide_tree)
-    os.system(iqtree_cmd)
+    guidetree_cmd = '%s -s %s --prefix %s/guide_tree --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet' % (iqtree_exe, msa_in, guide_tree_wd, iqtree_model_guide_tree, num_of_threads)
+    iqtree_cmd    = '%s -s %s --prefix %s/%s --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet -ft %s'  % (iqtree_exe, msa_in, op_dir, tree_prefix, iqtree_model, num_of_threads, pwd_guide_tree)
 
     # write out commands
     pwd_cmd_txt_handle = open(pwd_cmd_txt, 'w')
     pwd_cmd_txt_handle.write(guidetree_cmd + '\n')
     pwd_cmd_txt_handle.write(iqtree_cmd + '\n')
     pwd_cmd_txt_handle.close()
+
+    # get guide tree
+    print('Building guide tree')
+    print(guidetree_cmd)
+    os.system(guidetree_cmd)
+
+    # get PMSF tree
+    print('Building PMSF tree with model %s' % iqtree_model)
+    print(iqtree_cmd)
+    os.system(iqtree_cmd)
+
     print('Done!')
 
 
@@ -64,7 +80,7 @@ if __name__ == '__main__':
 
     # initialize the options parser
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s',   required=True,                          help='MSA file')
+    parser.add_argument('-i',   required=True,                          help='input MSA file')
     parser.add_argument('-gm',  required=False, default='LG+F+G',       help='iqtree model for guide tree, default: LG+F+G')
     parser.add_argument('-m',   required=False, default='LG+C60+F+G',   help='iqtree model, default: LG+C60+F+G')
     parser.add_argument('-o',   required=True,                          help='output plot')

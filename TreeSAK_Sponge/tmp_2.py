@@ -10,7 +10,6 @@ for each in open(og_to_des_txt):
     og_des = each_split[3]
     og_to_des_dict[og_id] = og_des
 
-
 op_txt_handle = open(op_txt, 'w')
 for each in open(Transfer_propensity_txt):
     if not each.startswith('OG\tTransfer_propensity'):
@@ -20,5 +19,3 @@ for each in open(Transfer_propensity_txt):
         od_desc = og_to_des_dict.get(og_id, 'NA')
         op_txt_handle.write('%s\t%s\t%s\n' % (og_id, propensity, od_desc))
 op_txt_handle.close()
-
-

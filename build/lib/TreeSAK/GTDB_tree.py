@@ -20,6 +20,12 @@ export GTDBTK_DATA_PATH=/srv/scratch/z5039045/DB/GTDB_r207/release207
 
 TreeSAK GTDB_tree -p Demo -i gnm_folder -x fa -t 12
 
+# A wrapper for the following commands
+gtdbtk identify --genome_dir gnm_folder -x fa --out_dir op_dir --cpus 12
+gtdbtk align --identify_dir Demo_op_dir --out_dir op_dir --cpus 12
+gtdbtk infer --msa_file Demo_op_dir/align/gtdbtk.bac120.user_msa.fasta.gz --out_dir op_dir --cpus 12 --prefix Demo_bac120
+gtdbtk infer --msa_file Demo_op_dir/align/gtdbtk.ar53.user_msa.fasta.gz --out_dir op_dir --cpus 12 --prefix Demo_ar53
+
 ========================================================================
 
 '''

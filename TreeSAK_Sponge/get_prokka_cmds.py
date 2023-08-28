@@ -1,8 +1,9 @@
 
 selected_genome_txt = '/Users/songweizhi/Desktop/aaa.txt'
-gnm_dir             = '/home-user/wzsong/DateArTree_GTDB_r214_2/2_combined_genomes'
+gnm_dir             = '/srv/scratch/z5265700/Shan_z5095298/z5095298/Weizhi/Sponge_2023_08_25/s1_get_genome/Nitrosopumilaceae_50_5_dRep97_195'
 gnm_ext             = 'fna'
 prokka_cmds_txt     = '/Users/songweizhi/Desktop/aaa_prokka.txt'
+
 
 prokka_cmds_txt_handle = open(prokka_cmds_txt, 'w')
 for each_gnm in open(selected_genome_txt):

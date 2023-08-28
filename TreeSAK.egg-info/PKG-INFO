@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: TreeSAK
-Version: 1.23.3
+Version: 1.24.2
 Summary: BioSAK
 Home-page: https://github.com/songweizhi/TreeSAK
 Author: Weizhi Song
@@ -10,5 +10,5 @@ Keywords: Bioinformatics
 Platform: UNKNOWN
 License-File: LICENSE
 
- TreeSAK v1.23.3 
+ TreeSAK v1.24.2 
 
