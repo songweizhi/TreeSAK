@@ -35,7 +35,6 @@ TreeSAK modules
        OMA                    ->  Prepare input files for running OMA 
        OMA2                   ->  Filter OMA predicted OGs
        ExtractMarkerSeq       ->  Extract marker by blastn  
-       parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
        AssessMarkerPA         ->  Assess Markers by P/A among groups
        SplitScore             ->  Assess markers by split score
@@ -50,7 +49,6 @@ TreeSAK modules
     
     Tree-related
        GTDB_tree              ->  get GTDB tree
-       PMSF                   ->  run iqtree with PMSF
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
@@ -60,16 +58,9 @@ TreeSAK modules
        GeneRax                ->  Run GeneRax (to be added)    
        ALE                    ->  Modules for running ALE
        RootTree               ->  Root tree with outgroup leaves
-       
-    Dating-related
-       AssessCVG              ->  Assess dating convergence
-       CompareMCMC            ->  Compare MCMCTree outputs
-       PlotMcmcNode           ->  distribution of node's age estimation 
-       VisHPD95               ->  HPD95 of estimated node age 
-       
+
     Dating workflow
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
-       AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
        Dating                 ->  Perform molecular dating
 
