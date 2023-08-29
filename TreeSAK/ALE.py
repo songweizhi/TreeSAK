@@ -9,7 +9,7 @@ TreeSAK ALE3  ->  Step 3: parse ALE outputs
 TreeSAK ALE4  ->  Filter ALE identified HGTs
 
 # Example commands
-TreeSAK ALE1 -i OrthologousGroups.txt -s combined_d__Archaea_o_rs.faa -p oma -c genome_taxon.txt -m 50 -n 2 -t 6 -jt 3 -f -o ALE1_op_dir
+TreeSAK ALE1 -i OrthologousGroups.txt -s combined_d__Archaea_o_rs.faa -p oma -m 50 -t 12 -jst 3 -f -o ALE1_op_dir
 TreeSAK ALE2 -i ALE1_op_dir -s genome_tree_rooted_noEU.treefile -t 10 -f -o ALE2_op_dir -runALE -docker gregmich/alesuite_new
 TreeSAK ALE3 -i ALE2_op_dir -o ALE3_op_dir_c0.75 -f -c 0.75
 TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -o ALE4_op_dir_0.3 -fc 0.3 -f -api your_own_itol_api

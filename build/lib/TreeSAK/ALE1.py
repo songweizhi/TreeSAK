@@ -3,6 +3,7 @@ import argparse
 from Bio import SeqIO
 from ete3 import Tree
 import multiprocessing as mp
+from distutils.spawn import find_executable
 
 
 ALE1_usage = '''
@@ -12,20 +13,6 @@ TreeSAK ALE1 -i OrthologousGroups.txt -s OrthologousGroups_combined.fasta -p oma
 
 =====================================================================================================================
 '''
-
-
-def select_seq(arg_list):
-
-    seq_file    = arg_list[0]
-    id_file     = arg_list[1]
-    output_file = arg_list[2]
-
-    seq_id_set = {i.strip() for i in open(id_file)}
-    output_file_handle = open(output_file, 'w')
-    for seq_record in SeqIO.parse(seq_file, 'fasta'):
-        if seq_record.id in seq_id_set:
-            SeqIO.write(seq_record, output_file_handle, 'fasta-2line')
-    output_file_handle.close()
 
 
 def subset_tree(tree_file_in, leaves_to_keep_list, tree_file_out):
@@ -144,8 +131,7 @@ def ALE1(args):
     combined_faa        = args['s']
     og_program          = args['p']
     min_og_genome_num   = args['m']
-    num_threads         = args['t']
-    js_num_threads      = args['jt']
+    js_num_threads      = args['jst']
     force_create_op_dir = args['f']
     op_dir              = args['o']
     designate_ogs       = []
@@ -153,6 +139,15 @@ def ALE1(args):
 
     # define output file name
     get_gene_tree_cmds_txt = '%s_cmds.txt' % op_dir
+
+    iqtree_exe = ''
+    if find_executable('iqtree2'):
+        iqtree_exe = 'iqtree2'
+    elif find_executable('iqtree'):
+        iqtree_exe = 'iqtree'
+    else:
+        print('iqtree not detected, program exited!')
+        exit()
 
     if os.path.isdir(op_dir) is True:
         if force_create_op_dir is True:
@@ -193,36 +188,33 @@ def ALE1(args):
         if each_og not in to_ignore_ogs_list:
             og_to_process_no_ignored.add(each_og)
 
+    # read sequence into dict
+    gene_seq_dict = dict()
+    for each_seq in SeqIO.parse(combined_faa, 'fasta'):
+        seq_id = each_seq.id
+        gene_seq_dict[seq_id] = str(each_seq.seq)
+
     # extract gene sequences and prepare commands for building gene tree
-    print('Preparing commands for building gene trees')
-    extract_seq_arg_lol = []
-    prepare_ale_ip_worker_arg_lol = []
+    print('Preparing commands and sequence files for building gene trees')
     get_gene_tree_cmds_txt_handle = open(get_gene_tree_cmds_txt, 'w')
     for qualified_og in sorted(og_to_process_no_ignored):
-        qualified_og_gene_set         = ortho_to_gene_dict[qualified_og]
-        qualified_og_gene_txt         = '%s/%s.txt'         % (op_dir, qualified_og)
-        qualified_og_gene_faa         = '%s/%s.faa'         % (op_dir, qualified_og)
+        qualified_og_gene_set = ortho_to_gene_dict[qualified_og]
+        qualified_og_gene_faa = '%s/%s.faa' % (op_dir, qualified_og)
 
-        # write out the id of genes
-        with open(qualified_og_gene_txt, 'w') as qualified_og_gene_txt_handle:
-            qualified_og_gene_txt_handle.write('\n'.join(qualified_og_gene_set))
-
-        # add to mp lol
-        extract_seq_arg_lol.append([combined_faa, qualified_og_gene_txt, qualified_og_gene_faa])
-
-        # write out js for mafft, trimal and iqtree
-        mafft_cmd           = 'mafft-einsi --thread %s --quiet %s.faa > %s.aln'                     % (js_num_threads, qualified_og, qualified_og)
-        iqtree_cmd          = 'iqtree -m LG+G+I -bb 1000 --wbtl -nt %s -s %s.aln -pre %s'           % (js_num_threads, qualified_og, qualified_og)
+        # write out commands
+        mafft_cmd  = 'mafft-einsi --thread %s --quiet %s.faa > %s.aln'       % (js_num_threads, qualified_og, qualified_og)
+        iqtree_cmd = '%s -m LG+G+I -bb 1000 --wbtl -nt %s -s %s.aln -pre %s' % (iqtree_exe, js_num_threads, qualified_og, qualified_og)
         get_gene_tree_cmds_txt_handle.write('%s; %s\n' % (mafft_cmd, iqtree_cmd))
+
+        # write out sequences
+        qualified_og_gene_faa_handle = open(qualified_og_gene_faa, 'w')
+        for each_gene in qualified_og_gene_set:
+            qualified_og_gene_faa_handle.write('>%s\n' % each_gene)
+            qualified_og_gene_faa_handle.write('%s\n' % gene_seq_dict[each_gene])
+        qualified_og_gene_faa_handle.close()
     get_gene_tree_cmds_txt_handle.close()
 
-    # extract gene sequences with multiprocessing
-    print('Extracting gene sequences with %s cores' % num_threads)
-    pool = mp.Pool(processes=num_threads)
-    pool.map(select_seq, extract_seq_arg_lol)
-    pool.close()
-    pool.join()
-
+    print('Done!')
 
 if __name__ == '__main__':
 
@@ -231,10 +223,8 @@ if __name__ == '__main__':
     ALE1_parser.add_argument('-s',   required=True,                         help='sequence file, e.g., combined.faa')
     ALE1_parser.add_argument('-p',   required=True,                         help='orthologous identification program, orthofinder or oma')
     ALE1_parser.add_argument('-m',   required=False, type=int, default=50,  help='min_og_genome_num, default: 50')
-    ALE1_parser.add_argument('-n',   required=False, type=int, default=2,   help='min_og_phylum_num, default: 2')
     ALE1_parser.add_argument('-o',   required=True,                         help='output dir, i.e., OMA working directory')
-    ALE1_parser.add_argument('-t',   required=False, type=int, default=6,   help='number of threads, default: 6')
-    ALE1_parser.add_argument('-jt',  required=False, type=int, default=3,   help='number of threads for job script, default: 3')
+    ALE1_parser.add_argument('-jst', required=False, type=int, default=3,   help='number of threads for job script, default: 3')
     ALE1_parser.add_argument('-f',   required=False, action="store_true",   help='force overwrite')
     args = vars(ALE1_parser.parse_args())
     ALE1(args)

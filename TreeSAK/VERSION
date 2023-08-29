@@ -1,11 +1,11 @@
-1.24.2
+1.24.8
 - fixed bugs
 
 1.24.0
 - new module added: AlignmentPruner
 
 1.23.0
-- new module added: root_tree
+- new module added: RootTree
 
 1.22.0
 - new module added: OMA2

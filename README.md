@@ -25,19 +25,20 @@ Installation
        # for updating
        pip3 install --upgrade TreeSAK
 
+
 TreeSAK modules
 ---
 
-                 ...::: TreeSAK v1.21.0 :::...
+                 ...::: TreeSAK v1.24.8 :::...
 
     Marker-related
        OMA                    ->  Prepare input files for running OMA 
+       OMA2                   ->  Filter OMA predicted OGs
        ExtractMarkerSeq       ->  Extract marker by blastn  
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
        AssessMarkerPA         ->  Assess Markers by P/A among groups
-       SplitScoreStep1        ->  Assess markers by split score (step 1, get gene tree)
-       SplitScoreStep2        ->  Assess markers by split score (step 2)
+       SplitScore             ->  Assess markers by split score
     
     Multiple Sequence Alignment
        ConvertMSA             ->  Convert MSA format
@@ -45,6 +46,7 @@ TreeSAK modules
        SingleLinePhy          ->  Put sequences in single line in phylip format
        OneLineAln             ->  One-line fasta format alignments
        SliceMSA               ->  Slice MSA by column 
+       AlignmentPruner        ->  Remove heterogenous sites from MSA
     
     Tree-related
        GTDB_tree              ->  get GTDB tree
@@ -57,6 +59,7 @@ TreeSAK modules
        ModifyTopo             ->  Modify tree topology
        GeneRax                ->  Run GeneRax (to be added)    
        ALE                    ->  Modules for running ALE
+       RootTree               ->  Root tree with outgroup leaves
        
     Dating-related
        AssessCVG              ->  Assess dating convergence
@@ -68,4 +71,5 @@ TreeSAK modules
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
-       Dating                 ->  Perform dating
+       Dating                 ->  Perform molecular dating
+

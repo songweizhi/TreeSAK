@@ -35,6 +35,8 @@ TreeSAK/RootTree.py
 TreeSAK/SingleLinePhy.py
 TreeSAK/SliceMSA.py
 TreeSAK/SplitScore.py
+TreeSAK/SplitScore1.py
+TreeSAK/SplitScore2.py
 TreeSAK/TaxaCountStats.R
 TreeSAK/TreeSAK_config.py
 TreeSAK/VERSION
@@ -126,6 +128,7 @@ TreeSAK_Sponge/summarise_OMA_annotation.py
 TreeSAK_Sponge/tmp_1.py
 TreeSAK_Sponge/tmp_2.py
 TreeSAK_Sponge/tmp_3.py
+TreeSAK_Sponge/tmp_4.py
 bin/TreeSAK
 bin/__init__.py
 images/Bioinformatics.jpg

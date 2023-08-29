@@ -7,20 +7,20 @@ GTDB_tree_usage = '''
 
 module load python/3.7.4
 source ~/mypython3env/bin/activate
-module load perl/5.28.0
+module load perl/5.36.0
 module load prodigal/2.6.3
 module load pplacer/1.1.alpha19
 module load hmmer/3.3
-module load fasttree/2.1.11
-module load gcc/6.2.0
-module load gsl/2.6
-module load fastani/1.32
-module load R/3.5.3
-export GTDBTK_DATA_PATH=/srv/scratch/z5039045/DB/GTDB_r207/release207
+module load gcc/12.2.0
+module load gsl/2.7.1
+module load fastani/1.33
+module load r/4.3.1
+module load fasttree/2.1.11-openmp 
+export GTDBTK_DATA_PATH=/data/bio/gtdbtk/release214
 
 TreeSAK GTDB_tree -p Demo -i gnm_folder -x fa -t 12
 
-# A wrapper for the following commands
+# This is a wrapper for the following commands
 gtdbtk identify --genome_dir gnm_folder -x fa --out_dir op_dir --cpus 12
 gtdbtk align --identify_dir Demo_op_dir --out_dir op_dir --cpus 12
 gtdbtk infer --msa_file Demo_op_dir/align/gtdbtk.bac120.user_msa.fasta.gz --out_dir op_dir --cpus 12 --prefix Demo_bac120

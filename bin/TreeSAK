@@ -39,8 +39,7 @@ def print_main_help():
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
        AssessMarkerPA         ->  Assess Markers by P/A among groups
-       SplitScoreStep1        ->  Assess markers by split score (step 1, get gene tree)
-       SplitScoreStep2        ->  Assess markers by split score (step 2)
+       SplitScore             ->  Assess markers by split score
     
     Multiple Sequence Alignment
        ConvertMSA             ->  Convert MSA format
@@ -73,7 +72,7 @@ def print_main_help():
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
-       Dating                 ->  Perform dating
+       Dating                 ->  Perform molecular dating
     
     Note: use "pip3 install --upgrade TreeSAK" to get the latest version of TreeSAK.
     ''' % version(config_dict)
@@ -351,32 +350,37 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         SingleLinePhy.SingleLinePhy(args)
 
-    elif sys.argv[1] == 'SplitScoreStep1':
+    elif sys.argv[1] == 'SplitScore':
         from TreeSAK import SplitScore
-        SplitScoreStep1_parser = subparsers.add_parser('SplitScoreStep1', usage=SplitScore.SplitScore_usage)
-        SplitScoreStep1_parser.add_argument('-i', required=True,                        help='OrthologousGroups.txt, produced by OMA')
-        SplitScoreStep1_parser.add_argument('-s', required=True,                        help='OrthologousGroupsFasta, produced by OMA')
-        SplitScoreStep1_parser.add_argument('-u', required=False, default= None,        help='ID of interested genomes, no file extension')
-        SplitScoreStep1_parser.add_argument('-o', required=True,                        help='output directory')
-        SplitScoreStep1_parser.add_argument('-m', required=False, default='LG+G+I',     help='iqtree_model, default: LG+G+I')
-        SplitScoreStep1_parser.add_argument('-c', required=False, type=int, default=80, help='coverage cutoff, default: 80')
-        SplitScoreStep1_parser.add_argument('-f', required=False, action="store_true",  help='force overwrite')
-        SplitScoreStep1_parser.add_argument('-t', required=False, type=int, default=1,  help='num of threads, default: 1')
-        args = vars(parser.parse_args())
-        SplitScore.SplitScoreStep1(args)
+        print(SplitScore.SplitScore_usage)
+        exit()
 
-    elif sys.argv[1] == 'SplitScoreStep2':
-        from TreeSAK import SplitScore
-        SplitScoreStep2_parser = subparsers.add_parser('SplitScoreStep2', usage=SplitScore.SplitScore_usage)
-        SplitScoreStep2_parser.add_argument('-i', required=True,                        help='outputs of iqtree from step 1, only needs the contree and ufboot files')
-        SplitScoreStep2_parser.add_argument('-g', required=True,                        help='genome group')
-        SplitScoreStep2_parser.add_argument('-d', required=True,                        help='GTDB file, ar53_metadata_r221.tsv')
-        SplitScoreStep2_parser.add_argument('-k', required=True,                        help='taxonomic classification')
-        SplitScoreStep2_parser.add_argument('-f', required=False, action="store_true",  help='force overwrite')
-        SplitScoreStep2_parser.add_argument('-t', required=False, type=int, default=1,  help='num of threads, default: 1')
-        SplitScoreStep2_parser.add_argument('-o', required=True,                        help='output directory')
+    elif sys.argv[1] == 'SplitScore1':
+        from TreeSAK import SplitScore1
+        SplitScore1_parser = subparsers.add_parser('SplitScore1', usage=SplitScore1.SplitScore1_usage)
+        SplitScore1_parser.add_argument('-i',   required=True,                        help='OrthologousGroups.txt, produced by OMA')
+        SplitScore1_parser.add_argument('-s',   required=True,                        help='OrthologousGroupsFasta, produced by OMA')
+        SplitScore1_parser.add_argument('-u',   required=False, default= None,        help='ID of interested genomes, no file extension')
+        SplitScore1_parser.add_argument('-o',   required=True,                        help='output directory')
+        SplitScore1_parser.add_argument('-m',   required=False, default='LG+G+I',     help='iqtree_model, default: LG+G+I')
+        SplitScore1_parser.add_argument('-c',   required=False, type=int, default=80, help='coverage cutoff, default: 80')
+        SplitScore1_parser.add_argument('-f',   required=False, action="store_true",  help='force overwrite')
+        SplitScore1_parser.add_argument('-jst', required=False, type=int, default=3,  help='num of threads for inferring gene tree, default: 3')
         args = vars(parser.parse_args())
-        SplitScore.SplitScoreStep2(args)
+        SplitScore1.SplitScore1(args)
+
+    elif sys.argv[1] == 'SplitScore2':
+        from TreeSAK import SplitScore2
+        SplitScore2_parser = subparsers.add_parser('SplitScore2', usage=SplitScore2.SplitScore2_usage)
+        SplitScore2_parser.add_argument('-i', required=True,                        help='outputs of iqtree from step 1, only needs the contree and ufboot files')
+        SplitScore2_parser.add_argument('-g', required=True,                        help='genome group')
+        SplitScore2_parser.add_argument('-d', required=True,                        help='GTDB file, ar53_metadata_r221.tsv')
+        SplitScore2_parser.add_argument('-k', required=True,                        help='taxonomic classification')
+        SplitScore2_parser.add_argument('-f', required=False, action="store_true",  help='force overwrite')
+        SplitScore2_parser.add_argument('-t', required=False, type=int, default=1,  help='num of threads, default: 1')
+        SplitScore2_parser.add_argument('-o', required=True,                        help='output directory')
+        args = vars(parser.parse_args())
+        SplitScore2.SplitScore2(args)
 
     elif sys.argv[1] == 'MarkerSeq2Tree':
         from TreeSAK import MarkerSeq2Tree
@@ -451,8 +455,7 @@ if __name__ == '__main__':
         ALE1_parser.add_argument('-p',   required=True,                         help='orthologous identification program, orthofinder or oma')
         ALE1_parser.add_argument('-m',   required=False, type=int, default=50,  help='min_og_genome_num, default: 50')
         ALE1_parser.add_argument('-o',   required=True,                         help='output dir, i.e., OMA working directory')
-        ALE1_parser.add_argument('-t',   required=False, type=int, default=6,   help='number of threads, default: 6')
-        ALE1_parser.add_argument('-jt',  required=False, type=int, default=3,   help='number of threads for job script, default: 3')
+        ALE1_parser.add_argument('-jst', required=False, type=int, default=3,   help='number of threads for job script, default: 3')
         ALE1_parser.add_argument('-f',   required=False, action="store_true",   help='force overwrite')
         args = vars(parser.parse_args())
         ALE1.ALE1(args)
@@ -501,9 +504,10 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'RootTree':
         from TreeSAK import RootTree
         RootTree_parser = subparsers.add_parser('RootTree', usage=RootTree.RootTree_usage)
-        RootTree_parser.add_argument('-i',     required=True,  help='input tree')
-        RootTree_parser.add_argument('-og',    required=True,  help='rename file')
-        RootTree_parser.add_argument('-o',     required=True,  help='output tree')
+        RootTree_parser.add_argument('-i',      required=True,                          help='input tree')
+        RootTree_parser.add_argument('-og',     required=True,                          help='out group leaves')
+        RootTree_parser.add_argument('-o',      required=True,                          help='output tree')
+        RootTree_parser.add_argument('-fmt',    required=False, default=1, type=int,    help='tree format, default: 1')
         args = vars(parser.parse_args())
         RootTree.RootTree(args)
 
