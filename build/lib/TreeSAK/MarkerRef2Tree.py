@@ -10,16 +10,20 @@ from distutils.spawn import find_executable
 MarkerRef2Tree_usage = '''
 ============================= MarkerRef2Tree example commands =============================
 
-Dependencies: blastp, mafft-einsi, trimal, iqtree
+Dependencies: blastp, mafft-einsi, trimal, iqtree2
 
 # example commands
-BioSAK MarkerRef2Tree -m marker_seq -mx fa -aa gnm_faa_files -aax faa -o op_dir -e 30 -t 6
+TreeSAK MarkerRef2Tree -i gnm_faa_files -m marker_seq -o output_dir -e 10 -t 6 -c 85
+TreeSAK MarkerRef2Tree -i gnm_faa_files -m marker_seq -o output_dir -e 10 -t 6 -c 75-100
+
+# file extension need to be faa
 
 ===========================================================================================
 '''
 
 
 def check_dependencies(program_list):
+
     # check whether executables exist
     not_detected_programs = []
     for needed_program in program_list:
@@ -107,7 +111,7 @@ def catfasta2phy(msa_dir, msa_ext, concatenated_msa_phy, partition_file):
         end_pos += current_m_len
     partition_file_handle.close()
 
-    # convert msa in fasta to phy
+    # convert fasta to phy
     AlignIO.convert(concatenated_msa_fasta, 'fasta', concatenated_msa_phy, 'phylip-relaxed')
 
 
@@ -150,30 +154,15 @@ def select_seq(seq_file, id_file,select_option, output_file, one_line, in_fastq)
     output_file_handle.close()
 
 
-def AssessMarkerPA(trimmed_aln_dir, gnm_set, gnm_group_txt, present_pct_cutoff_list, op_dir):
+def AssessMarkerPA(trimmed_aln_dir, gnm_set, group_to_gnm_dict, present_pct_cutoff_list, op_dir):
 
-    # read in genome metadata
-    group_to_gnm_dict     = dict()
     group_to_gnm_num_dict = dict()
     gnm_to_group_dict     = dict()
-    for each_gnm in open(gnm_group_txt):
-        each_gnm_split = each_gnm.strip().split('\t')
-        gnm_id = each_gnm_split[0]
-        domain_name = each_gnm_split[1]
-
-        if gnm_id in gnm_set:
-            gnm_to_group_dict[gnm_id] = domain_name
-
-            if domain_name not in group_to_gnm_num_dict:
-                group_to_gnm_num_dict[domain_name] = 1
-            else:
-                group_to_gnm_num_dict[domain_name] += 1
-
-            if domain_name not in group_to_gnm_dict:
-                group_to_gnm_dict[domain_name] = {gnm_id}
-            else:
-                group_to_gnm_dict[domain_name].add(gnm_id)
-
+    for each_g in group_to_gnm_dict:
+        gnm_member_list = group_to_gnm_dict[each_g]
+        group_to_gnm_num_dict[each_g] = len(gnm_member_list)
+        for each_gnm in gnm_member_list:
+            gnm_to_group_dict[each_gnm] = each_g
     group_id_list_sorted = sorted(list(group_to_gnm_dict.keys()))
 
     # exit program if group information is missing
@@ -183,15 +172,15 @@ def AssessMarkerPA(trimmed_aln_dir, gnm_set, gnm_group_txt, present_pct_cutoff_l
             gnms_without_group_info.add(gnm)
 
     if len(gnms_without_group_info) > 0:
-        print('Group information for the following genomes are missing from %s, program exited!' % gnm_group_txt)
+        print('Group information for the following genomes are missing, program exited!')
         print(','.join(gnms_without_group_info))
-        print('Group information for the above genomes are missing from %s, program exited!' % gnm_group_txt)
+        print('Group information for the above genomes are missing, program exited!')
         exit()
 
     # read in provided cutoffs
-    assess_summary_1_txt    = '%s/assessment_PA.txt'                % op_dir
-    assess_summary_2_txt    = '%s/assessment_PA_summary.txt'        % op_dir
-    itol_binary_txt         = '%s/assessment_PA_iTOL_binary.txt'    % op_dir
+    assess_summary_1_txt    = '%s/assess_by_PA.txt'                % op_dir
+    assess_summary_2_txt    = '%s/assess_by_PA_summary.txt'        % op_dir
+    itol_binary_txt         = '%s/assess_by_PA_iTOL_binary.txt'    % op_dir
 
     trimmed_aln_file_re = '%s/*.aln' % (trimmed_aln_dir)
     trimmed_aln_file_list = [os.path.basename(file_name) for file_name in glob.glob(trimmed_aln_file_re)]
@@ -265,8 +254,8 @@ def AssessMarkerPA(trimmed_aln_dir, gnm_set, gnm_group_txt, present_pct_cutoff_l
     # copy alignments of qualified marker to corresponding folders
     for each_cutoff in cutoff_to_qualified_marker_dict:
         qualified_marker_set        = cutoff_to_qualified_marker_dict[each_cutoff]
-        pwd_qualified_marker_dir    = '%s/qualified_marker_PA_%s'        % (op_dir, each_cutoff)
-        pwd_qualified_marker_id_txt = '%s/qualified_marker_PA_%s_id.txt' % (op_dir, each_cutoff)
+        pwd_qualified_marker_dir    = '%s/marker_PA%s'        % (op_dir, each_cutoff)
+        pwd_qualified_marker_id_txt = '%s/marker_PA%s_id.txt' % (op_dir, each_cutoff)
 
         os.system('mkdir %s' % pwd_qualified_marker_dir)
         for each_marker in qualified_marker_set:
@@ -302,59 +291,76 @@ def AssessMarkerPA(trimmed_aln_dir, gnm_set, gnm_group_txt, present_pct_cutoff_l
 
 def MarkerRef2Tree(args):
 
+    faa_file_dir            = args['i']
     marker_seq_dir          = args['m']
-    marker_seq_ext          = args['mx']
-    faa_file_dir            = args['aa']
-    faa_file_ext            = args['aax']
     gnm_group_txt           = args['g']
     op_dir                  = args['o']
     e_value                 = args['e']
     num_of_threads          = args['t']
     force_overwrite         = args['f']
-    js_cpu_num              = args['jst']
-    pa_cutoff_str           = args['pac']
-    skip_align_trim         = args['skip_align_trim']
-    submit_job              = args['qsub']
+    pa_cutoff_str           = args['c']
     minimal_marker_number   = args['mmn']
 
     # check dependencies
     check_dependencies(['blastp', 'mafft-einsi', 'trimal', 'iqtree'])
 
-    # check input files
-    if os.path.isfile(gnm_group_txt) is False:
-        print('%s not found, program exited!' % gnm_group_txt)
-        exit()
-
     # get marker id set
-    marker_seq_re   = '%s/*.%s' % (marker_seq_dir, marker_seq_ext)
+    marker_seq_re   = '%s/*.faa' % (marker_seq_dir)
     marker_seq_list = [os.path.basename(file_name) for file_name in glob.glob(marker_seq_re)]
     marker_id_set = set()
     for each_marker_seq_file in marker_seq_list:
-        marker_seq_path, marker_seq_basename, marker_seq_ext = sep_path_basename_ext(each_marker_seq_file)
+        _, marker_seq_basename, _ = sep_path_basename_ext(each_marker_seq_file)
         marker_id_set.add(marker_seq_basename)
 
     # get gnm id list
-    faa_file_re   = '%s/*.%s' % (faa_file_dir, faa_file_ext)
+    faa_file_re   = '%s/*.faa' % (faa_file_dir)
     faa_file_list = [os.path.basename(file_name) for file_name in glob.glob(faa_file_re)]
     gnm_set = set()
     for each_faa_file in faa_file_list:
         faa_path, faa_basename, faa_ext = sep_path_basename_ext(each_faa_file)
         gnm_set.add(faa_basename)
+
     gnm_id_list_sorted = sorted([i for i in gnm_set])
 
+    #################### check genome grouping files ####################
+
+    group_to_gnm_dict = dict()
+    if gnm_group_txt is None:
+        group_to_gnm_dict['group_1'] = set()
+        for each_gnm in gnm_id_list_sorted:
+            group_to_gnm_dict['group_1'].add(each_gnm)
+    else:
+        if os.path.isfile(gnm_group_txt) is False:
+            print('Specified %s not found, program exited!' % gnm_group_txt)
+            exit()
+        else:
+            for each_gnm in open(gnm_group_txt):
+                each_gnm_split = each_gnm.strip().split('\t')
+                gnm_id = each_gnm_split[0]
+                domain_name = each_gnm_split[1]
+                if gnm_id in gnm_set:
+                    if domain_name not in group_to_gnm_dict:
+                        group_to_gnm_dict[domain_name] = {gnm_id}
+                    else:
+                        group_to_gnm_dict[domain_name].add(gnm_id)
+
+    #################### check file/folder name ####################
+
     # define output dir
-    blastp_cmd_txt                       = '%s/blastp_cmds_%s.txt'                                  % (op_dir, (len(gnm_id_list_sorted)*len(marker_id_set)))
-    pwd_combined_protein                 = '%s/combined.faa'                                        % op_dir
-    blast_op_dir                         = '%s/s01_blast_op'                                        % op_dir
-    best_hit_id_by_marker_dir            = '%s/s02_identified_marker_id'                            % op_dir
-    best_hit_seq_by_marker_dir           = '%s/s03_identified_marker_seq'                           % op_dir
-    best_hit_seq_by_marker_dir_renamed   = '%s/s04_identified_marker_seq_renamed'                   % op_dir
-    best_hit_aln_by_marker_dir           = '%s/s05_identified_marker_aln'                           % op_dir
-    best_hit_aln_by_marker_dir_trimmed   = '%s/s06_identified_marker_aln_trimmed'                   % op_dir
-    assess_marker_pa_dir                 = '%s/s07_assess_marker_PA'                                % op_dir
-    trimmed_msa_PA_concatenated_dir      = '%s/s08_marker_after_PA_concatenated'                    % op_dir
-    iqtree_dir                           = '%s/s09_iqtree_for_deltaLL'                              % op_dir
-    deltall_dir                          = '%s/s10_assess_marker_deltaLL'                           % op_dir
+    blastp_cmd_txt                      = '%s/s01_blastp_cmds_%s.txt'           % (op_dir, (len(marker_seq_list)*len(faa_file_list)))
+    pwd_combined_protein                = '%s/combined.faa'                     % op_dir
+    blast_op_dir                        = '%s/s01_blastp'                       % op_dir
+    best_hit_id_by_marker_dir           = '%s/s02_marker_id'                    % op_dir
+    best_hit_seq_by_marker_dir          = '%s/s03_marker_seq'                   % op_dir
+    best_hit_seq_by_marker_dir_renamed  = '%s/s04_marker_seq_by_genome_name'    % op_dir
+    best_hit_aln_by_marker_dir          = '%s/s05_marker_aln'                   % op_dir
+    best_hit_aln_by_marker_dir_trimmed  = '%s/s06_marker_aln_trimmed'           % op_dir
+    assess_marker_pa_dir                = '%s/s07_assess_marker_PA'             % op_dir
+    trimmed_msa_PA_concatenated_dir     = '%s/s08_iqtree_wd'                    % op_dir
+    iqtree_dir                          = '%s/s08_iqtree_wd'                    % op_dir
+    iqtree_cmd_txt                      = '%s/iqtree_cmds.txt'                  % iqtree_dir
+
+    ############################################################
 
     # create folder
     if force_overwrite is True:
@@ -368,7 +374,7 @@ def MarkerRef2Tree(args):
         if os.path.isdir(blast_op_dir) is False:
             os.system('mkdir %s' % blast_op_dir)
 
-    os.system('cat %s/*.%s > %s' % (faa_file_dir, faa_file_ext, pwd_combined_protein))
+    os.system('cat %s/*.faa > %s' % (faa_file_dir, pwd_combined_protein))
 
     # get blastp command
     blast_cmd_list = []
@@ -376,9 +382,8 @@ def MarkerRef2Tree(args):
     blastp_cmd_txt_handle = open(blastp_cmd_txt, 'w')
     for gnm_id in gnm_id_list_sorted:
         for each_cog in marker_id_set:
-            #blastp_cmd = 'blastp -subject /home-user/wzsong/DateArTree/02_Williams_2017_45_arCOG/%s.fa -evalue 1e-30 -outfmt 6 -query /home-user/wzsong/DateArTree/01_genome_selection_Prokka/d__Archaea_o_rs_133_gnms_plus_27_mito_faa_files/%s.faa -out %s/%s_vs_%s_blastp.txt' % (each_cog, gnm_id, blast_op, gnm_id, each_cog)
-            pwd_blast_op = '%s/%s_vs_%s_blastp.txt'                                                    % (blast_op_dir, gnm_id, each_cog)
-            blastp_cmd   = 'blastp -subject %s/%s.fa -evalue 1e-%s -outfmt 6 -query %s/%s.faa -out %s' % (marker_seq_dir, each_cog, e_value, faa_file_dir, gnm_id, pwd_blast_op)
+            pwd_blast_op = '%s/%s_vs_%s_blastp.txt'                                                  % (blast_op_dir, gnm_id, each_cog)
+            blastp_cmd   = 'blastp -subject %s/%s.faa -evalue %s -outfmt 6 -query %s/%s.faa -out %s' % (marker_seq_dir, each_cog, e_value, faa_file_dir, gnm_id, pwd_blast_op)
             blast_op_to_cmd_dict[pwd_blast_op] = blastp_cmd
             blastp_cmd_txt_handle.write(blastp_cmd + '\n')
             blast_cmd_list.append(blastp_cmd)
@@ -429,7 +434,7 @@ def MarkerRef2Tree(args):
                     else:
                         best_hit_dict_by_marker[each_cog].append(best_hit_gene)
 
-    # create output dir
+    # create dir
     if os.path.isdir(best_hit_id_by_marker_dir) is False:
         os.system('mkdir %s' % best_hit_id_by_marker_dir)
     if os.path.isdir(best_hit_seq_by_marker_dir) is False:
@@ -441,46 +446,42 @@ def MarkerRef2Tree(args):
     if os.path.isdir(best_hit_aln_by_marker_dir_trimmed) is False:
         os.system('mkdir %s' % best_hit_aln_by_marker_dir_trimmed)
 
-    # write out best hits and extract sequences
-    if skip_align_trim is True:
-        print('Skipping the extraction, alignment and trimming of markers')
-    else:
-        processing_index = 1
-        for each_marker in best_hit_dict_by_marker:
-            print('Processing (extract, align and trim) marker %s/%s: %s' % (processing_index, len(best_hit_dict_by_marker), each_marker))
-            processing_index += 1
+    processing_index = 1
+    for each_marker in best_hit_dict_by_marker:
+        print('Processing (extract sequence, align and trim) marker %s/%s: %s' % (processing_index, len(best_hit_dict_by_marker), each_marker))
+        processing_index += 1
 
-            current_m_hit_list      = best_hit_dict_by_marker[each_marker]
-            marker_hits_txt         = ('%s/%s.txt' % (best_hit_id_by_marker_dir,          each_marker)).replace(':', '')
-            marker_hits_seq         = ('%s/%s.fa'  % (best_hit_seq_by_marker_dir,         each_marker)).replace(':', '')
-            marker_hits_seq_renamed = ('%s/%s.fa'  % (best_hit_seq_by_marker_dir_renamed, each_marker)).replace(':', '')
-            marker_hits_aln         = ('%s/%s.aln' % (best_hit_aln_by_marker_dir,         each_marker)).replace(':', '')
-            marker_hits_aln_trimmed = ('%s/%s.aln' % (best_hit_aln_by_marker_dir_trimmed, each_marker)).replace(':', '')
+        current_m_hit_list      = best_hit_dict_by_marker[each_marker]
+        marker_hits_txt         = ('%s/%s.txt' % (best_hit_id_by_marker_dir,          each_marker)).replace(':', '')
+        marker_hits_seq         = ('%s/%s.fa'  % (best_hit_seq_by_marker_dir,         each_marker)).replace(':', '')
+        marker_hits_seq_renamed = ('%s/%s.fa'  % (best_hit_seq_by_marker_dir_renamed, each_marker)).replace(':', '')
+        marker_hits_aln         = ('%s/%s.aln' % (best_hit_aln_by_marker_dir,         each_marker)).replace(':', '')
+        marker_hits_aln_trimmed = ('%s/%s.aln' % (best_hit_aln_by_marker_dir_trimmed, each_marker)).replace(':', '')
 
-            with open(marker_hits_txt, 'w') as marker_hits_txt_handle:
-                marker_hits_txt_handle.write('\n'.join(current_m_hit_list))
+        with open(marker_hits_txt, 'w') as marker_hits_txt_handle:
+            marker_hits_txt_handle.write('\n'.join(current_m_hit_list))
 
-            # extract sequences
-            select_seq(pwd_combined_protein, marker_hits_txt, 1, marker_hits_seq, True, False)
+        # extract sequences
+        select_seq(pwd_combined_protein, marker_hits_txt, 1, marker_hits_seq, True, False)
 
-            # rename sequences
-            marker_hits_seq_renamed_handle = open(marker_hits_seq_renamed, 'w')
-            for each_seq in SeqIO.parse(marker_hits_seq, 'fasta'):
-                seq_id = each_seq.id
-                seq_gnm = best_hit_to_gnm_dict[seq_id]
-                marker_hits_seq_renamed_handle.write('>%s\n' % seq_gnm)
-                marker_hits_seq_renamed_handle.write('%s\n' % str(each_seq.seq))
-            marker_hits_seq_renamed_handle.close()
+        # rename sequences
+        marker_hits_seq_renamed_handle = open(marker_hits_seq_renamed, 'w')
+        for each_seq in SeqIO.parse(marker_hits_seq, 'fasta'):
+            seq_id = each_seq.id
+            seq_gnm = best_hit_to_gnm_dict[seq_id]
+            marker_hits_seq_renamed_handle.write('>%s\n' % seq_gnm)
+            marker_hits_seq_renamed_handle.write('%s\n' % str(each_seq.seq))
+        marker_hits_seq_renamed_handle.close()
 
-            # run mafft-einsi
-            mafft_cmd = 'mafft-einsi --thread %s --quiet %s  > %s' % (num_of_threads, marker_hits_seq_renamed, marker_hits_aln)
-            #print('running: ' + mafft_cmd)
-            os.system(mafft_cmd)
+        # run mafft-einsi
+        mafft_cmd = 'mafft-einsi --thread %s --quiet %s  > %s' % (num_of_threads, marker_hits_seq_renamed, marker_hits_aln)
+        #print('running: ' + mafft_cmd)
+        os.system(mafft_cmd)
 
-            # trim msa
-            trimal_cmd = 'trimal -in %s -out %s -automated1' % (marker_hits_aln, marker_hits_aln_trimmed)
-            #print('running: ' + trimal_cmd)
-            os.system(trimal_cmd)
+        # trim msa
+        trimal_cmd = 'trimal -in %s -out %s -automated1' % (marker_hits_aln, marker_hits_aln_trimmed)
+        #print('running: ' + trimal_cmd)
+        os.system(trimal_cmd)
 
     ########## Assess marker by PA ##########
 
@@ -491,10 +492,9 @@ def MarkerRef2Tree(args):
         os.system('rm -r %s' % assess_marker_pa_dir)
     os.system('mkdir %s' % assess_marker_pa_dir)
 
-    # Assess marker by PA
-    AssessMarkerPA(best_hit_aln_by_marker_dir_trimmed, gnm_set, gnm_group_txt, present_pct_cutoff_list, assess_marker_pa_dir)
+    AssessMarkerPA(best_hit_aln_by_marker_dir_trimmed, gnm_set, group_to_gnm_dict, present_pct_cutoff_list, assess_marker_pa_dir)
 
-    ########## concatenate marker set ##########
+    ########## concatenate marker ##########
 
     # create output dir
     if os.path.isdir(trimmed_msa_PA_concatenated_dir) is True:
@@ -502,88 +502,41 @@ def MarkerRef2Tree(args):
     os.system('mkdir %s' % trimmed_msa_PA_concatenated_dir)
 
     qualified_cutoff_list = []
-    for each_cutoff in present_pct_cutoff_list:
-        current_cutoff_trimmed_msa_dir = '%s/qualified_marker_PA_%s' % (assess_marker_pa_dir, each_cutoff)
+    for each_c in present_pct_cutoff_list:
+        current_cutoff_trimmed_msa_dir = '%s/marker_PA%s' % (assess_marker_pa_dir, each_c)
         trimmed_msa_re   = '%s/*.aln' % current_cutoff_trimmed_msa_dir
         trimmed_msa_list = [os.path.basename(file_name) for file_name in glob.glob(trimmed_msa_re)]
 
         if len(trimmed_msa_list) < minimal_marker_number:
-            print('The number of qualified marker under PA cutoff %s: %s, skipped!' % (each_cutoff, len(trimmed_msa_list)))
+            print('The number of qualified marker under PA cutoff %s: %s, skipped!' % (each_c, len(trimmed_msa_list)))
         else:
-            qualified_cutoff_list.append(each_cutoff)
-            pwd_concatenated_marker_phy       = '%s/qualified_marker_PA_%s_concatenated.phy'                % (trimmed_msa_PA_concatenated_dir, each_cutoff)
-            pwd_concatenated_marker_partition = '%s/qualified_marker_PA_%s_concatenated_partition.txt'      % (trimmed_msa_PA_concatenated_dir, each_cutoff)
-            #catfasta2phyml_cmd                = 'perl %s --sequential --concatenate %s/*.aln > %s 2> %s'    % (catfasta2phyml_pl, current_cutoff_trimmed_msa_dir, pwd_concatenated_marker_phy, pwd_concatenated_marker_partition)
-            #print('running: ' + catfasta2phyml_cmd)
-            #os.system(catfasta2phyml_cmd)
+            qualified_cutoff_list.append(each_c)
+            pwd_concatenated_marker_phy       = '%s/marker_pa%s.phy'           % (trimmed_msa_PA_concatenated_dir, each_c)
+            pwd_concatenated_marker_partition = '%s/marker_pa%s_partition.txt' % (trimmed_msa_PA_concatenated_dir, each_c)
             catfasta2phy(current_cutoff_trimmed_msa_dir, 'aln', pwd_concatenated_marker_phy, pwd_concatenated_marker_partition)
 
     ########## get guide tree and C60+PMSF tree for each set of marker set ##########
 
-    # create output dir
-    if os.path.isdir(iqtree_dir) is True:
-        os.system('rm -r %s' % iqtree_dir)
-    os.system('mkdir %s' % iqtree_dir)
+    iqtree_cmd_txt_handle = open(iqtree_cmd_txt, 'w')
+    iqtree_cmd_list = []
+    for each_c in qualified_cutoff_list:
 
-    current_dir = os.getcwd()
-    for each_qualified_cutoff in qualified_cutoff_list:
+        os.system('mkdir %s/PA%s_guide_tree'    % ((iqtree_dir, each_c)))
+        os.system('mkdir %s/PA%s_PMSF_C60_tree' % ((iqtree_dir, each_c)))
 
-        # create output dir
-        get_guide_tree_wd    = '%s/PA_%s_guide_tree'    % (iqtree_dir, each_qualified_cutoff)
-        get_c60_pmsf_tree_wd = '%s/PA_%s_C60_PMSF_tree' % (iqtree_dir, each_qualified_cutoff)
-        os.system('mkdir %s' % get_guide_tree_wd)
-        os.system('mkdir %s' % get_c60_pmsf_tree_wd)
+        get_guide_tree_cmd = 'iqtree -s marker_pa%s.phy --prefix PA%s_guide_tree/PA%s_guide_tree --seqtype AA -m LG -T %s -B 1000 --alrt 1000 --quiet'                                                       % (each_c, each_c, each_c, num_of_threads)
+        get_c60_tree_cmd   = 'iqtree -s marker_pa%s.phy --prefix PA%s_PMSF_C60_tree/PA%s_PMSF_C60 --seqtype AA -m LG+C60+F+G -T %s -B 1000 --alrt 1000 --quiet -ft PA%s_guide_tree/PA%s_guide_tree.treefile' % (each_c, each_c, each_c, num_of_threads, each_c, each_c)
+        cmds_in_one_line   = '%s; %s' % (get_guide_tree_cmd, get_c60_tree_cmd)
 
-        # define file name
-        pwd_concatenated_marker_phy = '%s/%s/qualified_marker_PA_%s_concatenated.phy'                                                                   % (os.getcwd(), trimmed_msa_PA_concatenated_dir, each_qualified_cutoff)
-        pwd_guide_tree              = '%s/%s/guide_tree.treefile'                                                                                       % (os.getcwd(), get_guide_tree_wd)
-        get_guide_tree_cmd          = 'iqtree -s %s --prefix %s/%s/guide_tree --seqtype AA -m LG -T %s -B 1000 --alrt 1000 --quiet'                     % (pwd_concatenated_marker_phy, os.getcwd(), get_guide_tree_wd, js_cpu_num)
-        get_c60_tree_cmd            = 'iqtree -s %s --prefix %s/%s/concatenated --seqtype AA -m LG+G+F+C60 -T %s -B 1000 --alrt 1000 --quiet -ft %s'    % (pwd_concatenated_marker_phy, os.getcwd(), get_c60_pmsf_tree_wd, js_cpu_num, pwd_guide_tree)
+        iqtree_cmd_txt_handle.write('%s\n' % cmds_in_one_line)
+        iqtree_cmd_list.append(cmds_in_one_line)
+    iqtree_cmd_txt_handle.close()
 
-        # write out job script
-        js_iqtree = '%s/js_iqtree_%s.sh' % (iqtree_dir, each_qualified_cutoff)
-        with open(js_iqtree, 'w') as js_iqtree_handle:
-            js_iqtree_handle.write('#!/bin/bash\n#SBATCH --ntasks 1\n#SBATCH --cpus-per-task %s\n' % js_cpu_num)
-            js_iqtree_handle.write('cd %s/%s\n'    % (os.getcwd(), get_guide_tree_wd))
-            js_iqtree_handle.write('%s\n' % get_guide_tree_cmd)
-            js_iqtree_handle.write('cd %s/%s\n'    % (os.getcwd(), get_c60_pmsf_tree_wd))
-            js_iqtree_handle.write('%s\n' % get_c60_tree_cmd)
-
-        # submit job script
-        print('Commands for running iqtree exported to: %s' % js_iqtree)
-        if submit_job is True:
-            os.chdir(iqtree_dir)
-            os.system('qsub js_iqtree_%s.sh' % each_qualified_cutoff)
-            os.chdir(current_dir)
-
-    ########## provide commands for running DeltaLL ##########
-
-    # create output dir
-    if os.path.isdir(deltall_dir) is True:
-        os.system('rm -r %s' % deltall_dir)
-    os.system('mkdir %s' % deltall_dir)
-
-    print('Suggested commands for running DeltaLL')
-    for each_qualified_cutoff in qualified_cutoff_list:
-        pwd_js          = '%s/%s/js_deltall_PA%s.sh'                        % (os.getcwd(), deltall_dir, each_qualified_cutoff)
-        deltaLL_wd      = '%s/%s/PA_%s'                                     % (os.getcwd(), deltall_dir, each_qualified_cutoff)
-        msa_dir         = '%s/%s/qualified_marker_PA_%s'                    % (os.getcwd(), assess_marker_pa_dir, each_qualified_cutoff)
-        pwd_tree_file   = '%s/%s/PA_%s_C60_PMSF_tree/concatenated.treefile' % (os.getcwd(), iqtree_dir, each_qualified_cutoff)
-        deltaLL_stdout  = 'PA_%s_stdout.txt'                                % (each_qualified_cutoff)
-        deltall_cmd     = 'ruby %s --force --cpu %s -T %s --outdir %s --indir %s -t %s --outgrp_file %s --taxa %s > %s' % ('$deltaLL_rb', js_cpu_num, js_cpu_num, deltaLL_wd, msa_dir, pwd_tree_file, '$outgrp_file', '$taxa_list_txt', deltaLL_stdout)
-
-        with open(pwd_js, 'w') as pwd_js_handle:
-            pwd_js_handle.write('#!/bin/bash\n#SBATCH --ntasks 1\n#SBATCH --cpus-per-task %s\n\n' % js_cpu_num)
-            pwd_js_handle.write('source activate ruby\n')
-            pwd_js_handle.write('RUBYLIB=$RUBYLIB:/home-user/wzsong/Software/ruby_lib_sswang/\n')
-            pwd_js_handle.write('export RUBYLIB\n')
-            pwd_js_handle.write('cd %s/%s\n' % (os.getcwd(), deltall_dir))
-            pwd_js_handle.write('outgrp_file="deltaLL_outgroup.txt"\n')
-            pwd_js_handle.write('taxa_list_txt="deltaLL_eu_taxa_list.txt"\n')
-            pwd_js_handle.write('deltaLL_rb="/home-user/wzsong/Scripts/deltaLL.rb"\n')
-            pwd_js_handle.write(deltall_cmd + '\n')
-
-    ##########################################################
+    # run iqtree
+    os.chdir(iqtree_dir)
+    for each_cmd in iqtree_cmd_list:
+        print('Running: %s' % each_cmd)
+        os.system(each_cmd)
 
     print('Done!')
 
@@ -592,19 +545,14 @@ if __name__ == '__main__':
 
     # initialize the options parser
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m',               required=True,                          help='marker seq dir')
-    parser.add_argument('-mx',              required=True,                          help='marker seq ext')
-    parser.add_argument('-aa',              required=True,                          help='faa file dir')
-    parser.add_argument('-aax',             required=True,                          help='faa file ext')
-    parser.add_argument('-g',               required=True,                          help='genome group')
-    parser.add_argument('-pac',             required=False, default='0-50-75-100',  help='cutoffs, default: 0-50-75-100')
+    parser.add_argument('-i',               required=True,                          help='faa file dir, file extension need to be faa')
+    parser.add_argument('-m',               required=True,                          help='marker seq dir, file extension need to be faa')
+    parser.add_argument('-g',               required=False, default=None,           help='genome group')
+    parser.add_argument('-c',               required=False, default='85',           help='presence absence cutoffs, default: 85')
     parser.add_argument('-o',               required=True,                          help='output dir')
-    parser.add_argument('-e',               required=True,                          help='e-value')
+    parser.add_argument('-e',               required=False, default='1e-30',        help='e-value cutoff, default: 1e-30')
     parser.add_argument('-t',               required=True,  type=int,               help='num of threads')
-    parser.add_argument('-skip_align_trim', required=False, action="store_true",    help='skip extracting, aligning and trimming markers')
-    parser.add_argument('-mmn',             required=False, default=10, type=int,   help='minimal marker number, default: 10')
-    parser.add_argument('-jst',             required=False, default='6',            help='threads to request in job script, for running iqtree')
-    parser.add_argument('-qsub',            required=False, action="store_true",    help='submit job scripts')
+    parser.add_argument('-mmn',             required=False, default=1, type=int,    help='minimal marker number, default: 1')
     parser.add_argument('-f',               required=False, action="store_true",    help='force overwrite')
     args = vars(parser.parse_args())
     MarkerRef2Tree(args)
@@ -612,15 +560,7 @@ if __name__ == '__main__':
 
 '''
 
-conda activate mypy3env
-cd /home-user/wzsong/DateArTree
-python3 MarkerRef2Tree.py -m Marker_set_2_Betts_2018_29_arCOG -mx fa -aa /home-user/wzsong/DateArTree/01_genome_selection_Prokka/d__Archaea_o_rs_133_gnms_plus_27_mito_faa_files -aax faa -o Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30_demo -e 30 -t 24 -pl /home-user/wzsong/Scripts/catfasta2phyml.pl
-submitHPC.sh --cmd "python3 MarkerRef2Tree.py -m Marker_set_2_Betts_2018_29_arCOG -mx fa -aa /home-user/wzsong/DateArTree/01_genome_selection_Prokka/d__Archaea_o_rs_133_gnms_plus_27_mito_faa_files -aax faa -g /home-user/wzsong/DateArTree/gnm_group.txt -o Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30_demo -e 30 -t 24 -pl /home-user/wzsong/Scripts/catfasta2phyml.pl" -n 24 -c Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30_demo
-
-cd /home-user/wzsong/DateArTree
-python3 MarkerRef2Tree.py -m Marker_set_2_Betts_2018_29_arCOG -mx fa -aa /home-user/wzsong/DateArTree/01_genome_selection_Prokka/d__Archaea_o_rs_133_gnms_plus_27_mito_faa_files -aax faa -g /home-user/wzsong/DateArTree/gnm_group.txt -o Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30_demo -e 30 -t 12 -pl /home-user/wzsong/Scripts/catfasta2phyml.pl -g gnm_group.txt -skip_align_trim -jst 6 -qsub
-
-cd /Users/songweizhi/Desktop/demo
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/MarkerRef2Tree.py -m Marker_set_2_Betts_2018_29_arCOG -mx fa -aa d__Archaea_o_rs_133_gnms_plus_27_mito_faa_files -aax faa -g gnm_group.txt -o Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30_demo -e 30 -t 10 -pl /Users/songweizhi/Scripts/catfasta2phyml.pl -g gnm_group.txt -skip_align_trim -jst 6 -qsub
+cd /Users/songweizhi/Desktop/test
+/usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/MarkerRef2Tree.py -m Yang_70 -aa dRep97_195_faa -o MarkerRef2Tree_Yang70 -t 12 -f
 
 '''
