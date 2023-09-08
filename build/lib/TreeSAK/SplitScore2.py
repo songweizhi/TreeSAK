@@ -12,14 +12,16 @@ from collections import defaultdict
 SplitScore2_usage = '''
 ======================== SplitScore2 example commands ========================
 
-TreeSAK SplitScore2 -i step1_op_dir -g gnm_cluster.tsv -d ar53_metadata_r214.tsv -k GTDB.r214.ar53.summary.tsv -f -t 10 -o step_2_op_dir
+TreeSAK SplitScore2 -i step1_op_dir -g gnm_cluster.tsv -k gnm_taxon.txt -f -t 10 -o step_2_op_dir
 
 # format of gnm_cluster.tsv (tab separated)
-c01_UBA8516	GCA_013330055.1
-c01_UBA8516	GCA_023251795.1
-c01_UBA8516	GCA_023251295.1
-c02_TA-20	GCA_005877305.1
-c02_TA-20	GCA_013287585.1
+GCA_013330055.1 c01_UBA8516
+GCA_023251795.1 c01_UBA8516
+GCA_023251295.1 c01_UBA8516
+GCA_005877305.1 c02_TA-20
+GCA_013287585.1 c02_TA-20
+
+# gnm_taxon.txt: GTDB format
 
 =============================================================================
 '''
@@ -58,7 +60,7 @@ def gtdb_gnm_metadata_parser(gtdb_genome_metadata):
     return genome_to_completeness_dict, genome_to_contamination_dict, genome_to_taxon_dict, genome_to_biosample_dict
 
 
-def get_rename_dict(tree_str_in, mag_cluster_dict, sponge_mag_tax_dict, gtdb_gnm_tax_dict):
+def get_rename_dict(tree_str_in, mag_cluster_dict, gtdb_gnm_tax_dict):
 
     # rename dict: {'old_name':'new_name'}
 
@@ -70,8 +72,6 @@ def get_rename_dict(tree_str_in, mag_cluster_dict, sponge_mag_tax_dict, gtdb_gnm
 
         # get mag_taxon_str
         gnm_taxon_str = 'NA'
-        if leaf_name_gnm in sponge_mag_tax_dict:
-            gnm_taxon_str = sponge_mag_tax_dict[leaf_name_gnm]
         if leaf_name_gnm in gtdb_gnm_tax_dict:
             gnm_taxon_str = gtdb_gnm_tax_dict[leaf_name_gnm]
 
@@ -284,20 +284,19 @@ def count_sister_taxa(target_label, tree_in_ml, tree_in_bs, output_file):
 def count_sister_taxa_worker(arg_list):
 
     mag_cluster_dict                = arg_list[0]
-    sponge_archaeal_MAG_tax_dict    = arg_list[1]
-    gtdb_ar_gnm_tax_dict            = arg_list[2]
-    tree_ml                         = arg_list[3]
-    ufboot_file                     = arg_list[4]
-    target_label                    = arg_list[5]
-    tree_ml_renamed                 = arg_list[6]
-    ufboot_file_renamed             = arg_list[7]
-    count_sister_taxa_op_txt        = arg_list[8]
-    gene_id                         = arg_list[9]
-    renamed_gnm_to_cluster_dir      = arg_list[10]
+    gnm_tax_dict                    = arg_list[1]
+    tree_ml                         = arg_list[2]
+    ufboot_file                     = arg_list[3]
+    target_label                    = arg_list[4]
+    tree_ml_renamed                 = arg_list[5]
+    ufboot_file_renamed             = arg_list[6]
+    count_sister_taxa_op_txt        = arg_list[7]
+    gene_id                         = arg_list[8]
+    renamed_gnm_to_cluster_dir      = arg_list[9]
 
     # rename ml tree
     tree_ml_renamed_handle = open(tree_ml_renamed, 'w')
-    current_tree_rename_dict = get_rename_dict(tree_ml, mag_cluster_dict, sponge_archaeal_MAG_tax_dict, gtdb_ar_gnm_tax_dict)
+    current_tree_rename_dict = get_rename_dict(tree_ml, mag_cluster_dict, gnm_tax_dict)
     tree_ml_str_renamed = rename_tree(tree_ml, current_tree_rename_dict)
     tree_ml_renamed_handle.write(tree_ml_str_renamed + '\n')
     tree_ml_renamed_handle.close()
@@ -314,7 +313,7 @@ def count_sister_taxa_worker(arg_list):
     ufboot_file_renamed_handle = open(ufboot_file_renamed, 'w')
     for each_tree in open(ufboot_file):
         tree_str = each_tree.strip()
-        current_tree_rename_dict = get_rename_dict(tree_str, mag_cluster_dict, sponge_archaeal_MAG_tax_dict, gtdb_ar_gnm_tax_dict)
+        current_tree_rename_dict = get_rename_dict(tree_str, mag_cluster_dict, gnm_tax_dict)
         tree_str_renamed = rename_tree(tree_str, current_tree_rename_dict)
         ufboot_file_renamed_handle.write(tree_str_renamed + '\n')
     ufboot_file_renamed_handle.close()
@@ -323,7 +322,7 @@ def count_sister_taxa_worker(arg_list):
     count_sister_taxa(target_label, tree_ml_renamed, ufboot_file_renamed, count_sister_taxa_op_txt)
 
 
-def run_count_sister_taxa(genome_metadata_ar53, sponge_MAG_GTDB_archaea, hog_list, contree_dir, ufboot_dir, gnm_cluster_txt, target_label, num_threads, output_dir, force_overwrite):
+def run_count_sister_taxa(gtdb_classification_txt, hog_list, contree_dir, ufboot_dir, gnm_cluster_txt, target_label, num_threads, output_dir, force_overwrite):
 
     # define file name
     renamed_gnm_to_cluster_dir      = '%s/renamed_genome_to_cluster'            % output_dir
@@ -347,18 +346,20 @@ def run_count_sister_taxa(genome_metadata_ar53, sponge_MAG_GTDB_archaea, hog_lis
     os.mkdir(count_sister_taxa_op_dir)
     os.mkdir(renamed_gnm_to_cluster_dir)
 
-    _, _, gtdb_ar_gnm_tax_dict, _ = gtdb_gnm_metadata_parser(genome_metadata_ar53)
+    ####################################################################################################################
 
-    sponge_archaeal_MAG_tax_dict = {}
-    for each in open(sponge_MAG_GTDB_archaea):
+    gnm_tax_dict = {}
+    for each in open(gtdb_classification_txt):
         if not each.startswith('user_genome'):
             each_split = each.strip().split('\t')
-            sponge_archaeal_MAG_tax_dict[each_split[0]] = each_split[1]
+            gnm_tax_dict[each_split[0]] = each_split[1]
+
+    ####################################################################################################################
 
     mag_cluster_dict = {}
     for each_gnm in open(gnm_cluster_txt):
         each_gnm_split = each_gnm.strip().split('\t')
-        mag_cluster_dict[each_gnm_split[1]] = each_gnm_split[0]
+        mag_cluster_dict[each_gnm_split[0]] = each_gnm_split[1]
 
     argument_lol = []
     for og_id in hog_list:
@@ -374,7 +375,7 @@ def run_count_sister_taxa(genome_metadata_ar53, sponge_MAG_GTDB_archaea, hog_lis
             print('%s not found!' % tree_ml)
             exit()
 
-        current_arg_list = [mag_cluster_dict, sponge_archaeal_MAG_tax_dict, gtdb_ar_gnm_tax_dict, tree_ml, ufboot_file, target_label, tree_ml_renamed, ufboot_file_renamed, count_sister_taxa_op_txt, og_id, renamed_gnm_to_cluster_dir]
+        current_arg_list = [mag_cluster_dict, gnm_tax_dict, tree_ml, ufboot_file, target_label, tree_ml_renamed, ufboot_file_renamed, count_sister_taxa_op_txt, og_id, renamed_gnm_to_cluster_dir]
         argument_lol.append(current_arg_list)
 
     # run with multiprocessing
@@ -462,17 +463,17 @@ def get_taxa_count_stats(step_1_op_dir, hog_list_sorted, get_taxa_count_stats_wd
     os.system(get_TaxaCountStats_cmd)
 
 
-def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, op_dir):
+def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, op_dir, op_prefix):
 
     # define file name
-    marker_set_top_25_txt       = '%s/top25.txt'    % op_dir
-    marker_set_top_50_txt       = '%s/top50.txt'    % op_dir
-    marker_set_top_75_txt       = '%s/top75.txt'    % op_dir
-    marker_set_top_100_txt      = '%s/top100.txt'   % op_dir
-    marker_set_top_25_seq_dir   = '%s/top25'        % op_dir
-    marker_set_top_50_seq_dir   = '%s/top50'        % op_dir
-    marker_set_top_75_seq_dir   = '%s/top75'        % op_dir
-    marker_set_top_100_seq_dir  = '%s/top100'       % op_dir
+    marker_set_top_25_txt       = '%s/%s_top25.txt'    % (op_dir, op_prefix)
+    marker_set_top_50_txt       = '%s/%s_top50.txt'    % (op_dir, op_prefix)
+    marker_set_top_75_txt       = '%s/%s_top75.txt'    % (op_dir, op_prefix)
+    marker_set_top_100_txt      = '%s/%s_top100.txt'   % (op_dir, op_prefix)
+    marker_set_top_25_seq_dir   = '%s/%s_top25'        % (op_dir, op_prefix)
+    marker_set_top_50_seq_dir   = '%s/%s_top50'        % (op_dir, op_prefix)
+    marker_set_top_75_seq_dir   = '%s/%s_top75'        % (op_dir, op_prefix)
+    marker_set_top_100_seq_dir  = '%s/%s_top100'       % (op_dir, op_prefix)
 
     os.system('mkdir %s' % marker_set_top_25_seq_dir)
     os.system('mkdir %s' % marker_set_top_50_seq_dir)
@@ -517,9 +518,9 @@ def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, op_dir):
 
 def SplitScore2(args):
 
+    op_prefix                   = args['p']
     step_1_op_dir               = args['i']
     gnm_group_txt               = args['g']
-    gtdb_metadata_ar53          = args['d']
     gtdb_classification_txt     = args['k']
     force_overwrite             = args['f']
     num_of_threads              = args['t']
@@ -558,13 +559,13 @@ def SplitScore2(args):
     os.mkdir(step_2_op_dir)
 
     print('Counting sister taxa')
-    run_count_sister_taxa(gtdb_metadata_ar53, gtdb_classification_txt, contree_ufboot_shared_sorted, qualified_og_seq_dir, qualified_og_seq_dir, gnm_group_txt, target_label, num_of_threads, count_sister_taxa_op_dir, force_overwrite)
+    run_count_sister_taxa(gtdb_classification_txt, contree_ufboot_shared_sorted, qualified_og_seq_dir, qualified_og_seq_dir, gnm_group_txt, target_label, num_of_threads, count_sister_taxa_op_dir, force_overwrite)
 
     print('Summarising sister taxa')
     get_taxa_count_stats(count_sister_taxa_op_dir, contree_ufboot_shared_sorted, get_taxa_count_stats_op_dir, force_overwrite, TaxaCountStats_Rscript)
 
     print('Exporting markers by split score')
-    group_marker(TaxaCountStats_output_txt, qualified_og_seq_dir, step_2_op_dir)
+    group_marker(TaxaCountStats_output_txt, qualified_og_seq_dir, step_2_op_dir, op_prefix)
 
     print('Done!')
 
@@ -572,10 +573,10 @@ def SplitScore2(args):
 if __name__ == '__main__':
 
     SplitScore2_parser = argparse.ArgumentParser()
-    SplitScore2_parser.add_argument('-i', required=True,                        help='outputs of iqtree from step 1, only needs the contree and ufboot files')
+    SplitScore2_parser.add_argument('-p', required=True,                        help='output prefix')
+    SplitScore2_parser.add_argument('-i', required=True,                        help='output dir from SplitScore1')
     SplitScore2_parser.add_argument('-g', required=True,                        help='genome group')
-    SplitScore2_parser.add_argument('-d', required=True,                        help='GTDB file, ar53_metadata_r221.tsv')
-    SplitScore2_parser.add_argument('-k', required=True,                        help='taxonomic classification')
+    SplitScore2_parser.add_argument('-k', required=True,                        help='genome taxon, GTDB format')
     SplitScore2_parser.add_argument('-f', required=False, action="store_true",  help='force overwrite')
     SplitScore2_parser.add_argument('-t', required=False, type=int, default=1,  help='num of threads, default: 1')
     SplitScore2_parser.add_argument('-o', required=True,                        help='output directory')

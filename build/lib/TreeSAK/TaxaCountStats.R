@@ -8,8 +8,21 @@
 # modified by Weizhi
 # Rscript /Users/songweizhi/PycharmProjects/Sponge_Hologenome/Scripts/TaxaCountStats.R -t treefile_v2.tre -l List_of_trees_2.txt -g mapping_3.txt -x MarkerList.txt -s TaxaCounts_op.txt -r Genes_to_remove.txt -o a.txt
 
+################################################################################
+
+suppressMessages(library(optparse))
+suppressMessages(library(plyr))
+suppressMessages(library(dbplyr))
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(data.table))
+suppressMessages(library(RColorBrewer))
+suppressMessages(library(gplots))
+suppressMessages(library(ape))
+
 ####################################### argument parser ######################################
-library(optparse)
+
 option_list = list(
   make_option(c("-t", "--tree"),       type="character", help="combined_contree_file"),
   make_option(c("-l", "--treelist"),   type="character", help="list_of_trees_txt"),
@@ -51,20 +64,6 @@ sessionInfo()
 # Genes_to_remove.txt                                     basically a list of marker gene ids
 # MarkerList.txt                                          basically a list of marker gene ids (152, mind order)
 # TaxaCounts_151MarkerGenes_ArcRefv5UAP2_129taxa_v5.txt   concatenated output from count_sister_taxa.py
-
-################################################################################
-# load packages
-################################################################################
-
-suppressMessages(library("plyr"))
-suppressMessages(library("dbplyr"))
-suppressMessages(library(dplyr))
-suppressMessages(library(tidyr))
-suppressMessages(library(ggplot2))
-suppressMessages(library(data.table))
-suppressMessages(library(RColorBrewer))
-suppressMessages(library(gplots))
-suppressMessages(library(ape))
 
 ################################################################################
 #1. read in the treefiles (all concatenated in one large document)

@@ -122,6 +122,7 @@ def MarkerSeq2Tree(args):
     concatenated_phy                    = '%s/concatenated.phy'                 % op_dir
     concatenated_phy_partition          = '%s/concatenated_partition.txt'       % op_dir
     iqtree_dir                          = '%s/iqtree_wd'                        % op_dir
+    cmds_txt                            = '%s/cmds.txt'                         % op_dir
     pwd_guide_tree                      = '%s/iqtree_wd/guide_tree.treefile'    % op_dir
 
     # create output folder
@@ -156,6 +157,13 @@ def MarkerSeq2Tree(args):
         # align and trim
         mafft_cmd  = 'mafft-einsi --thread %s --quiet %s  > %s' % (num_of_threads, pwd_renamed_marker_seq, pwd_renamed_marker_aln)
         trimal_cmd = 'trimal -in %s -out %s -automated1'        % (pwd_renamed_marker_aln, pwd_renamed_marker_aln_trimmed)
+
+        # write out cmds
+        with open(cmds_txt, 'a') as cmds_txt_handle:
+            cmds_txt_handle.write(mafft_cmd + '\n')
+            cmds_txt_handle.write(trimal_cmd + '\n')
+
+        # run cmds
         os.system(mafft_cmd)
         os.system(trimal_cmd)
 
@@ -166,8 +174,13 @@ def MarkerSeq2Tree(args):
     os.mkdir(iqtree_dir)
     get_guide_tree_cmd  = 'iqtree2 --seqtype AA -T %s -B 1000 --alrt 1000 --quiet -s %s --prefix %s/guide_tree -m LG '                  % (num_of_threads, concatenated_phy, iqtree_dir, )
     get_c60_tree_cmd    = 'iqtree2 --seqtype AA -T %s -B 1000 --alrt 1000 --quiet -s %s --prefix %s/concatenated -m LG+C60+G+F -ft %s'  % (num_of_threads, concatenated_phy, iqtree_dir, pwd_guide_tree)
-    print(get_guide_tree_cmd)
-    print(get_c60_tree_cmd)
+
+    # write out cmds
+    with open(cmds_txt, 'a') as cmds_txt_handle:
+        cmds_txt_handle.write(get_guide_tree_cmd + '\n')
+        cmds_txt_handle.write(get_c60_tree_cmd + '\n')
+
+    # run cmds
     os.system(get_guide_tree_cmd)
     os.system(get_c60_tree_cmd)
 

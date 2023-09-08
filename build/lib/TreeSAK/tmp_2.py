@@ -1,11 +1,13 @@
-from Bio import SeqIO
 
-fa = '/Users/songweizhi/Desktop/Phylogenomics/archaeal_marker_gene_sets/Yang_70.fasta'
+gnm_tax_txt = '/Users/songweizhi/Desktop/0_metadata_final.txt'
 
-for each_seq in SeqIO.parse(fa, 'fasta'):
-    seq_file_subset = '/Users/songweizhi/Desktop/Phylogenomics/archaeal_marker_gene_sets/%s.faa' % each_seq.id
-    seq_file_subset_handle = open(seq_file_subset, 'w')
-    seq_file_subset_handle.write('>%s\n' % each_seq.id)
-    seq_file_subset_handle.write('%s\n' % str(each_seq.seq))
-    seq_file_subset_handle.close()
+gnm_id_list = []
+for each_gnm in open(gnm_tax_txt):
+    each_gnm_split = each_gnm.strip().split('\t')
+    gnm_id_list.append(each_gnm_split[0])
 
+
+for each_gnm in open('/Users/songweizhi/Desktop/aaa.txt'):
+    gnm_id = each_gnm.strip()
+    if gnm_id in gnm_id_list:
+        print(gnm_id)

@@ -1,5 +1,8 @@
-1.24.10
+1.25.1
 - fixed bugs
+
+1.25.0
+- new module added: BMGE
 
 1.24.0
 - new module added: AlignmentPruner

@@ -14,6 +14,7 @@ TreeSAK/AssessCVG.py
 TreeSAK/AssessMarker.py
 TreeSAK/AssessMarkerDeltaLL.py
 TreeSAK/AssessMarkerPA.py
+TreeSAK/BMGE.py
 TreeSAK/CompareMCMC.py
 TreeSAK/ConvertMSA.py
 TreeSAK/Dating.py
@@ -37,6 +38,7 @@ TreeSAK/SingleLinePhy.py
 TreeSAK/SliceMSA.py
 TreeSAK/SplitScore.py
 TreeSAK/SplitScore1.py
+TreeSAK/SplitScore1OMA.py
 TreeSAK/SplitScore2.py
 TreeSAK/TaxaCountStats.R
 TreeSAK/TreeSAK_config.py

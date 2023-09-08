@@ -48,6 +48,7 @@ def print_main_help():
        OneLineAln             ->  One-line fasta format alignments
        SliceMSA               ->  Slice MSA by column 
        AlignmentPruner        ->  Remove heterogenous sites from MSA
+       BMGE                   ->  Run BMGE
     
     Tree-related
        GTDB_tree              ->  get GTDB tree
@@ -216,8 +217,10 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'MarkerRef2Tree':
         from TreeSAK import MarkerRef2Tree
         MarkerRef2Tree_parser = subparsers.add_parser('MarkerRef2Tree', usage=MarkerRef2Tree.MarkerRef2Tree_usage)
-        MarkerRef2Tree_parser.add_argument('-i',               required=True,                          help='faa file dir, file extension need to be faa')
+        MarkerRef2Tree_parser.add_argument('-i',               required=True,                          help='faa dir')
+        MarkerRef2Tree_parser.add_argument('-x',               required=False, default='faa',          help='faa file extension, default: faa')
         MarkerRef2Tree_parser.add_argument('-m',               required=True,                          help='marker seq dir, file extension need to be faa')
+        MarkerRef2Tree_parser.add_argument('-mx',              required=False, default='faa',          help='marker seq file extension, default: faa')
         MarkerRef2Tree_parser.add_argument('-g',               required=False, default=None,           help='genome group')
         MarkerRef2Tree_parser.add_argument('-c',               required=False, default='85',           help='presence absence cutoffs, default: 85')
         MarkerRef2Tree_parser.add_argument('-o',               required=True,                          help='output dir')
@@ -350,27 +353,42 @@ if __name__ == '__main__':
         print(SplitScore.SplitScore_usage)
         exit()
 
+    elif sys.argv[1] == 'SplitScore1OMA':
+        from TreeSAK import SplitScore1OMA
+        SplitScore1OMA_parser = subparsers.add_parser('SplitScore1OMA', usage=SplitScore1OMA.SplitScore1OMA_usage)
+        SplitScore1OMA_parser.add_argument('-i',   required=True,                        help='OrthologousGroups.txt, produced by OMA')
+        SplitScore1OMA_parser.add_argument('-s',   required=True,                        help='OrthologousGroupsFasta, produced by OMA')
+        SplitScore1OMA_parser.add_argument('-u',   required=False, default= None,        help='ID of interested genomes, no file extension')
+        SplitScore1OMA_parser.add_argument('-o',   required=True,                        help='output directory')
+        SplitScore1OMA_parser.add_argument('-m',   required=False, default='LG+G+I',     help='iqtree_model, default: LG+G+I')
+        SplitScore1OMA_parser.add_argument('-c',   required=False, type=int, default=80, help='coverage cutoff, default: 80')
+        SplitScore1OMA_parser.add_argument('-f',   required=False, action="store_true",  help='force overwrite')
+        SplitScore1OMA_parser.add_argument('-jst', required=False, type=int, default=3,  help='num of threads for inferring gene tree, default: 3')
+        args = vars(parser.parse_args())
+        SplitScore1OMA.SplitScore1OMA(args)
+
     elif sys.argv[1] == 'SplitScore1':
         from TreeSAK import SplitScore1
         SplitScore1_parser = subparsers.add_parser('SplitScore1', usage=SplitScore1.SplitScore1_usage)
-        SplitScore1_parser.add_argument('-i',   required=True,                        help='OrthologousGroups.txt, produced by OMA')
-        SplitScore1_parser.add_argument('-s',   required=True,                        help='OrthologousGroupsFasta, produced by OMA')
-        SplitScore1_parser.add_argument('-u',   required=False, default= None,        help='ID of interested genomes, no file extension')
-        SplitScore1_parser.add_argument('-o',   required=True,                        help='output directory')
-        SplitScore1_parser.add_argument('-m',   required=False, default='LG+G+I',     help='iqtree_model, default: LG+G+I')
-        SplitScore1_parser.add_argument('-c',   required=False, type=int, default=80, help='coverage cutoff, default: 80')
-        SplitScore1_parser.add_argument('-f',   required=False, action="store_true",  help='force overwrite')
-        SplitScore1_parser.add_argument('-jst', required=False, type=int, default=3,  help='num of threads for inferring gene tree, default: 3')
+        SplitScore1_parser.add_argument('-i',   required=True,                          help='orthologous gene sequence')
+        SplitScore1_parser.add_argument('-x',   required=True,                          help='fasta file extension')
+        SplitScore1_parser.add_argument('-o',   required=True,                          help='output directory')
+        SplitScore1_parser.add_argument('-u',   required=False, default=None,           help='interested genomes, no file extension')
+        SplitScore1_parser.add_argument('-m',   required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
+        SplitScore1_parser.add_argument('-c',   required=False, type=int, default=85,   help='coverage cutoff, default: 85')
+        SplitScore1_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
+        SplitScore1_parser.add_argument('-jst', required=False, type=int, default=1,    help='num of threads for iqtree2, default: 1')
+        SplitScore1_parser.add_argument('-r',   required=False, action="store_true",    help='run commands')
         args = vars(parser.parse_args())
         SplitScore1.SplitScore1(args)
 
     elif sys.argv[1] == 'SplitScore2':
         from TreeSAK import SplitScore2
         SplitScore2_parser = subparsers.add_parser('SplitScore2', usage=SplitScore2.SplitScore2_usage)
+        SplitScore2_parser.add_argument('-p', required=True,                        help='output prefix')
         SplitScore2_parser.add_argument('-i', required=True,                        help='outputs of iqtree from step 1, only needs the contree and ufboot files')
         SplitScore2_parser.add_argument('-g', required=True,                        help='genome group')
-        SplitScore2_parser.add_argument('-d', required=True,                        help='GTDB file, ar53_metadata_r221.tsv')
-        SplitScore2_parser.add_argument('-k', required=True,                        help='taxonomic classification')
+        SplitScore2_parser.add_argument('-k', required=True,                        help='genome taxon, GTDB format')
         SplitScore2_parser.add_argument('-f', required=False, action="store_true",  help='force overwrite')
         SplitScore2_parser.add_argument('-t', required=False, type=int, default=1,  help='num of threads, default: 1')
         SplitScore2_parser.add_argument('-o', required=True,                        help='output directory')
@@ -514,6 +532,16 @@ if __name__ == '__main__':
         AlignmentPruner_parser.add_argument('-o', required=True, help='output MSA')
         args = vars(parser.parse_args())
         AlignmentPruner.AlignmentPruner(args)
+
+    elif sys.argv[1] == 'BMGE':
+        from TreeSAK import BMGE
+        BMGE_parser = subparsers.add_parser('BMGE', usage=BMGE.BMGE_usage)
+        BMGE_parser.add_argument('-p',   required=True,                         help='output prefix')
+        BMGE_parser.add_argument('-i',   required=True,                         help='input MSA')
+        BMGE_parser.add_argument('-m',   required=False, default='BLOSUM30',    help='trim model, default: BLOSUM30')
+        BMGE_parser.add_argument('-esc', required=False, default='0.55',        help='entropy score cutoff, default: 0.55')
+        args = vars(parser.parse_args())
+        BMGE.BMGE(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

@@ -3,8 +3,9 @@ SplitScore_usage = '''
 ============================================= SplitScore example commands =============================================
 
 # SplitScore modules
-TreeSAK SplitScore1  ->  Step 1: Infer gene tree
-TreeSAK SplitScore2  ->  Step 2: Calculate split score
+TreeSAK SplitScore1     ->  Step 1: Infer gene tree
+TreeSAK SplitScore1OMA  ->  Step 1: Infer gene tree (based on OMA outputs)
+TreeSAK SplitScore2     ->  Step 2: Calculate split score
 
 # SplitScore1
 TreeSAK SplitScore1 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o step1_op_dir -t 6 -f

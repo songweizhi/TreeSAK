@@ -13,8 +13,8 @@ MarkerRef2Tree_usage = '''
 Dependencies: blastp, mafft-einsi, trimal, iqtree2
 
 # example commands
-TreeSAK MarkerRef2Tree -i gnm_faa_files -m marker_seq -o output_dir -e 10 -t 6 -c 85
-TreeSAK MarkerRef2Tree -i gnm_faa_files -m marker_seq -o output_dir -e 10 -t 6 -c 75-100
+TreeSAK MarkerRef2Tree -i gnm_faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 85
+TreeSAK MarkerRef2Tree -i gnm_faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 75,100
 
 # file extension need to be faa
 
@@ -30,6 +30,7 @@ def check_dependencies(program_list):
         if find_executable(needed_program) is None:
             not_detected_programs.append(needed_program)
 
+    # report
     if not_detected_programs != []:
         print('%s not found, program exited!' % ','.join(not_detected_programs))
         exit()
@@ -292,7 +293,9 @@ def AssessMarkerPA(trimmed_aln_dir, gnm_set, group_to_gnm_dict, present_pct_cuto
 def MarkerRef2Tree(args):
 
     faa_file_dir            = args['i']
+    faa_file_ext            = args['x']
     marker_seq_dir          = args['m']
+    marker_seq_ext          = args['mx']
     gnm_group_txt           = args['g']
     op_dir                  = args['o']
     e_value                 = args['e']
@@ -305,7 +308,7 @@ def MarkerRef2Tree(args):
     check_dependencies(['blastp', 'mafft-einsi', 'trimal', 'iqtree'])
 
     # get marker id set
-    marker_seq_re   = '%s/*.faa' % (marker_seq_dir)
+    marker_seq_re   = '%s/*.%s' % (marker_seq_dir, marker_seq_ext)
     marker_seq_list = [os.path.basename(file_name) for file_name in glob.glob(marker_seq_re)]
     marker_id_set = set()
     for each_marker_seq_file in marker_seq_list:
@@ -313,7 +316,7 @@ def MarkerRef2Tree(args):
         marker_id_set.add(marker_seq_basename)
 
     # get gnm id list
-    faa_file_re   = '%s/*.faa' % (faa_file_dir)
+    faa_file_re   = '%s/*.%s' % (faa_file_dir, faa_file_ext)
     faa_file_list = [os.path.basename(file_name) for file_name in glob.glob(faa_file_re)]
     gnm_set = set()
     for each_faa_file in faa_file_list:
@@ -374,8 +377,6 @@ def MarkerRef2Tree(args):
         if os.path.isdir(blast_op_dir) is False:
             os.system('mkdir %s' % blast_op_dir)
 
-    os.system('cat %s/*.faa > %s' % (faa_file_dir, pwd_combined_protein))
-
     # get blastp command
     blast_cmd_list = []
     blast_op_to_cmd_dict = dict()
@@ -383,7 +384,7 @@ def MarkerRef2Tree(args):
     for gnm_id in gnm_id_list_sorted:
         for each_cog in marker_id_set:
             pwd_blast_op = '%s/%s_vs_%s_blastp.txt'                                                  % (blast_op_dir, gnm_id, each_cog)
-            blastp_cmd   = 'blastp -subject %s/%s.faa -evalue %s -outfmt 6 -query %s/%s.faa -out %s' % (marker_seq_dir, each_cog, e_value, faa_file_dir, gnm_id, pwd_blast_op)
+            blastp_cmd   = 'blastp -subject %s/%s.%s -evalue %s -outfmt 6 -query %s/%s.%s -out %s' % (marker_seq_dir, each_cog, marker_seq_ext, e_value, faa_file_dir, gnm_id, faa_file_ext, pwd_blast_op)
             blast_op_to_cmd_dict[pwd_blast_op] = blastp_cmd
             blastp_cmd_txt_handle.write(blastp_cmd + '\n')
             blast_cmd_list.append(blastp_cmd)
@@ -446,6 +447,8 @@ def MarkerRef2Tree(args):
     if os.path.isdir(best_hit_aln_by_marker_dir_trimmed) is False:
         os.system('mkdir %s' % best_hit_aln_by_marker_dir_trimmed)
 
+    os.system('cat %s/*.%s > %s' % (faa_file_dir, faa_file_ext, pwd_combined_protein))
+
     processing_index = 1
     for each_marker in best_hit_dict_by_marker:
         print('Processing (extract sequence, align and trim) marker %s/%s: %s' % (processing_index, len(best_hit_dict_by_marker), each_marker))
@@ -485,7 +488,7 @@ def MarkerRef2Tree(args):
 
     ########## Assess marker by PA ##########
 
-    present_pct_cutoff_list = [int(i) for i in pa_cutoff_str.split('-')]
+    present_pct_cutoff_list = [int(i) for i in pa_cutoff_str.split(',')]
 
     # create output dir
     if os.path.isdir(assess_marker_pa_dir) is True:
@@ -520,14 +523,11 @@ def MarkerRef2Tree(args):
     iqtree_cmd_txt_handle = open(iqtree_cmd_txt, 'w')
     iqtree_cmd_list = []
     for each_c in qualified_cutoff_list:
-
         os.system('mkdir %s/PA%s_guide_tree'    % ((iqtree_dir, each_c)))
         os.system('mkdir %s/PA%s_PMSF_C60_tree' % ((iqtree_dir, each_c)))
-
-        get_guide_tree_cmd = 'iqtree -s marker_pa%s.phy --prefix PA%s_guide_tree/PA%s_guide_tree --seqtype AA -m LG -T %s -B 1000 --alrt 1000 --quiet'                                                       % (each_c, each_c, each_c, num_of_threads)
-        get_c60_tree_cmd   = 'iqtree -s marker_pa%s.phy --prefix PA%s_PMSF_C60_tree/PA%s_PMSF_C60 --seqtype AA -m LG+C60+F+G -T %s -B 1000 --alrt 1000 --quiet -ft PA%s_guide_tree/PA%s_guide_tree.treefile' % (each_c, each_c, each_c, num_of_threads, each_c, each_c)
+        get_guide_tree_cmd = 'iqtree2 --seqtype AA -B 1000 --alrt 1000 --quiet -T %s -s marker_pa%s.phy --prefix PA%s_guide_tree/PA%s_guide_tree -m LG'                                                       % (num_of_threads, each_c, each_c, each_c)
+        get_c60_tree_cmd   = 'iqtree2 --seqtype AA -B 1000 --alrt 1000 --quiet -T %s -s marker_pa%s.phy --prefix PA%s_PMSF_C60_tree/PA%s_PMSF_C60 -m LG+C60+F+G -ft PA%s_guide_tree/PA%s_guide_tree.treefile' % (num_of_threads, each_c, each_c, each_c, each_c, each_c)
         cmds_in_one_line   = '%s; %s' % (get_guide_tree_cmd, get_c60_tree_cmd)
-
         iqtree_cmd_txt_handle.write('%s\n' % cmds_in_one_line)
         iqtree_cmd_list.append(cmds_in_one_line)
     iqtree_cmd_txt_handle.close()
@@ -545,10 +545,12 @@ if __name__ == '__main__':
 
     # initialize the options parser
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i',               required=True,                          help='faa file dir, file extension need to be faa')
+    parser.add_argument('-i',               required=True,                          help='faa dir')
+    parser.add_argument('-x',               required=False, default='faa',          help='faa file extension, default: faa')
     parser.add_argument('-m',               required=True,                          help='marker seq dir, file extension need to be faa')
+    parser.add_argument('-mx',              required=False, default='faa',          help='marker seq file extension, default: faa')
     parser.add_argument('-g',               required=False, default=None,           help='genome group')
-    parser.add_argument('-c',               required=False, default='85',           help='presence absence cutoffs, default: 85')
+    parser.add_argument('-c',               required=False, default='85',           help='presence-absence cutoffs, default: 85')
     parser.add_argument('-o',               required=True,                          help='output dir')
     parser.add_argument('-e',               required=False, default='1e-30',        help='e-value cutoff, default: 1e-30')
     parser.add_argument('-t',               required=True,  type=int,               help='num of threads')
@@ -556,11 +558,3 @@ if __name__ == '__main__':
     parser.add_argument('-f',               required=False, action="store_true",    help='force overwrite')
     args = vars(parser.parse_args())
     MarkerRef2Tree(args)
-
-
-'''
-
-cd /Users/songweizhi/Desktop/test
-/usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/MarkerRef2Tree.py -m Yang_70 -aa dRep97_195_faa -o MarkerRef2Tree_Yang70 -t 12 -f
-
-'''
