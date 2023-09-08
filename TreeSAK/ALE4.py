@@ -412,17 +412,20 @@ def parse_ale_op_worker(arg_list):
     pwd_itol_colorstrip_txt_gnm = arg_list[21]
     pwd_itol_label_txt_gnm      = arg_list[22]
 
+    current_og_dir                                  = '%s/%s'                                           % (pwd_itol_dir, qualified_og)
     pwd_genome_tree_file                            = '%s/%s'                                           % (ale_wd, gnm_tree_no_underscore)
     pwd_gene_tree_treefile                          = '%s/%s.treefile'                                  % (gene_tree_dir, qualified_og)
     pwd_uts_file                                    = '%s/%s_%s.ufboot.ale.uTs'                         % (ale_wd, gnm_tree_no_underscore, qualified_og)
     pwd_uml_rec_file                                = '%s/%s_%s.ufboot.ale.uml_rec'                     % (ale_wd, gnm_tree_no_underscore, qualified_og)
-    pwd_gene_tree_treefile_midpoint_rooted          = '%s/%s_midpoint_rooted.treefile'                  % (pwd_itol_dir, qualified_og)
-    pwd_ale_formatted_gnm_tree                      = '%s/%s.ufboot_genome_tree.tree'                   % (pwd_itol_dir, qualified_og)
-    pwd_ale_formatted_gnm_tree_with_len             = '%s/%s.ufboot_genome_tree_with_len.tree'          % (pwd_itol_dir, qualified_og)
-    pwd_ale_formatted_gnm_tree_with_len_prefixed    = '%s/%s.ufboot_genome_tree_with_len_prefixed.tree' % (pwd_itol_dir, qualified_og)
-    pwd_itol_connection_txt_all                     = '%s/%s_iTOL_connection.txt'                       % (pwd_itol_dir, qualified_og)
-    pwd_gene_tree_itol_label_txt                    = '%s/%s_iTOL_gene_pco.txt'                         % (pwd_itol_dir, qualified_og)
-    pwd_gene_tree_itol_colorstrip_txt               = '%s/%s_iTOL_colorstrip_gene.txt'                  % (pwd_itol_dir, qualified_og)
+    pwd_gene_tree_treefile_midpoint_rooted          = '%s/%s_midpoint_rooted.treefile'                  % (current_og_dir, qualified_og)
+    pwd_ale_formatted_gnm_tree                      = '%s/%s.ufboot_genome_tree.tree'                   % (current_og_dir, qualified_og)
+    pwd_ale_formatted_gnm_tree_with_len             = '%s/%s.ufboot_genome_tree_with_len.tree'          % (current_og_dir, qualified_og)
+    pwd_ale_formatted_gnm_tree_with_len_prefixed    = '%s/%s.ufboot_genome_tree_with_len_prefixed.tree' % (current_og_dir, qualified_og)
+    pwd_itol_connection_txt_all                     = '%s/%s_iTOL_connection.txt'                       % (current_og_dir, qualified_og)
+    pwd_gene_tree_itol_label_txt                    = '%s/%s_iTOL_gene_pco.txt'                         % (current_og_dir, qualified_og)
+    pwd_gene_tree_itol_colorstrip_txt               = '%s/%s_iTOL_colorstrip_gene.txt'                  % (current_og_dir, qualified_og)
+
+    os.mkdir(current_og_dir)
 
     # run ale_splitter
     ale_splitter(pwd_uml_rec_file)
@@ -472,12 +475,12 @@ def parse_ale_op_worker(arg_list):
         each_d2r_freq = hgt_freq_dict[each_d2r]
         each_d2r_d_list = paired_donor_to_recipient_leaf_dict[each_d2r][0]
         each_d2r_r_list = paired_donor_to_recipient_leaf_dict[each_d2r][1]
-        pwd_gene_tree_itol_label_txt                        = '%s/%s_iTOL_gene_pco.txt'                 % (pwd_itol_dir, qualified_og)
-        pwd_gnm_tree_label_color_txt                        = '%s/%s_iTOL_label_color_genome_%s.txt'    % (pwd_itol_dir, qualified_og, each_d2r)
-        pwd_gene_tree_label_color_txt                       = '%s/%s_iTOL_label_color_gene_%s.txt'      % (pwd_itol_dir, qualified_og, each_d2r)
-        pwd_itol_connection_txt                             = '%s/%s_iTOL_connection_%s.txt'            % (pwd_itol_dir, qualified_og, each_d2r)
-        pwd_ale_formatted_gnm_tree_with_len_prefixed_pdf    = '%s/%s_genome_tree_with_HGT_%s.pdf'       % (pwd_itol_dir, qualified_og, each_d2r)
-        pwd_gene_tree_treefile_subset_pdf                   = '%s/%s_subset_%s.pdf'                     % (pwd_itol_dir, qualified_og, each_d2r)
+        pwd_gene_tree_itol_label_txt                        = '%s/%s_iTOL_gene_pco.txt'                 % (current_og_dir, qualified_og)
+        pwd_gnm_tree_label_color_txt                        = '%s/%s_iTOL_label_color_genome_%s.txt'    % (current_og_dir, qualified_og, each_d2r)
+        pwd_gene_tree_label_color_txt                       = '%s/%s_iTOL_label_color_gene_%s.txt'      % (current_og_dir, qualified_og, each_d2r)
+        pwd_itol_connection_txt                             = '%s/%s_iTOL_connection_%s.txt'            % (current_og_dir, qualified_og, each_d2r)
+        pwd_ale_formatted_gnm_tree_with_len_prefixed_pdf    = '%s/%s_genome_tree_with_HGT_%s.pdf'       % (current_og_dir, qualified_og, each_d2r)
+        pwd_gene_tree_treefile_subset_pdf                   = '%s/%s_subset_%s.pdf'                     % (current_og_dir, qualified_og, each_d2r)
         pwd_combined_image_with_ale_hgts                    = '%s/%s_HGT_%s_%s_%s.pdf'                  % (op_dir, qualified_og, n, each_d2r, each_d2r_freq)
 
         # write out gnm_tree_label_color_txt
