@@ -6,6 +6,7 @@ setup.py
 TreeSAK/ALE.py
 TreeSAK/ALE1.py
 TreeSAK/ALE2.py
+TreeSAK/ALE2RTC.py
 TreeSAK/ALE3.py
 TreeSAK/ALE4.py
 TreeSAK/ALE_backup.py
@@ -19,6 +20,7 @@ TreeSAK/BMGE.py
 TreeSAK/CompareMCMC.py
 TreeSAK/ConvertMSA.py
 TreeSAK/Dating.py
+TreeSAK/Dir.rb
 TreeSAK/ExtractMarkerSeq.py
 TreeSAK/FastRoot.py
 TreeSAK/FastRoot_backup.py
@@ -52,11 +54,13 @@ TreeSAK/ale_splitter.py
 TreeSAK/compare_trees.R
 TreeSAK/compare_trees.py
 TreeSAK/deltaLL_gene_removal.ipynb
+TreeSAK/do_rrtc.rb
 TreeSAK/fa2phy.py
 TreeSAK/format_leaf_name.py
 TreeSAK/get_arCOG_seq.py
 TreeSAK/global_functions.py
 TreeSAK/iTOL.py
+TreeSAK/pRTC.py
 TreeSAK/parse_deltall_stdout.py
 TreeSAK/plot_distruibution_th.py
 TreeSAK/prep_mcmctree_ctl.py
@@ -72,6 +76,7 @@ TreeSAK/test_1.py
 TreeSAK/test_2.py
 TreeSAK/tmp_1.py
 TreeSAK/tmp_2.py
+TreeSAK/weighted_rand.rb
 TreeSAK.egg-info/PKG-INFO
 TreeSAK.egg-info/SOURCES.txt
 TreeSAK.egg-info/dependency_links.txt

@@ -13,9 +13,9 @@ from PyPDF3 import PdfFileWriter, PdfFileReader
 ALE4_usage = '''
 ========================= ALE4 example commands =========================
 
-TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -o ALE4_op_dir_0.3 -fc 0.3 -f -api S1kZZuDHc0d5M7J5vLnUNQ
-TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -o ALE4_op_dir_0.5 -fc 0.5 -f -api S1kZZuDHc0d5M7J5vLnUNQ
-TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -o ALE4_op_dir_0.8 -fc 0.8 -f -api S1kZZuDHc0d5M7J5vLnUNQ
+TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.3 -o ALE4_op_dir_0.3
+TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.5 -o ALE4_op_dir_0.5
+TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.8 -o ALE4_op_dir_0.8
 
 =========================================================================
 '''
@@ -613,7 +613,7 @@ def ALE4(args):
     # parse ALE output
     n = 1
     for qualified_og in found_in_both:
-        print('Processing (%s/%s) %s' % (n, len(found_in_both), qualified_og))
+        print('Processing (%s/%s): %s' % (n, len(found_in_both), qualified_og))
         current_arg_list = [qualified_og, ale1_op_dir, ale2_op_dir, op_dir, interal_node_prefix, gnm_pco_dict, d_color,
                             r_color, project_name, API_key, display_mode, hgt_freq_cutoff, ignore_leaf_hgt, ignore_vertical_hgt,
                             donor_node_min_leaf_num, recipient_node_min_leaf_num, dr_separator, root_gene_tree_at_midpoint,
@@ -627,16 +627,16 @@ def ALE4(args):
 if __name__ == '__main__':
 
     ALE4_parser = argparse.ArgumentParser()
-    ALE4_parser.add_argument('-i1',     required=True,                          help='ALE1 output directory')
-    ALE4_parser.add_argument('-i2',     required=True,                          help='ALE2 output directory')
-    ALE4_parser.add_argument('-c',      required=True,                          help='genome_taxon_txt')
-    ALE4_parser.add_argument('-color',  required=True,                          help='phylum_color_code.txt')
-    ALE4_parser.add_argument('-o',      required=True,                          help='output dir, i.e., ALE4_op_dir')
-    ALE4_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
-    ALE4_parser.add_argument('-api',    required=True,                          help='iTOL API key')
-    ALE4_parser.add_argument('-fc',     required=False, type=float, default=0.5,help='hgt_freq_cutoff, default: 0.5')
-    ALE4_parser.add_argument('-mld',    required=False, type=int, default=5,    help='donor_node_min_leaf_num, default: 5')
-    ALE4_parser.add_argument('-mlr',    required=False, type=int, default=5,    help='recipient_node_min_leaf_num, default: 5')
-    ALE4_parser.add_argument('-itol',   required=False, default='batch_access_tmp',    help='iTOL project_name, default: batch_access_tmp')
+    ALE4_parser.add_argument('-i1',     required=True,                              help='ALE1 output directory')
+    ALE4_parser.add_argument('-i2',     required=True,                              help='ALE2 output directory')
+    ALE4_parser.add_argument('-c',      required=True,                              help='genome_taxon, GTDB format')
+    ALE4_parser.add_argument('-color',  required=True,                              help='phylum color code')
+    ALE4_parser.add_argument('-o',      required=True,                              help='output dir, i.e., ALE4_op_dir')
+    ALE4_parser.add_argument('-f',      required=False, action="store_true",        help='force overwrite')
+    ALE4_parser.add_argument('-api',    required=True,                              help='iTOL API key')
+    ALE4_parser.add_argument('-fc',     required=False, type=float, default=0.5,    help='hgt_freq_cutoff, default: 0.5')
+    ALE4_parser.add_argument('-mld',    required=False, type=int, default=5,        help='donor_node_min_leaf_num, default: 5')
+    ALE4_parser.add_argument('-mlr',    required=False, type=int, default=5,        help='recipient_node_min_leaf_num, default: 5')
+    ALE4_parser.add_argument('-itol',   required=False, default='batch_access_tmp', help='iTOL project_name, default: batch_access_tmp')
     args = vars(ALE4_parser.parse_args())
     ALE4(args)

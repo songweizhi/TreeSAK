@@ -1,5 +1,8 @@
-1.25.2
+1.26.2
 - fixed bugs
+
+1.26.0
+- new module added: pRTC
 
 1.25.0
 - new module added: BMGE

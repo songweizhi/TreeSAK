@@ -33,14 +33,15 @@ def print_main_help():
                  ...::: TreeSAK v%s :::...
                  
     Marker-related
-       OMA                    ->  Prepare input files for running OMA 
-       OMA2                   ->  Filter OMA predicted OGs
        ExtractMarkerSeq       ->  Extract marker by blastn  
        parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
        AssessMarkerPA         ->  Assess Markers by P/A among groups
        SplitScore             ->  Assess markers by split score
-    
+       AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
+       OMA                    ->  Prepare input files for running OMA 
+       OMA2                   ->  Filter OMA predicted OGs
+
     Multiple Sequence Alignment
        ConvertMSA             ->  Convert MSA format
        fa2phy                 ->  Convert MSA format (fasta to phylip)
@@ -51,6 +52,8 @@ def print_main_help():
        BMGE                   ->  Run BMGE
     
     Tree-related
+       MarkerSeq2Tree         ->  Marker sequence to tree
+       MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        GTDB_tree              ->  get GTDB tree
        PMSF                   ->  run iqtree with PMSF
        subset_tree            ->  Subset tree
@@ -64,18 +67,14 @@ def print_main_help():
        RootTree               ->  Root tree with outgroup leaves
        
     Dating-related
+       Dating                 ->  Perform molecular dating
        AssessCVG              ->  Assess dating convergence
        CompareMCMC            ->  Compare MCMCTree outputs
        PlotMcmcNode           ->  distribution of node's age estimation 
-       VisHPD95               ->  HPD95 of estimated node age 
+       VisHPD95               ->  HPD95 of estimated node age
+       pRTC                   ->  Perform probabilistic relaxed time constraint-based dating
        
-    Dating workflow
-       MarkerSeq2Tree         ->  Marker sequence to tree
-       MarkerRef2Tree         ->  Marker (reference sequence) to Tree
-       AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
-       Dating                 ->  Perform molecular dating
-    
-    Note: use "pip3 install --upgrade TreeSAK" to get the latest version of TreeSAK.
+    # Upgrade with "pip3 install --upgrade TreeSAK"
     ''' % version(config_dict)
 
     print(help_message)
@@ -500,17 +499,17 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'ALE4':
         from TreeSAK import ALE4
         ALE4_parser = subparsers.add_parser('ALE4', usage=ALE4.ALE4_usage)
-        ALE4_parser.add_argument('-i1',     required=True,                          help='ALE1 output directory')
-        ALE4_parser.add_argument('-i2',     required=True,                          help='ALE2 output directory')
-        ALE4_parser.add_argument('-c',      required=True,                          help='genome_taxon_txt')
-        ALE4_parser.add_argument('-color',  required=True,                          help='phylum_color_code.txt')
-        ALE4_parser.add_argument('-o',      required=True,                          help='output dir, i.e., ALE3_op_dir')
-        ALE4_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
-        ALE4_parser.add_argument('-api',    required=True,                          help='iTOL API key')
-        ALE4_parser.add_argument('-fc',     required=False, type=float, default=0.5,help='hgt_freq_cutoff, default: 0.5')
-        ALE4_parser.add_argument('-mld',    required=False, type=int, default=5,    help='donor_node_min_leaf_num, default: 5')
-        ALE4_parser.add_argument('-mlr',    required=False, type=int, default=5,    help='recipient_node_min_leaf_num, default: 5')
-        ALE4_parser.add_argument('-itol',   required=False, default='batch_access_tmp',    help='iTOL project_name, default: batch_access_tmp')
+        ALE4_parser.add_argument('-i1',     required=True,                              help='ALE1 output directory')
+        ALE4_parser.add_argument('-i2',     required=True,                              help='ALE2 output directory')
+        ALE4_parser.add_argument('-c',      required=True,                              help='genome_taxon, GTDB format')
+        ALE4_parser.add_argument('-color',  required=True,                              help='phylum color code')
+        ALE4_parser.add_argument('-o',      required=True,                              help='output dir, i.e., ALE4_op_dir')
+        ALE4_parser.add_argument('-f',      required=False, action="store_true",        help='force overwrite')
+        ALE4_parser.add_argument('-api',    required=True,                              help='iTOL API key')
+        ALE4_parser.add_argument('-fc',     required=False, type=float, default=0.5,    help='hgt_freq_cutoff, default: 0.5')
+        ALE4_parser.add_argument('-mld',    required=False, type=int, default=5,        help='donor_node_min_leaf_num, default: 5')
+        ALE4_parser.add_argument('-mlr',    required=False, type=int, default=5,        help='recipient_node_min_leaf_num, default: 5')
+        ALE4_parser.add_argument('-itol',   required=False, default='batch_access_tmp', help='iTOL project_name, default: batch_access_tmp')
         args = vars(parser.parse_args())
         ALE4.ALE4(args)
 
@@ -542,6 +541,17 @@ if __name__ == '__main__':
         BMGE_parser.add_argument('-esc', required=False, default='0.55',        help='entropy score cutoff, default: 0.55')
         args = vars(parser.parse_args())
         BMGE.BMGE(args)
+
+    elif sys.argv[1] == 'pRTC':
+        from TreeSAK import pRTC
+        pRTC_parser = subparsers.add_parser('pRTC', usage=pRTC.pRTC_usage)
+        pRTC_parser.add_argument('-i',     required=True,                   help='the file "out" generated by MCMCTree')
+        pRTC_parser.add_argument('-m',     required=True,                   help='the file "mcmc.txt" generated by MCMCTree')
+        pRTC_parser.add_argument('-rrtc',  required=True,                   help='the folder that contains the info of all RTCs')
+        pRTC_parser.add_argument('-o',     required=True,                   help='output txt file')
+        pRTC_parser.add_argument('-ruby',  required=False, default='ruby',  help='path to ruby executable file, default: ruby')
+        args = vars(parser.parse_args())
+        pRTC.pRTC(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])
