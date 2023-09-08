@@ -406,9 +406,11 @@ def parse_ale_op_worker(arg_list):
     recipient_node_min_leaf_num = arg_list[15]
     dr_separator                = arg_list[16]
     root_gene_tree_at_midpoint  = arg_list[17]
-    p_color_txt                 = arg_list[18]
+    p_color_dict                = arg_list[18]
     gnm_tree_no_underscore      = arg_list[19]
     pwd_itol_dir                = arg_list[20]
+    pwd_itol_colorstrip_txt_gnm = arg_list[21]
+    pwd_itol_label_txt_gnm      = arg_list[22]
 
     pwd_genome_tree_file                            = '%s/%s'                                           % (ale_wd, gnm_tree_no_underscore)
     pwd_gene_tree_treefile                          = '%s/%s.treefile'                                  % (gene_tree_dir, qualified_og)
@@ -419,21 +421,11 @@ def parse_ale_op_worker(arg_list):
     pwd_ale_formatted_gnm_tree_with_len             = '%s/%s.ufboot_genome_tree_with_len.tree'          % (pwd_itol_dir, qualified_og)
     pwd_ale_formatted_gnm_tree_with_len_prefixed    = '%s/%s.ufboot_genome_tree_with_len_prefixed.tree' % (pwd_itol_dir, qualified_og)
     pwd_itol_connection_txt_all                     = '%s/%s_iTOL_connection.txt'                       % (pwd_itol_dir, qualified_og)
-    pwd_itol_label_txt                              = '%s/%s_iTOL_genome_pco.txt'                       % (pwd_itol_dir, qualified_og)
     pwd_gene_tree_itol_label_txt                    = '%s/%s_iTOL_gene_pco.txt'                         % (pwd_itol_dir, qualified_og)
     pwd_gene_tree_itol_colorstrip_txt               = '%s/%s_iTOL_colorstrip_gene.txt'                  % (pwd_itol_dir, qualified_og)
-    pwd_genome_tree_itol_colorstrip_txt             = '%s/%s_iTOL_colorstrip_genome.txt'                % (pwd_itol_dir, qualified_og)
 
     # run ale_splitter
     ale_splitter(pwd_uml_rec_file)
-
-    # read in phylum color
-    p_color_dict = dict()
-    for each_line in open(p_color_txt):
-        each_line_split = each_line.strip().split('\t')
-        phylum_id = each_line_split[1]
-        color_id = each_line_split[0]
-        p_color_dict[phylum_id] = color_id
 
     internal_node_to_leaf_dict = dict()
     paired_donor_to_recipient_leaf_dict = dict()
@@ -456,29 +448,17 @@ def parse_ale_op_worker(arg_list):
     prefix_internal_nodes(pwd_ale_formatted_gnm_tree_with_len, interal_node_prefix, pwd_ale_formatted_gnm_tree_with_len_prefixed)
 
     # write out iTOL label file for gene and genome tree, also colorstrip for taxonomy
-    pwd_itol_label_txt_handle  = open(pwd_itol_label_txt, 'w')
-    pwd_itol_label_txt_handle.write('LABELS\nSEPARATOR TAB\n\nDATA\n')
     pwd_gene_tree_itol_label_txt_handle = open(pwd_gene_tree_itol_label_txt, 'w')
     pwd_gene_tree_itol_label_txt_handle.write('LABELS\nSEPARATOR TAB\n\nDATA\n')
-    wrote_gnm_set = set()
     gene_to_p_dict = dict()
-    genome_to_p_dict = dict()
     for each_gene in Tree(pwd_gene_tree_treefile).get_leaf_names():
         gene_gnm = '_'.join(each_gene.split('_')[:-1])
-        genome_name_for_ale = gene_gnm
-        genome_name_for_ale = genome_name_for_ale.replace('GCA_', 'GCA').replace('GCF_', 'GCF')
         genome_with_taxon = gnm_pco_dict[gene_gnm]
         gene_to_p_dict[each_gene] = genome_with_taxon.split('__')[0]
-        if gene_gnm not in wrote_gnm_set:
-            genome_to_p_dict[genome_name_for_ale] = genome_with_taxon.split('__')[0]
-            pwd_itol_label_txt_handle.write('%s\t%s\n' % (genome_name_for_ale, genome_with_taxon))
-            wrote_gnm_set.add(gene_gnm)
         pwd_gene_tree_itol_label_txt_handle.write('%s\t%s_%s\n' % (each_gene, genome_with_taxon, each_gene.split('_')[-1]))
-    pwd_itol_label_txt_handle.close()
     pwd_gene_tree_itol_label_txt_handle.close()
 
     iTOL(gene_to_p_dict, p_color_dict, pwd_gene_tree_itol_colorstrip_txt)
-    iTOL(genome_to_p_dict, p_color_dict, pwd_genome_tree_itol_colorstrip_txt)
 
     # root gene tree at midpoint
     gene_tree_to_plot = pwd_gene_tree_treefile
@@ -492,7 +472,6 @@ def parse_ale_op_worker(arg_list):
         each_d2r_freq = hgt_freq_dict[each_d2r]
         each_d2r_d_list = paired_donor_to_recipient_leaf_dict[each_d2r][0]
         each_d2r_r_list = paired_donor_to_recipient_leaf_dict[each_d2r][1]
-        pwd_itol_label_txt                                  = '%s/%s_iTOL_genome_pco.txt'               % (pwd_itol_dir, qualified_og)
         pwd_gene_tree_itol_label_txt                        = '%s/%s_iTOL_gene_pco.txt'                 % (pwd_itol_dir, qualified_og)
         pwd_gnm_tree_label_color_txt                        = '%s/%s_iTOL_label_color_genome_%s.txt'    % (pwd_itol_dir, qualified_og, each_d2r)
         pwd_gene_tree_label_color_txt                       = '%s/%s_iTOL_label_color_gene_%s.txt'      % (pwd_itol_dir, qualified_og, each_d2r)
@@ -512,7 +491,6 @@ def parse_ale_op_worker(arg_list):
         pwd_gene_tree_label_color_txt_handle = open(pwd_gene_tree_label_color_txt, 'w')
         pwd_gene_tree_label_color_txt_handle.write('DATASET_STYLE\nSEPARATOR TAB\nDATASET_LABEL\texample_style\nCOLOR\t#ffff00\n\nDATA\n')
         for each_gene in Tree(pwd_gene_tree_treefile).get_leaf_names():
-
             gene_name_for_ale = '_'.join(each_gene.strip().split('_')[:-1])
             gene_name_for_ale = gene_name_for_ale.replace('GCA_', 'GCA').replace('GCF_', 'GCF')
             if gene_name_for_ale in each_d2r_d_list:
@@ -521,7 +499,7 @@ def parse_ale_op_worker(arg_list):
                 pwd_gene_tree_label_color_txt_handle.write('%s\tlabel\tnode\t%s\t1\tnormal\n' % (each_gene, r_color))
         pwd_gene_tree_label_color_txt_handle.close()
 
-        itol_tree(pwd_ale_formatted_gnm_tree_with_len_prefixed, [pwd_gnm_tree_label_color_txt, pwd_itol_label_txt, pwd_itol_connection_txt, pwd_genome_tree_itol_colorstrip_txt], project_name, API_key, display_mode, pwd_ale_formatted_gnm_tree_with_len_prefixed_pdf)
+        itol_tree(pwd_ale_formatted_gnm_tree_with_len_prefixed, [pwd_gnm_tree_label_color_txt, pwd_itol_label_txt_gnm, pwd_itol_connection_txt, pwd_itol_colorstrip_txt_gnm], project_name, API_key, display_mode, pwd_ale_formatted_gnm_tree_with_len_prefixed_pdf)
         itol_tree(gene_tree_to_plot, [pwd_gene_tree_itol_label_txt, pwd_gene_tree_label_color_txt, pwd_gene_tree_itol_colorstrip_txt], project_name, API_key, display_mode, pwd_gene_tree_treefile_subset_pdf)
         merge_pdf(pwd_ale_formatted_gnm_tree_with_len_prefixed_pdf, pwd_gene_tree_treefile_subset_pdf, 66, pwd_combined_image_with_ale_hgts)
         n += 1
@@ -554,8 +532,10 @@ def ALE4(args):
 
     ####################################################################################################################
 
-    gnm_tree_no_underscore          = 'genome_tree.newick'
-    pwd_itol_dir                    = '%s/annotation_files' % op_dir
+    gnm_tree_no_underscore              = 'genome_tree.newick'
+    pwd_itol_dir                        = '%s/annotation_files'             % op_dir
+    pwd_gnm_tree_itol_colorstrip_txt    = '%s/iTOL_colorstrip_genome.txt'   % pwd_itol_dir
+    pwd_gnm_tree_itol_label_txt         = '%s/iTOL_genome_pco.txt'          % pwd_itol_dir
 
     ####################################################################################################################
 
@@ -588,17 +568,6 @@ def ALE4(args):
         print(','.join(found_in_uml_rec_only))
     print()
 
-    # read in genome taxonomy
-    gnm_pco_dict = dict()
-    for each_gnm in open(genome_taxon_txt):
-        each_gnm_split = each_gnm.strip().split('\t')
-        gnm_id     = each_gnm_split[0]
-        taxon_str  = each_gnm_split[1]
-        gnm_phylum = taxon_str.split(';')[1]
-        gnm_class  = taxon_str.split(';')[2]
-        gnm_order  = taxon_str.split(';')[3]
-        gnm_pco_dict[gnm_id] = '%s__%s__%s__%s' % (gnm_phylum[3:], gnm_class[3:], gnm_order[3:], gnm_id)
-
     if os.path.isdir(op_dir) is True:
         if force_create_op_dir is True:
             os.system('rm -r %s' % op_dir)
@@ -608,14 +577,44 @@ def ALE4(args):
     os.system('mkdir %s' % op_dir)
     os.system('mkdir %s' % pwd_itol_dir)
 
+    # read in genome taxonomy
+    pwd_gnm_tree_itol_label_txt_handle = open(pwd_gnm_tree_itol_label_txt, 'w')
+    pwd_gnm_tree_itol_label_txt_handle.write('LABELS\nSEPARATOR TAB\n\nDATA\n')
+    gnm_pco_dict = dict()
+    genome_to_p_dict = dict()
+    for each_gnm in open(genome_taxon_txt):
+        each_gnm_split = each_gnm.strip().split('\t')
+        gnm_id     = each_gnm_split[0]
+        genome_name_for_ale = gnm_id
+        genome_name_for_ale = genome_name_for_ale.replace('GCA_', 'GCA').replace('GCF_', 'GCF')
+        taxon_str  = each_gnm_split[1]
+        gnm_phylum = taxon_str.split(';')[1]
+        gnm_class  = taxon_str.split(';')[2]
+        gnm_order  = taxon_str.split(';')[3]
+        pco_str = '%s__%s__%s__%s' % (gnm_phylum[3:], gnm_class[3:], gnm_order[3:], gnm_id)
+        gnm_pco_dict[gnm_id] = pco_str
+        genome_to_p_dict[genome_name_for_ale] = gnm_phylum[3:]
+        pwd_gnm_tree_itol_label_txt_handle.write('%s\t%s\n' % (genome_name_for_ale, pco_str))
+    pwd_gnm_tree_itol_label_txt_handle.close()
+
+    # read in phylum color
+    p_color_dict = dict()
+    for each_line in open(ar_phylum_color_code_txt):
+        each_line_split = each_line.strip().split('\t')
+        phylum_id = each_line_split[1]
+        color_id = each_line_split[0]
+        p_color_dict[phylum_id] = color_id
+
+    iTOL(genome_to_p_dict, p_color_dict, pwd_gnm_tree_itol_colorstrip_txt)
+
     # parse ALE output
     n = 1
     for qualified_og in found_in_both:
-        print('Processing %s (%s/%s)' % (qualified_og, n, len(found_in_both)))
+        print('Processing (%s/%s) %s' % (n, len(found_in_both), qualified_og))
         current_arg_list = [qualified_og, ale1_op_dir, ale2_op_dir, op_dir, interal_node_prefix, gnm_pco_dict, d_color,
                             r_color, project_name, API_key, display_mode, hgt_freq_cutoff, ignore_leaf_hgt, ignore_vertical_hgt,
                             donor_node_min_leaf_num, recipient_node_min_leaf_num, dr_separator, root_gene_tree_at_midpoint,
-                            ar_phylum_color_code_txt, gnm_tree_no_underscore, pwd_itol_dir]
+                            p_color_dict, gnm_tree_no_underscore, pwd_itol_dir, pwd_gnm_tree_itol_colorstrip_txt, pwd_gnm_tree_itol_label_txt]
         parse_ale_op_worker(current_arg_list)
         n += 1
 

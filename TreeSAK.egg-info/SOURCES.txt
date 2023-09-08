@@ -14,6 +14,7 @@ TreeSAK/AssessCVG.py
 TreeSAK/AssessMarker.py
 TreeSAK/AssessMarkerDeltaLL.py
 TreeSAK/AssessMarkerPA.py
+TreeSAK/BMGE.jar
 TreeSAK/BMGE.py
 TreeSAK/CompareMCMC.py
 TreeSAK/ConvertMSA.py
@@ -136,6 +137,7 @@ TreeSAK_Sponge/tmp_4.py
 TreeSAK_Sponge/tmp_5.py
 bin/TreeSAK
 bin/__init__.py
+docs/BMGE_doc.pdf
 images/Bioinformatics.jpg
 images/windows_cmds.docx
 images/windows_cmds.pdf
