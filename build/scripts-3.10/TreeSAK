@@ -306,10 +306,10 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'PlotMcmcNode':
         from TreeSAK import PlotMcmcNode
         PlotMcmcNode_parser = subparsers.add_parser('PlotMcmcNode', usage=PlotMcmcNode.PlotMcmcNode_usage)
-        PlotMcmcNode_parser.add_argument('-i',      required=True,                   help='mcmc.txt file or folder')
-        PlotMcmcNode_parser.add_argument('-n',      required=True,                   help='Nodes to plot')
-        PlotMcmcNode_parser.add_argument('-label',  required=False, default=None,    help='labels on y axis')
-        PlotMcmcNode_parser.add_argument('-o',      required=True,                   help='Output plot')
+        PlotMcmcNode_parser.add_argument('-i',      required=True,                  help='folder holds the *mcmc.txt and *out.txt files')
+        PlotMcmcNode_parser.add_argument('-n',      required=True,                  help='Nodes to plot')
+        PlotMcmcNode_parser.add_argument('-l',      required=False, default=None,   help='labels on y axis')
+        PlotMcmcNode_parser.add_argument('-o',      required=True,                  help='Output plot')
         args = vars(parser.parse_args())
         PlotMcmcNode.PlotMcmcNode(args)
 
