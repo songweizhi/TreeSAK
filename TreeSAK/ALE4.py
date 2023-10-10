@@ -17,20 +17,18 @@ TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_c
 TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.5 -o ALE4_op_dir_0.5
 TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.8 -o ALE4_op_dir_0.8
 
+# To do:
+# add protein family to the top of the pdf file
+
 =========================================================================
 '''
 
 
 def sep_path_basename_ext(file_in):
-
-    # separate path and file name
     f_path, file_name = os.path.split(file_in)
     if f_path == '':
         f_path = '.'
-
-    # separate file basename and extension
     f_base, f_ext = os.path.splitext(file_name)
-
     return f_path, f_base, f_ext
 
 
@@ -207,8 +205,7 @@ def get_node_to_leaf_dict(tree_file):
 
 def combine_trees(t1_with_len, t2_with_name, op_tree_with_both):
 
-    # assume t1 has brancn length
-    # assume t2 has internal node name
+    # assume t1 has branch length and t2 has internal node name
 
     t1 = Tree(t1_with_len, format=0)
     t2 = Tree(t2_with_name, format=1)
@@ -253,7 +250,6 @@ def check_a_is_ancestor_of_b(tree_file, node_a, node_b):
             node_ancestor_list = [i.name for i in node.get_ancestors()]
             if node_a in node_ancestor_list:
                 a_is_ancestor_of_b = True
-
     return a_is_ancestor_of_b
 
 
@@ -266,15 +262,14 @@ def check_a_is_child_of_b(tree_file, node_a, node_b):
             node_children_list = [i.name for i in node.get_descendants()]
             if node_a in node_children_list:
                 a_is_child_of_b = True
-
     return a_is_child_of_b
 
 
-def root_at_midpoint(tree_in, tree_in_rooted):
+def root_at_midpoint(tree_in, tree_out_rooted):
     t = Tree(tree_in)
     midpoint = t.get_midpoint_outgroup()
     t.set_outgroup(midpoint)
-    t.write(outfile=tree_in_rooted)
+    t.write(outfile=tree_out_rooted)
 
 
 def get_color_list(color_num):
@@ -350,13 +345,10 @@ def ale_splitter(rec_file):
     options = [True, True, True, True]
 
     with open(rec_file) as f:
-
         lines = f.readlines()
-
         stree = lines[2].strip()
         ll = lines[6].strip().split()[-1]
         rates = lines[8].strip().split("\t")[1:]
-
         n_reconciled_trees = int(lines[9].strip().split()[0])
         reconciled_trees = lines[11:n_reconciled_trees + 11]
         n_of_events = lines[11 + n_reconciled_trees + 1].split("\t")[1:]
@@ -365,6 +357,7 @@ def ale_splitter(rec_file):
     if options[0]:
         with open(rec_file.replace("uml_rec", "stree"), "w") as f:
             f.write(stree.split("\t")[-1])
+
     if options[1]:
         with open(rec_file.replace("uml_rec", "info"), "w") as f:
             f.write("LL:" + "\t" + ll + "\n")
@@ -380,6 +373,7 @@ def ale_splitter(rec_file):
         with open(rec_file.replace("uml_rec", "recs"), "w") as f:
             for t in reconciled_trees:
                 f.write(t)
+
     if options[3]:
         with open(rec_file.replace("uml_rec", "rec_table"), "w") as f:
             for e in table:

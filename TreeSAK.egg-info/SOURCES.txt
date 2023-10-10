@@ -18,6 +18,7 @@ TreeSAK/AssessMarkerPA.py
 TreeSAK/BMGE.jar
 TreeSAK/BMGE.py
 TreeSAK/CompareMCMC.py
+TreeSAK/ConcateMSA.py
 TreeSAK/ConvertMSA.py
 TreeSAK/Dating.py
 TreeSAK/Dir.rb
@@ -37,6 +38,8 @@ TreeSAK/OneLineAln.py
 TreeSAK/PMSF.py
 TreeSAK/PlotMcmcNode.py
 TreeSAK/RootTree.py
+TreeSAK/SequentialDating.py
+TreeSAK/SingleAleHGT.py
 TreeSAK/SingleLinePhy.py
 TreeSAK/SliceMSA.py
 TreeSAK/SplitScore.py
@@ -76,6 +79,7 @@ TreeSAK/test_1.py
 TreeSAK/test_2.py
 TreeSAK/tmp_1.py
 TreeSAK/tmp_2.py
+TreeSAK/tmp_3.py
 TreeSAK/weighted_rand.rb
 TreeSAK.egg-info/PKG-INFO
 TreeSAK.egg-info/SOURCES.txt

@@ -226,6 +226,7 @@ def PlotMcmcNode(args):
 
 
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-i',      required=True,                   help='folder holds the *mcmc.txt and *out.txt files')
     parser.add_argument('-n',      required=True,                   help='Nodes to plot')

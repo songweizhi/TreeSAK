@@ -3,20 +3,21 @@ import argparse
 
 
 pRTC_usage = '''
-================================ pRTC example commands ================================
+================================== pRTC example commands ==================================
 
 # requires: ruby (bio-nwk, colorize, parallel, csv)
 
-TreeSAK pRTC -i out -m mcmc.txt -rrtc /home-user/wzsong/DateArTree/rrtc_dir -ruby /home-user/sswang/program/ruby/bin/ruby -o mcmc_after_rrtc.txt
+TreeSAK pRTC -i out -m mcmc.txt -rrtc rrtc_dir -o after_rrtc_mcmc.txt
 
-# A wrapper to perform the probability-based RTC dating approach originally proposed
-# by Dr. Sishuo Wang from CUHK. Please see details in https://github.com/evolbeginner/rrtc
-
-# format of rrtc file
+# format of rrtc file (tab separated)
 symbiont_1,symbiont_2 host_1,host_2:prob
 recipient_1,recipient_2	donor_1,donor_2:prob
 
-=======================================================================================
+# This is wrapper to perform the probabilistic RTC dating proposed by Dr. Sishuo Wang 
+# from CUHK. If you used it in your dating analysis, please consider cite:
+# https://doi.org/10.1101/2023.06.18.545440 or https://github.com/evolbeginner/rrtc
+
+===========================================================================================
 '''
 
 
@@ -46,9 +47,4 @@ if __name__ == '__main__':
     args = vars(pRTC_parser.parse_args())
     pRTC(args)
 
-'''
 
-cd /home-user/wzsong/DateArTree/Marker_set_1_Williams_2020_43_arCOG_Marker2Tree_e30/s12_dating_wd/PA_75_DeltaLL_50_clock2_nsample500000_dating_wd
-python3 /home-user/wzsong/Scripts/pRTC.py -o mcmc_after_rrtc.txt -i PA_75_DeltaLL_50_clock2_nsample500000_out.txt -m PA_75_DeltaLL_50_clock2_nsample500000_mcmc.txt -rrtc /home-user/wzsong/DateArTree/rrtc_dir -ruby /home-user/sswang/program/ruby/bin/ruby
-
-'''

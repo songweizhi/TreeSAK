@@ -50,6 +50,7 @@ def print_main_help():
        SliceMSA               ->  Slice MSA by column 
        AlignmentPruner        ->  Remove heterogenous sites from MSA
        BMGE                   ->  Run BMGE
+       ConcateMSA             ->  Concatenate MSA
     
     Tree-related
        MarkerSeq2Tree         ->  Marker sequence to tree
@@ -552,6 +553,37 @@ if __name__ == '__main__':
         pRTC_parser.add_argument('-ruby',  required=False, default='ruby',  help='path to ruby executable file, default: ruby')
         args = vars(parser.parse_args())
         pRTC.pRTC(args)
+
+    elif sys.argv[1] == 'ConcateMSA':
+        from TreeSAK import ConcateMSA
+        ConcateMSA_parser = subparsers.add_parser('ConcateMSA', usage=ConcateMSA.ConcateMSA_usage)
+        ConcateMSA_parser.add_argument('-i',        required=True,                          help='input MSA folder')
+        ConcateMSA_parser.add_argument('-x',        required=True,                          help='input file extension')
+        ConcateMSA_parser.add_argument('-p',        required=True,                          help='output prefix')
+        ConcateMSA_parser.add_argument('-gene2gnm', required=False, action="store_true",    help='gene id to gnm id, split sequence id before the last _')
+        args = vars(parser.parse_args())
+        ConcateMSA.ConcateMSA(args)
+
+    elif sys.argv[1] == 'SingleAleHGT':
+        from TreeSAK import SingleAleHGT
+        SingleAleHGT_parser = subparsers.add_parser('SingleAleHGT', usage=SingleAleHGT.SingleAleHGT_usage)
+        SingleAleHGT_parser.add_argument('-faa',    required=False, default=None,               help='input aa file, e.g., OMA0001.faa')
+        SingleAleHGT_parser.add_argument('-msa',    required=False, default=None,               help='input MSA file, e.g., OMA0001.aln')
+        SingleAleHGT_parser.add_argument('-o',      required=True,                              help='output dir, e.g., SingleAleHGT_wd')
+        SingleAleHGT_parser.add_argument('-s',      required=True,                              help='rooted species tree')
+        SingleAleHGT_parser.add_argument('-c',      required=True,                              help='genome_taxon, GTDB format')
+        SingleAleHGT_parser.add_argument('-color',  required=True,                              help='phylum color code')
+        SingleAleHGT_parser.add_argument('-fc',     required=False, type=float, default=0.5,    help='hgt_freq_cutoff, default: 0.5')
+        SingleAleHGT_parser.add_argument('-mld',    required=False, type=int, default=5,        help='donor_node_min_leaf_num, default: 5')
+        SingleAleHGT_parser.add_argument('-mlr',    required=False, type=int, default=5,        help='recipient_node_min_leaf_num, default: 5')
+        SingleAleHGT_parser.add_argument('-trim',   required=False, action="store_true",        help='trim MSA')
+        SingleAleHGT_parser.add_argument('-docker', required=False, default=None,               help='Docker image, if ALE was installed with Docker, e.g., gregmich/alesuite_new')
+        SingleAleHGT_parser.add_argument('-itol',   required=False, default='batch_access_tmp', help='iTOL project_name, default: batch_access_tmp')
+        SingleAleHGT_parser.add_argument('-api',    required=True,                              help='iTOL API key')
+        SingleAleHGT_parser.add_argument('-t',      required=False, type=int, default=6,        help='number of threads, default: 6')
+        SingleAleHGT_parser.add_argument('-f',      required=False, action="store_true",        help='force overwrite')
+        args = vars(parser.parse_args())
+        SingleAleHGT.SingleAleHGT(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

@@ -3,10 +3,11 @@ ALE_usage = '''
 ================================================= ALE example commands =================================================
 
 # ALE modules
-TreeSAK ALE1  ->  Step 1: get gene tree
-TreeSAK ALE2  ->  Step 2: run ALE
-TreeSAK ALE3  ->  Step 3: parse ALE outputs
-TreeSAK ALE4  ->  Filter ALE identified HGTs
+TreeSAK ALE1          ->  Step 1: get gene tree
+TreeSAK ALE2          ->  Step 2: run ALE
+TreeSAK ALE3          ->  Step 3: parse ALE outputs
+TreeSAK ALE4          ->  Filter ALE identified HGTs
+TreeSAK SingleAleHGT  ->  Perform HGT analysis using ALE for single protein family
 
 # Example commands
 TreeSAK ALE1 -i OrthologousGroups.txt -s combined_d__Archaea_o_rs.faa -p oma -m 50 -t 12 -jst 3 -f -o ALE1_op_dir
@@ -15,6 +16,7 @@ TreeSAK ALE3 -i ALE2_op_dir -o ALE3_op_dir_c0.75 -f -c 0.75
 TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -o ALE4_op_dir_0.3 -fc 0.3 -f -api your_own_itol_api
 TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -o ALE4_op_dir_0.5 -fc 0.5 -f -api your_own_itol_api
 TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -o ALE4_op_dir_0.8 -fc 0.8 -f -api your_own_itol_api
+TreeSAK SingleAleHGT -i concatenated.fasta -s genome.treefile -fc 0.3 -c genome_taxon.txt -color phylum_color.txt -api S1kZZuDHc0d5M7J5vLnUNQ -t 9 -f -o demo_SingleAleHGT_wd
 
 Note: 
 Genome names should NOT contain "_".
