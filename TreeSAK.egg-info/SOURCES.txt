@@ -99,11 +99,13 @@ TreeSAK_DateArTree/s2_psiblast.py
 TreeSAK_DateArTree/s3_Prep_gnm_metadata.py
 TreeSAK_DateArTree/s6_decorate_tree.py
 TreeSAK_DateArTree/submit_cmds.py
+TreeSAK_DateArTree/tests_to_perform.py
 TreeSAK_DateArTree/tmp_1.py
 TreeSAK_DateArTree/tmp_2.py
 TreeSAK_DateArTree/tmp_3.py
 TreeSAK_DateArTree/tmp_4.py
 TreeSAK_DateArTree/tmp_5.py
+TreeSAK_DateArTree/tmp_6.py
 TreeSAK_DateArTree/HGT/runALE.py
 TreeSAK_DateArTree/HGT/backup/HGT_ALE.py
 TreeSAK_DateArTree/HGT/backup/HGT_MetaCHIP.py

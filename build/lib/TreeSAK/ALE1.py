@@ -2,16 +2,15 @@ import os
 import argparse
 from Bio import SeqIO
 from ete3 import Tree
-import multiprocessing as mp
 from distutils.spawn import find_executable
 
 
 ALE1_usage = '''
-=============================================== ALE1 example commands ===============================================
+============================================ ALE1 example commands ============================================
 
-TreeSAK ALE1 -i OrthologousGroups.txt -s OrthologousGroups_combined.fasta -p oma -m 50 -t 6 -jt 3 -f -o ALE1_op_dir
+TreeSAK ALE1 -i OrthologousGroups.txt -s combined.faa -p oma -m 50 -jst 3 -f -o ALE1_op_dir
 
-=====================================================================================================================
+===============================================================================================================
 '''
 
 

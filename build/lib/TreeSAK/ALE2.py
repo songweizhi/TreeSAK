@@ -126,6 +126,8 @@ def ALE2(args):
             prepare_ale_ip_worker_arg_lol.append(current_arg_list)
     run_ale_cmds_txt_handle.close()
 
+    #
+
     # prepare input files and job script for running ALE with multiprocessing
     print('Preparing files for running ALE with %s cores for %s OGs' % (num_threads, len(prepare_ale_ip_worker_arg_lol)))
     pool = mp.Pool(processes=num_threads)

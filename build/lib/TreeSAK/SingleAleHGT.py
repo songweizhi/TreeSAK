@@ -51,13 +51,13 @@ def SingleAleHGT(args):
 
     ######################################## define file name ########################################
 
-    ale1_op_dir = '%s/ALE1_op_dir'  % op_dir
-    ale2_op_dir = '%s/ALE2_op_dir'  % op_dir
-    ale4_op_dir = '%s/ALE4_op_dir'  % op_dir
-    log_txt     = '%s/log.txt'      % op_dir
-    msa_file    = '%s/%s%s'         % (ale1_op_dir, f_base, f_ext)
-    msa_trimmed = '%s/%s_trimmed%s' % (ale1_op_dir, f_base, f_ext)
-    tree_prefix = '%s/%s'           % (ale1_op_dir, f_base)
+    ale1_op_dir = '%s/ALE1_op_dir'      % op_dir
+    ale2_op_dir = '%s/ALE2_op_dir'      % op_dir
+    ale4_op_dir = '%s/ALE4_op_dir'      % op_dir
+    log_txt     = '%s/log.txt'          % op_dir
+    msa_file    = '%s/%s.aln'           % (ale1_op_dir, f_base)
+    msa_trimmed = '%s/%s_trimmed.aln'   % (ale1_op_dir, f_base)
+    tree_prefix = '%s/%s'               % (ale1_op_dir, f_base)
 
     ###################################### create output folder ######################################
 
@@ -75,6 +75,7 @@ def SingleAleHGT(args):
     # run mafft-einsi
     if (faa_in is not None) and (msa_in is None):
         mafft_cmd = 'mafft-einsi --thread %s --quiet %s > %s' % (num_threads, faa_in, msa_file)
+
         with open(log_txt, 'a') as log_txt_handle:
             log_txt_handle.write(mafft_cmd + '\n')
         os.system(mafft_cmd)
@@ -150,6 +151,7 @@ TreeSAK ALE2 -i ALE1_op_dir -s ../genome_tree.newick -t 10 -f -runALE -docker gr
 TreeSAK ALE4 -i1 ALE1_op_dir_OMA05484_OMA07484_trimmed -i2 ALE2_op_dir_OMA05484_OMA07484_trimmed -c genome_taxon.txt -color phylum_color.txt -o ALE4_op_dir_OMA05484_OMA07484_trimmed_0.01 -fc 0.01 -f -api S1kZZuDHc0d5M7J5vLnUNQ
 
 /usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/SingleAleHGT.py -o demo_SingleAleHGT_wd -msa ALE1_op_dir/OMA15312.aln -s genome_tree_rooted_noEU.treefile -fc 0.3 -c genome_taxon.txt -color phylum_color.txt -api S1kZZuDHc0d5M7J5vLnUNQ -t 10 -f -trim -docker gregmich/alesuite_new
-/usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/SingleAleHGT.py -o OMA01402_SingleAleHGT_wd -msa ALE1_op_dir/OMA01402.aln -s genome_tree_rooted_noEU.treefile -fc 0.3 -c genome_taxon.txt -color phylum_color.txt -api S1kZZuDHc0d5M7J5vLnUNQ -t 10 -f -trim -docker gregmich/alesuite_new
+/usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/SingleAleHGT.py -o OMA01402_ALE_HGT_wd -msa ALE1_op_dir/OMA01402.aln -s genome_tree_rooted_noEU.treefile -fc 0.3 -c genome_taxon.txt -color phylum_color.txt -api S1kZZuDHc0d5M7J5vLnUNQ -t 10 -f -trim -docker gregmich/alesuite_new
+/usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/SingleAleHGT.py -o OMA01402_ALE_HGT_wd_no_trim -msa ALE1_op_dir/OMA01402.aln -s genome_tree_rooted_noEU.treefile -fc 0.3 -c genome_taxon.txt -color phylum_color.txt -api S1kZZuDHc0d5M7J5vLnUNQ -t 10 -f -docker gregmich/alesuite_new
 
 '''
