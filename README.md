@@ -7,8 +7,8 @@
 Contact
 ---
 
-+ **Weizhi Song**, Postdoctoral Researcher
-+ School of Life Sciences, The Chinese University of Hong Kong
++ Dr Weizhi Song
++ Department of Ocean Science, Hong Kong University of Science and Technology, Hong Kong
 + E-mail: songwz03@gmail.com
 
     

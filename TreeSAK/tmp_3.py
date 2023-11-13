@@ -1,44 +1,39 @@
-from PyPDF2 import PdfFileReader, PdfFileWriter
-from PyPDF2.pdf import PageObject
+import operator
 
-def add_title_to_page(input_pdf_path, output_pdf_path, title):
-    # Create a PDF reader object
-    pdf_reader = PdfFileReader(input_pdf_path)
+def keep_highest_rrtc(rrtc_in, rrtc_out):
 
-    # Create a PDF writer object
-    pdf_writer = PdfFileWriter()
+    rrtc_highest_prob_dict = dict()
+    for each_rrtc in open(rrtc_in):
+        each_rrtc_split = each_rrtc.strip().split(':')[0].split('\t')
+        rrtc_r = each_rrtc.strip().split(':')[0].split('\t')[0]
+        rrtc_d = each_rrtc.strip().split(':')[0].split('\t')[1]
+        rrtc_v = float(each_rrtc.strip().split(':')[1])
+        rrtc_key = '%s___%s' % (rrtc_r, rrtc_d)
+        if rrtc_key not in rrtc_highest_prob_dict:
+            rrtc_highest_prob_dict[rrtc_key] = rrtc_v
+        else:
+            if rrtc_v > rrtc_highest_prob_dict[rrtc_key]:
+                rrtc_highest_prob_dict[rrtc_key] = rrtc_v
 
-    # Get the first page of the PDF
-    page = pdf_reader.getPage(0)
+    with open(rrtc_out, 'w') as rrtc_out_handle:
+        for each_rrtc in sorted(rrtc_highest_prob_dict.items(), key=operator.itemgetter(1))[::-1]:
+            print(each_rrtc)
+            rrtc_r = each_rrtc[0].split('___')[0]
+            rrtc_d = each_rrtc[0].split('___')[1]
+            rrtc_v = each_rrtc[1]
+            rrtc_out_handle.write('%s\t%s:%s\n' % (rrtc_r, rrtc_d, rrtc_v))
 
-    # Create a blank page with the same dimensions as the first page
-    blank_page = PageObject.createBlankPage(None, page.mediaBox.getWidth(),
-                                             page.mediaBox.getHeight())
 
-    # Set the title on the blank page
-    blank_page.mergeScaledTranslatedPage(page, 1, 0, 0)
+rrtc_in  = '/Users/songweizhi/Desktop/rrtc.txt'
+rrtc_out = '/Users/songweizhi/Desktop/rrtc_out.txt'
+keep_highest_rrtc(rrtc_in, rrtc_out)
 
-    # Set the font properties for the title
-    blank_page.mergeScaledTranslatedPage(page, 1, 0, 0)
 
-    # Add the title to the top of the blank page
-    blank_page.mergeScaledTranslatedPage(page, 1, 0, 0)
 
-    # Add the modified page to the PDF writer
-    pdf_writer.addPage(blank_page)
+demo_dict = { 'a': 6, 'b': 2, 'c': 2 }
 
-    # Add the remaining pages from the input PDF to the writer
-    for i in range(1, pdf_reader.getNumPages()):
-        pdf_writer.addPage(pdf_reader.getPage(i))
+print()
 
-    # Write the output PDF file
-    with open(output_pdf_path, 'wb') as output_pdf:
-        pdf_writer.write(output_pdf)
-
-# Usage example
-input_pdf = 'input.pdf'
-output_pdf = 'output.pdf'
-title = 'My Awesome PDF'
-
-add_title_to_page(input_pdf, output_pdf, title)
-
+for each in sorted(demo_dict.items(), key=operator.itemgetter(1))[::-1]:
+    print(each[0])
+    print(each[1])

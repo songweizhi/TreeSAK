@@ -43,29 +43,33 @@ def print_main_help():
        OMA2                   ->  Filter OMA predicted OGs
 
     Multiple Sequence Alignment
-       ConvertMSA             ->  Convert MSA format
-       fa2phy                 ->  Convert MSA format (fasta to phylip)
-       SingleLinePhy          ->  Put sequences in single line in phylip format
-       OneLineAln             ->  One-line fasta format alignments
-       SliceMSA               ->  Slice MSA by column 
-       AlignmentPruner        ->  Remove heterogenous sites from MSA
        BMGE                   ->  Run BMGE
+       fa2phy                 ->  Convert MSA format (fasta to phylip)
+       SliceMSA               ->  Slice MSA by column 
        ConcateMSA             ->  Concatenate MSA
+       ConvertMSA             ->  Convert MSA format
+       OneLineAln             ->  One-line fasta format alignments
+       SingleLinePhy          ->  Put sequences in single line in phylip format
+       AlignmentPruner        ->  Remove heterogenous sites from MSA
     
     Tree-related
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        GTDB_tree              ->  get GTDB tree
-       PMSF                   ->  run iqtree with PMSF
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        print_leaves           ->  print out tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
        ModifyTopo             ->  Modify tree topology
-       GeneRax                ->  Run GeneRax (to be added)    
+       GeneRax                ->  (to be added) Run GeneRax    
        ALE                    ->  Modules for running ALE
        RootTree               ->  Root tree with outgroup leaves
+       LcaToLeaves            ->  Get two leaves that define an internal node
+       
+    Model-related
+       PMSF                   ->  run iqtree with PMSF
+       PPA                    ->  (to be added) Perform Posterior Predictive Analysis (across-site)
        
     Dating-related
        Dating                 ->  Perform molecular dating
@@ -308,6 +312,7 @@ if __name__ == '__main__':
         from TreeSAK import PlotMcmcNode
         PlotMcmcNode_parser = subparsers.add_parser('PlotMcmcNode', usage=PlotMcmcNode.PlotMcmcNode_usage)
         PlotMcmcNode_parser.add_argument('-i',      required=True,                  help='folder holds the *mcmc.txt and *out.txt files')
+        PlotMcmcNode_parser.add_argument('-of',     required=False, default=None,   help='the *out.txt file')
         PlotMcmcNode_parser.add_argument('-n',      required=True,                  help='Nodes to plot')
         PlotMcmcNode_parser.add_argument('-l',      required=False, default=None,   help='labels on y axis')
         PlotMcmcNode_parser.add_argument('-o',      required=True,                  help='Output plot')
@@ -584,6 +589,14 @@ if __name__ == '__main__':
         SingleAleHGT_parser.add_argument('-f',      required=False, action="store_true",        help='force overwrite')
         args = vars(parser.parse_args())
         SingleAleHGT.SingleAleHGT(args)
+
+    elif sys.argv[1] == 'LcaToLeaves':
+        from TreeSAK import LcaToLeaves
+        LcaToLeaves_parser = subparsers.add_parser('LcaToLeaves', usage=LcaToLeaves.LcaToLeaves_usage)
+        LcaToLeaves_parser.add_argument('-s', required=True, help='the .stree file from ALE')
+        LcaToLeaves_parser.add_argument('-n', required=True, help='internal node(s)')
+        args = vars(parser.parse_args())
+        LcaToLeaves.LcaToLeaves(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

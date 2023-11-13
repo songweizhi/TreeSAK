@@ -3,22 +3,29 @@ import argparse
 
 
 pRTC_usage = '''
-================================ pRTC example commands ================================
+==================================== pRTC example commands ====================================
 
 # requires: ruby (bio-nwk, colorize, parallel, csv)
 
 TreeSAK pRTC -i out -m mcmc.txt -r rtc_dir -o after_pRTC_mcmc.txt
 
-# format of RTC file (tab separated)
-symbiont_1,symbiont_2    host_1,host_2:prob
-recipient1,recipient2	 donor1,donor2:prob
+python3 # format of RTC file (tab separated)
+symbiont_1,symbiont_2    host_1,host_2:0.9876
+recipient1,recipient2	 donor1,donor2:0.6789
 
-# A Python wrapper to perform probabilistic RTC dating proposed by Dr. Sishuo Wang. 
-# If you used it in your dating analysis, please cite:
-# https://doi.org/10.1101/2023.06.18.545440, or 
-# https://github.com/evolbeginner/rrtc
+# The above two lines can be interpreted as follows:
+The probability of the last common ancestor (LCA) of symbiont_1 and symbiont_2 being 
+younger than that of host_1 and host_2 is 0.9876. Similarly, for a gene transfer event, 
+the LCA of the two recipients is younger than that of the two donors, the value 0.6789 
+is the PROBABILITY of the occurrence of the transfer event. Please do NOT use this module 
+if you are unsure about the interpretation of the value you provided.
 
-=======================================================================================
+# Note
+This is a Python wrapper to perform the probabilistic RTC dating proposed by Dr. Sishuo Wang.
+If you used it in your dating analysis, please cite:
+https://doi.org/10.1101/2023.06.18.545440 or https://github.com/evolbeginner/rrtc.
+
+===============================================================================================
 '''
 
 

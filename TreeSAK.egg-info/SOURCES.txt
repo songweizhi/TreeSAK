@@ -9,6 +9,7 @@ TreeSAK/ALE2.py
 TreeSAK/ALE2RTC.py
 TreeSAK/ALE3.py
 TreeSAK/ALE4.py
+TreeSAK/ALE5.py
 TreeSAK/ALE_backup.py
 TreeSAK/AlignmentPruner.py
 TreeSAK/AssessCVG.py
@@ -27,6 +28,7 @@ TreeSAK/FastRoot.py
 TreeSAK/FastRoot_backup.py
 TreeSAK/GTDB_tree.py
 TreeSAK/KEGG_Luo17.py
+TreeSAK/LcaToLeaves.py
 TreeSAK/MCMCtreeR.py
 TreeSAK/MarkerRef2Tree.py
 TreeSAK/MarkerRef2Tree_backup.py
@@ -105,7 +107,6 @@ TreeSAK_DateArTree/tmp_2.py
 TreeSAK_DateArTree/tmp_3.py
 TreeSAK_DateArTree/tmp_4.py
 TreeSAK_DateArTree/tmp_5.py
-TreeSAK_DateArTree/tmp_6.py
 TreeSAK_DateArTree/HGT/runALE.py
 TreeSAK_DateArTree/HGT/backup/HGT_ALE.py
 TreeSAK_DateArTree/HGT/backup/HGT_MetaCHIP.py

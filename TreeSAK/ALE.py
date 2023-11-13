@@ -3,11 +3,12 @@ ALE_usage = '''
 ================================================= ALE example commands =================================================
 
 # ALE modules
-TreeSAK ALE1          ->  Step 1: get gene tree
-TreeSAK ALE2          ->  Step 2: run ALE
-TreeSAK ALE3          ->  Step 3: parse ALE outputs
-TreeSAK ALE4          ->  Filter ALE identified HGTs
-TreeSAK SingleAleHGT  ->  Perform HGT analysis using ALE for single protein family
+TreeSAK ALE1         -> Step 1: get gene tree
+TreeSAK ALE2         -> Step 2: run ALE
+TreeSAK ALE3         -> Step 3: parse ALE outputs
+TreeSAK ALE4         -> Filter ALE identified HGTs
+TreeSAK ALE5         -> Get RTC file based on ALE detected HGTs
+TreeSAK SingleAleHGT -> Perform HGT analysis using ALE for single protein family
 
 # Example commands
 TreeSAK ALE1 -i OrthologousGroups.txt -s combined_d__Archaea_o_rs.faa -p oma -m 50 -t 12 -jst 3 -f -o ALE1_op_dir

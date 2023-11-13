@@ -66,6 +66,7 @@ def print_main_help():
        GeneRax                ->  Run GeneRax (to be added)    
        ALE                    ->  Modules for running ALE
        RootTree               ->  Root tree with outgroup leaves
+       LcaToLeaves            ->  Get two leaves that define an internal node
        
     Dating-related
        Dating                 ->  Perform molecular dating
@@ -308,6 +309,7 @@ if __name__ == '__main__':
         from TreeSAK import PlotMcmcNode
         PlotMcmcNode_parser = subparsers.add_parser('PlotMcmcNode', usage=PlotMcmcNode.PlotMcmcNode_usage)
         PlotMcmcNode_parser.add_argument('-i',      required=True,                  help='folder holds the *mcmc.txt and *out.txt files')
+        PlotMcmcNode_parser.add_argument('-of',     required=False, default=None,   help='the *out.txt file')
         PlotMcmcNode_parser.add_argument('-n',      required=True,                  help='Nodes to plot')
         PlotMcmcNode_parser.add_argument('-l',      required=False, default=None,   help='labels on y axis')
         PlotMcmcNode_parser.add_argument('-o',      required=True,                  help='Output plot')
@@ -584,6 +586,14 @@ if __name__ == '__main__':
         SingleAleHGT_parser.add_argument('-f',      required=False, action="store_true",        help='force overwrite')
         args = vars(parser.parse_args())
         SingleAleHGT.SingleAleHGT(args)
+
+    elif sys.argv[1] == 'LcaToLeaves':
+        from TreeSAK import LcaToLeaves
+        LcaToLeaves_parser = subparsers.add_parser('LcaToLeaves', usage=LcaToLeaves.LcaToLeaves_usage)
+        LcaToLeaves_parser.add_argument('-s', required=True, help='the .stree file from ALE')
+        LcaToLeaves_parser.add_argument('-n', required=True, help='internal node(s)')
+        args = vars(parser.parse_args())
+        LcaToLeaves.LcaToLeaves(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

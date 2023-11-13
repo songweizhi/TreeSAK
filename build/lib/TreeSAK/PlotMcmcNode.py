@@ -144,10 +144,11 @@ def get_internal_node_to_plot(node_txt, mo_file):
 
 def PlotMcmcNode(args):
 
-    mcmc_in     = args['i']
-    node_txt    = args['n']
-    output_plot = args['o']
-    y_label_txt = args['l']
+    mcmc_in             = args['i']
+    node_txt            = args['n']
+    output_plot         = args['o']
+    specified_out_file  = args['of']
+    y_label_txt         = args['l']
 
     # check MCMCTree output file/dir
     if os.path.isfile(mcmc_in) is True:
@@ -160,15 +161,16 @@ def PlotMcmcNode(args):
         print('*mcmc.txt file not found, program exited!')
         exit()
 
-    missed_out_file_list = []
-    for each_mcmc_file in mcmc_file_list:
-        pwd_out_file = each_mcmc_file.replace('_mcmc.txt', '_out.txt')
-        if os.path.isfile(pwd_out_file) is False:
-            missed_out_file_list.append(pwd_out_file)
-    if len(missed_out_file_list) > 0:
-        print('The following *out.txt files are missing, program exited!')
-        print('\n'.join(sorted(missed_out_file_list)))
-        exit()
+    if specified_out_file is None:
+        missed_out_file_list = []
+        for each_mcmc_file in mcmc_file_list:
+            pwd_out_file = each_mcmc_file.replace('_mcmc.txt', '_out.txt')
+            if os.path.isfile(pwd_out_file) is False:
+                missed_out_file_list.append(pwd_out_file)
+        if len(missed_out_file_list) > 0:
+            print('The following *out.txt files are missing, program exited!')
+            print('\n'.join(sorted(missed_out_file_list)))
+            exit()
 
     # read in y-axis label file
     y_label_dict = dict()
@@ -197,7 +199,10 @@ def PlotMcmcNode(args):
         if '/' in mcmc_file_no_path:
             mcmc_file_no_path = mcmc_file_no_path.split('/')[-1]
 
-        pwd_current_run_mcmc_out   = mcmc_file.replace('_mcmc.txt', '_out.txt')
+        if specified_out_file is None:
+            pwd_current_run_mcmc_out = mcmc_file.replace('_mcmc.txt', '_out.txt')
+        else:
+            pwd_current_run_mcmc_out = specified_out_file
         node_set, node_rename_dict, tree_str = get_internal_node_to_plot(node_txt, pwd_current_run_mcmc_out)
         op_tree_tmp_handle.write('%s\t%s\n' % (mcmc_file_no_path.replace('_mcmc.txt', ''), tree_str))
         label_to_write = y_label_dict.get(mcmc_file_no_path, mcmc_file_no_path)
@@ -229,6 +234,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-i',      required=True,                   help='folder holds the *mcmc.txt and *out.txt files')
+    parser.add_argument('-of',     required=False, default=None,    help='the *out.txt file')
     parser.add_argument('-n',      required=True,                   help='Nodes to plot')
     parser.add_argument('-l',      required=False, default=None,    help='labels on y axis')
     parser.add_argument('-o',      required=True,                   help='Output plot')
