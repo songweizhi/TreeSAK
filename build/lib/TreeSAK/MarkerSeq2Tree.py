@@ -11,7 +11,7 @@ MarkerSeq2Tree_usage = '''
 
 Dependencies: mafft, trimal and iqtree2
 
-BioSAK MarkerSeq2Tree -i marker_seq_top25 -x fa -o op_dir -t 12 -f
+TreeSAK MarkerSeq2Tree -i marker_seq_top25 -x fa -o op_dir -t 12 -f
 
 =======================================================================
 '''

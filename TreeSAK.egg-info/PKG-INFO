@@ -1,14 +1,26 @@
 Metadata-Version: 2.1
 Name: TreeSAK
-Version: 1.29.3
+Version: 1.29.8
 Summary: BioSAK
 Home-page: https://github.com/songweizhi/TreeSAK
 Author: Weizhi Song
 Author-email: songwz03@gmail.com
 License: GPL3+
 Keywords: Bioinformatics
-Platform: UNKNOWN
 License-File: LICENSE
+Requires-Dist: biopython
+Requires-Dist: matplotlib
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: itolapi
+Requires-Dist: networkx
+Requires-Dist: seaborn
+Requires-Dist: lxml
+Requires-Dist: beautifulsoup4
+Requires-Dist: ete3
+Requires-Dist: arviz
+Requires-Dist: plotly
+Requires-Dist: kaleido
+Requires-Dist: PyPDF3
 
- TreeSAK v1.29.3 
-
+ TreeSAK v1.29.8 

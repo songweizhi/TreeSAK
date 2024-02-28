@@ -3,6 +3,7 @@ import os
 import glob
 import numpy
 import argparse
+import subprocess
 from ete3 import Tree
 import multiprocessing as mp
 from operator import itemgetter
@@ -23,6 +24,18 @@ GCA_013287585.1 c02_TA-20
 
 # gnm_taxon.txt: GTDB format
 
+# install R packages
+install.packages("optparse")
+install.packages("plyr")
+install.packages("dbplyr")
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("ggplot2")
+install.packages("data.table")
+install.packages("RColorBrewer")
+install.packages("gplots")
+install.packages("ape")
+
 =============================================================================
 '''
 
@@ -33,6 +46,19 @@ def sep_path_basename_ext(file_in):
         f_path = '.'
     f_base, f_ext = os.path.splitext(file_name)
     return f_path, f_base, f_ext
+
+
+def check_executables(program_list):
+
+    not_detected_programs = []
+    for needed_program in program_list:
+
+        if subprocess.call(['which', needed_program], stdout=open(os.devnull, 'wb')) != 0:
+            not_detected_programs.append(needed_program)
+
+    if not_detected_programs != []:
+        print('%s not detected, program exited!' % ','.join(not_detected_programs))
+        exit()
 
 
 def gtdb_gnm_metadata_parser(gtdb_genome_metadata):
@@ -463,17 +489,17 @@ def get_taxa_count_stats(step_1_op_dir, hog_list_sorted, get_taxa_count_stats_wd
     os.system(get_TaxaCountStats_cmd)
 
 
-def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, op_dir, op_prefix):
+def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, op_dir):
 
     # define file name
-    marker_set_top_25_txt       = '%s/%s_top25.txt'    % (op_dir, op_prefix)
-    marker_set_top_50_txt       = '%s/%s_top50.txt'    % (op_dir, op_prefix)
-    marker_set_top_75_txt       = '%s/%s_top75.txt'    % (op_dir, op_prefix)
-    marker_set_top_100_txt      = '%s/%s_top100.txt'   % (op_dir, op_prefix)
-    marker_set_top_25_seq_dir   = '%s/%s_top25'        % (op_dir, op_prefix)
-    marker_set_top_50_seq_dir   = '%s/%s_top50'        % (op_dir, op_prefix)
-    marker_set_top_75_seq_dir   = '%s/%s_top75'        % (op_dir, op_prefix)
-    marker_set_top_100_seq_dir  = '%s/%s_top100'       % (op_dir, op_prefix)
+    marker_set_top_25_txt       = '%s/top25.txt'    % (op_dir)
+    marker_set_top_50_txt       = '%s/top50.txt'    % (op_dir)
+    marker_set_top_75_txt       = '%s/top75.txt'    % (op_dir)
+    marker_set_top_100_txt      = '%s/top100.txt'   % (op_dir)
+    marker_set_top_25_seq_dir   = '%s/top25'        % (op_dir)
+    marker_set_top_50_seq_dir   = '%s/top50'        % (op_dir)
+    marker_set_top_75_seq_dir   = '%s/top75'        % (op_dir)
+    marker_set_top_100_seq_dir  = '%s/top100'       % (op_dir)
 
     os.system('mkdir %s' % marker_set_top_25_seq_dir)
     os.system('mkdir %s' % marker_set_top_50_seq_dir)
@@ -518,7 +544,6 @@ def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, op_dir, op_prefix):
 
 def SplitScore2(args):
 
-    op_prefix                   = args['p']
     step_1_op_dir               = args['i']
     gnm_group_txt               = args['g']
     gtdb_classification_txt     = args['k']
@@ -526,6 +551,9 @@ def SplitScore2(args):
     num_of_threads              = args['t']
     step_2_op_dir               = args['o']
     target_label                = 'cluster'
+
+    check_executables(['Rscript'])
+
 
     current_file_path           = '/'.join(os.path.realpath(__file__).split('/')[:-1])
     TaxaCountStats_Rscript      = '%s/TaxaCountStats.R'                                     % current_file_path
@@ -565,7 +593,7 @@ def SplitScore2(args):
     get_taxa_count_stats(count_sister_taxa_op_dir, contree_ufboot_shared_sorted, get_taxa_count_stats_op_dir, force_overwrite, TaxaCountStats_Rscript)
 
     print('Exporting markers by split score')
-    group_marker(TaxaCountStats_output_txt, qualified_og_seq_dir, step_2_op_dir, op_prefix)
+    group_marker(TaxaCountStats_output_txt, qualified_og_seq_dir, step_2_op_dir)
 
     print('Done!')
 
@@ -573,7 +601,6 @@ def SplitScore2(args):
 if __name__ == '__main__':
 
     SplitScore2_parser = argparse.ArgumentParser()
-    SplitScore2_parser.add_argument('-p', required=True,                        help='output prefix')
     SplitScore2_parser.add_argument('-i', required=True,                        help='output dir from SplitScore1')
     SplitScore2_parser.add_argument('-g', required=True,                        help='genome group')
     SplitScore2_parser.add_argument('-k', required=True,                        help='genome taxon, GTDB format')

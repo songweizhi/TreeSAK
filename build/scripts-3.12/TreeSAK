@@ -43,30 +43,33 @@ def print_main_help():
        OMA2                   ->  Filter OMA predicted OGs
 
     Multiple Sequence Alignment
-       ConvertMSA             ->  Convert MSA format
-       fa2phy                 ->  Convert MSA format (fasta to phylip)
-       SingleLinePhy          ->  Put sequences in single line in phylip format
-       OneLineAln             ->  One-line fasta format alignments
-       SliceMSA               ->  Slice MSA by column 
-       AlignmentPruner        ->  Remove heterogenous sites from MSA
        BMGE                   ->  Run BMGE
+       fa2phy                 ->  Convert MSA format (fasta to phylip)
+       SliceMSA               ->  Slice MSA by column 
        ConcateMSA             ->  Concatenate MSA
+       ConvertMSA             ->  Convert MSA format
+       OneLineAln             ->  One-line fasta format alignments
+       SingleLinePhy          ->  Put sequences in single line in phylip format
+       AlignmentPruner        ->  Remove heterogenous sites from MSA
     
     Tree-related
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        GTDB_tree              ->  get GTDB tree
-       PMSF                   ->  run iqtree with PMSF
        subset_tree            ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        print_leaves           ->  print out tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
        ModifyTopo             ->  Modify tree topology
-       GeneRax                ->  Run GeneRax (to be added)    
+       GeneRax                ->  (to be added) Run GeneRax    
        ALE                    ->  Modules for running ALE
        RootTree               ->  Root tree with outgroup leaves
        LcaToLeaves            ->  Get two leaves that define an internal node
+       
+    Model-related
+       PMSF                   ->  run iqtree with PMSF
+       PPA                    ->  (to be added) Perform Posterior Predictive Analysis (across-site)
        
     Dating-related
        Dating                 ->  Perform molecular dating
@@ -387,7 +390,6 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'SplitScore2':
         from TreeSAK import SplitScore2
         SplitScore2_parser = subparsers.add_parser('SplitScore2', usage=SplitScore2.SplitScore2_usage)
-        SplitScore2_parser.add_argument('-p', required=True,                        help='output prefix')
         SplitScore2_parser.add_argument('-i', required=True,                        help='outputs of iqtree from step 1, only needs the contree and ufboot files')
         SplitScore2_parser.add_argument('-g', required=True,                        help='genome group')
         SplitScore2_parser.add_argument('-k', required=True,                        help='genome taxon, GTDB format')
@@ -450,7 +452,7 @@ if __name__ == '__main__':
         OMA2_parser = subparsers.add_parser('OMA2', usage=OMA2.OMA2_usage)
         OMA2_parser.add_argument('-i',   required=True,                          help='OrthologousGroups.txt')
         OMA2_parser.add_argument('-s',   required=True,                          help='sequence dir, OrthologousGroupsFasta')
-        OMA2_parser.add_argument('-g',   required=True,                          help='id of interested genomes')
+        OMA2_parser.add_argument('-g',   required=False, default=None,           help='id of interested genomes')
         OMA2_parser.add_argument('-o',   required=True,  default=None,           help='output directory')
         OMA2_parser.add_argument('-n',   required=False, type=int, default=3,    help='minimal number of gene in a OG, deafult: 3')
         OMA2_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
@@ -604,11 +606,11 @@ upload_to_pypi_cmd = '''
 
 cd /Users/songweizhi/PycharmProjects/TreeSAK
 rm -r build dist TreeSAK.egg-info
-python setup.py sdist bdist_wheel
+python3 setup.py sdist bdist_wheel
 twine upload dist/*
 
-songweizhi  shan88
+__token__
+
 pip3 install --upgrade TreeSAK
-TreeSAK -h
 
 '''

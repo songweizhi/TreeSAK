@@ -4,11 +4,11 @@ import argparse
 
 
 OMA_usage = '''
-========================= OMA example commands =========================
+======================= OMA example commands =======================
 
 TreeSAK OMA -i faa_files -x faa -og og_gnm.txt -o OMA_wd -f -t 32
 
-========================================================================
+====================================================================
 '''
 
 def sep_path_basename_ext(file_in):
@@ -102,16 +102,25 @@ def OMA(args):
         exit()
 
     # copy genome files into DB folder
-    pwd_gnm_rename_txt_handle = open(pwd_gnm_rename_txt, 'w')
     gnm_id_rename_dict = dict()
+    rename_list = []
     for each_gnm in gnm_file_list:
         gnm_path, gnm_base, gnm_ext = sep_path_basename_ext(each_gnm)
         gnm_base_renamed = gnm_base.replace('.', '_')
         pwd_gnm_db = '%s/%s.fa' % (oma_input_dir, gnm_base_renamed)
-        pwd_gnm_rename_txt_handle.write('%s\t%s\n' % (gnm_base, gnm_base_renamed))
+        if gnm_base != gnm_base_renamed:
+            rename_list.append('%s\t%s' % (gnm_base, gnm_base_renamed))
         gnm_id_rename_dict[gnm_base] = gnm_base_renamed
         os.system('cp %s %s' % (each_gnm, pwd_gnm_db))
-    pwd_gnm_rename_txt_handle.close()
+
+    # write out rename file
+    if len(rename_list) > 0:
+        pwd_gnm_rename_txt_handle = open(pwd_gnm_rename_txt, 'w')
+        for each_e in sorted(rename_list):
+            pwd_gnm_rename_txt_handle.write(each_e + '\n')
+        pwd_gnm_rename_txt_handle.close()
+    else:
+        print('Format of file names passed checking')
 
     # get default_para_dict
     default_para_dict = get_default_para_dict()
@@ -121,7 +130,6 @@ def OMA(args):
     for each_og_gnm in open(og_gnm_txt):
         og_gnm_renamed = gnm_id_rename_dict[each_og_gnm.strip()]
         renamed_og_gnm_list.append(og_gnm_renamed)
-    print(renamed_og_gnm_list)
 
     # write out parameter file
     with open(pwd_parameter_file, 'w') as pwd_parameter_file_handle:
@@ -145,6 +153,7 @@ def OMA(args):
     print('You can run OMA with:')
     print('cd %s' % op_dir)
     print('oma -n %s' % num_threads)
+    print('# You may want to customize parameters specified in %s ' % pwd_parameter_file)
 
 
 if __name__ == '__main__':
@@ -153,10 +162,9 @@ if __name__ == '__main__':
     OMA_parser.add_argument('-i',   required=True,                       help='genome folder')
     OMA_parser.add_argument('-x',   required=True,                       help='genome file extension')
     OMA_parser.add_argument('-st',  required=False, default='AA',        help='sequence type, AA or DNA, default: AA')
-    OMA_parser.add_argument('-og',  required=True,                       help='id of outgroup genomes, without file extension')
+    OMA_parser.add_argument('-og',  required=True,                       help='outgroup genomes, without file extension')
     OMA_parser.add_argument('-o',   required=True,  default=None,        help='output dir, i.e., OMA working directory')
     OMA_parser.add_argument('-f',   required=False, action="store_true", help='force overwrite')
     OMA_parser.add_argument('-t',   required=False, type=int, default=6, help='number of threads for running OMA, default: 6')
     args = vars(OMA_parser.parse_args())
     OMA(args)
-

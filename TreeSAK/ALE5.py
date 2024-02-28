@@ -2,7 +2,8 @@ import os
 import glob
 import operator
 from ete3 import Tree
-from itertools import chain, combinations
+from itertools import chain
+from itertools import combinations
 
 
 def sep_path_basename_ext(file_in):
@@ -20,7 +21,7 @@ def sep_path_basename_ext(file_in):
 
 def powerset(iterable):
 
-    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    " powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3) "
 
     s = list(iterable)  # allows duplicate elements
     chain_obj = chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
@@ -92,14 +93,14 @@ color_list              = ['dodgerblue', 'goldenrod1', 'darkorange1', 'seagreen3
 min_detected_times      = 2
 
 # file out
-op_dir      = '/Users/songweizhi/Desktop/DateArTree/05_pRTC_wd/HGTs_5_rds_ALE'
+op_dir                  = '/Users/songweizhi/Desktop/DateArTree/05_pRTC_wd/HGTs_5_rds_ALE'
 
 ########################################################################################################################
 
-rscript         = '%s/rscript.R'        % op_dir
-plot_file       = '%s/Venn.pdf'         % op_dir
-rtc_txt         = '%s/rrtc.txt'         % op_dir
-rtc_txt_highest = '%s/rrtc_uniq_by_highest_prob.txt' % op_dir
+rscript                 = '%s/rscript.R'                        % op_dir
+plot_file               = '%s/Venn.pdf'                         % op_dir
+rtc_txt                 = '%s/rrtc.txt'                         % op_dir
+rtc_txt_highest         = '%s/rrtc_uniq_by_highest_prob.txt'    % op_dir
 
 if os.path.isdir(op_dir):
     os.system('rm -r %s' % op_dir)
@@ -121,7 +122,7 @@ for each_rd in round_list:
     for each_pdf in pdf_file_list:
         f_path, f_base, f_ext = sep_path_basename_ext(each_pdf)
         f_base_split = f_base.split('_')
-        id_by_d_to_r = '%s_to_%s'   % (f_base_split[3], f_base_split[5])
+        id_by_d_to_r = '%s_to_%s' % (f_base_split[3], f_base_split[5])
         rd_og        = '%s_%s'    % (each_rd, f_base_split[0])
         rd_og_value  = '%s_%s_%s' % (each_rd, f_base_split[0], f_base_split[6])
 
