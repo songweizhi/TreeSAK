@@ -78,7 +78,10 @@ def print_main_help():
        PlotMcmcNode           ->  distribution of node's age estimation 
        VisHPD95               ->  HPD95 of estimated node age
        pRTC                   ->  Perform probabilistic RTC dating
-       
+    
+    Stats
+       PhyloBiAssoc            ->  A wrapper for binaryPGLMM test
+
     # Upgrade with "pip3 install --upgrade TreeSAK"
     ''' % version(config_dict)
 
@@ -518,6 +521,18 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE4.ALE4(args)
 
+    elif sys.argv[1] == 'ALE6':
+        from TreeSAK import ALE6
+        ALE6_parser = subparsers.add_parser('ALE6', usage=ALE6.ALE6_usage)
+        ALE6_parser.add_argument('-i1', required=True,                          help='ALE1 output directory')
+        ALE6_parser.add_argument('-i3', required=True,                          help='ALE3 output directory')
+        ALE6_parser.add_argument('-s',  required=True,                          help='rooted species tree')
+        ALE6_parser.add_argument('-n', required=False, default=None,            help='interested internal node(s)')
+        ALE6_parser.add_argument('-o',  required=True,                          help='output directory')
+        ALE6_parser.add_argument('-f',  required=False, action="store_true",    help='force overwrite')
+        args = vars(parser.parse_args())
+        ALE6.ALE6(args)
+
     elif sys.argv[1] == 'RootTree':
         from TreeSAK import RootTree
         RootTree_parser = subparsers.add_parser('RootTree', usage=RootTree.RootTree_usage)
@@ -596,6 +611,14 @@ if __name__ == '__main__':
         LcaToLeaves_parser.add_argument('-n', required=True, help='internal node(s)')
         args = vars(parser.parse_args())
         LcaToLeaves.LcaToLeaves(args)
+
+    elif sys.argv[1] == 'PhyloBiAssoc':
+        from TreeSAK import PhyloBiAssoc
+        PhyloBiAssoc_parser = subparsers.add_parser('PhyloBiAssoc', usage=PhyloBiAssoc.PhyloBiAssoc_usage)
+        PhyloBiAssoc_parser.add_argument('-t', required=True, help='tree file')
+        PhyloBiAssoc_parser.add_argument('-d', required=True, help='data file')
+        args = vars(parser.parse_args())
+        PhyloBiAssoc.PhyloBiAssoc(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

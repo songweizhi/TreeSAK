@@ -1,13 +1,23 @@
-
-gnm_tax_txt = '/Users/songweizhi/Desktop/0_metadata_final.txt'
-
-gnm_id_list = []
-for each_gnm in open(gnm_tax_txt):
-    each_gnm_split = each_gnm.strip().split('\t')
-    gnm_id_list.append(each_gnm_split[0])
+import os
+import glob
+import argparse
+from ete3 import Tree
+import multiprocessing as mp
 
 
-for each_gnm in open('/Users/songweizhi/Desktop/aaa.txt'):
-    gnm_id = each_gnm.strip()
-    if gnm_id in gnm_id_list:
-        print(gnm_id)
+gnm_tree_leaf_rename_txt = '/Users/songweizhi/Documents/Research/Sponge/11_ALE_wd/ALE2_op_dir/genome_tree_leaf_rename.txt'
+genome_tree_file_rooted  = '/Users/songweizhi/Documents/Research/Sponge/11_ALE_wd/OMA_cov85_213_top25_BMGE.rooted.treefile'
+
+
+# prepare genome tree for running ALE
+gnm_tree_leaf_rename_txt_handle = open(gnm_tree_leaf_rename_txt, 'w')
+gnm_tree_in = Tree(genome_tree_file_rooted, format=1)
+rename_dict = dict()
+for leaf in gnm_tree_in:
+    leaf_name = leaf.name
+    leaf_name_new = leaf_name.replace('_', '')
+    gnm_tree_leaf_rename_txt_handle.write('%s\t%s\n' % (leaf_name_new, leaf.name))
+    leaf.name = leaf_name_new
+    rename_dict[leaf_name] = leaf_name_new
+gnm_tree_leaf_rename_txt_handle.close()
+

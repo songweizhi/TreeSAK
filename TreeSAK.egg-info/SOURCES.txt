@@ -9,6 +9,7 @@ TreeSAK/ALE2RTC.py
 TreeSAK/ALE3.py
 TreeSAK/ALE4.py
 TreeSAK/ALE5.py
+TreeSAK/ALE6.py
 TreeSAK/ALE_backup.py
 TreeSAK/AlignmentPruner.py
 TreeSAK/AssessCVG.py
@@ -37,6 +38,8 @@ TreeSAK/OMA.py
 TreeSAK/OMA2.py
 TreeSAK/OneLineAln.py
 TreeSAK/PMSF.py
+TreeSAK/PhyloBiAssoc.R
+TreeSAK/PhyloBiAssoc.py
 TreeSAK/PlotMcmcNode.py
 TreeSAK/RootTree.py
 TreeSAK/SequentialDating.py

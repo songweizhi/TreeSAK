@@ -53,8 +53,8 @@ def OMA2(args):
     force_overwrite     = args['f']
     min_gene_num        = args['n']
 
-    og_txt_out          = '%s/OrthologousGroups_min%s.txt'  % (op_dir, min_gene_num)
-    filtered_seq_dir    = '%s/OrthologousGroupsFasta_min%s' % (op_dir, min_gene_num)
+    og_txt_out       = '%s/OrthologousGroups_min%s.txt'  % (op_dir, min_gene_num)
+    filtered_seq_dir = '%s/OrthologousGroupsFasta_min%s' % (op_dir, min_gene_num)
 
     # check genome files
     interested_gnm_set = set()
@@ -76,6 +76,7 @@ def OMA2(args):
     os.system('mkdir %s' % op_dir)
     os.system('mkdir %s' % filtered_seq_dir)
 
+    qualified_og_set = set()
     id_to_name_dict = dict()
     gene_to_extract_dict = dict()
     og_txt_out_handle = open(og_txt_out, 'w')
@@ -95,7 +96,9 @@ def OMA2(args):
                 else:
                     if gene_gnm in interested_gnm_set:
                         filtered_gene_set.add(gene_id)
-            if len(filtered_gene_set) > min_gene_num:
+
+            if len(filtered_gene_set) >= min_gene_num:
+                qualified_og_set.add(og_id)
                 og_txt_out_handle.write('%s\t%s\n' % (filename, ','.join(sorted(list(filtered_gene_set)))))
                 gene_to_extract_dict[og_id] = filtered_gene_set
     og_txt_out_handle.close()
@@ -106,6 +109,7 @@ def OMA2(args):
         filtered_file = '%s/%s.fa' % (filtered_seq_dir, seq_file_name)
         select_seq(source_file, gene_to_extract_dict[each_og], filtered_file)
 
+    print('the number of OG with genes >= %s is %s' % (min_gene_num, len(qualified_og_set)))
     print('Done!')
 
 

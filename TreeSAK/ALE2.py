@@ -11,7 +11,10 @@ ALE2_usage = '''
 TreeSAK ALE2 -i ALE1_op_dir -s genome.treefile -t 10 -f -runALE -docker gregmich/alesuite_new -o ALE2_op_dir
 
 Note: 
-Genome names should NOT contain "_".
+Genome names should NOT contain "_", the program will tackle this automatically.
+
+# You can try to add this while building the docker images
+--platform linux/arm64/v8
 
 =========================================================================
 '''
@@ -71,7 +74,7 @@ def ALE2(args):
     ale_wd                  = args['o']
     run_ale                 = args['runALE']
     docker_image            = args['docker']
-    run_ale_cmds_txt        = '%s_cmds.txt' % ale_wd
+    run_ale_cmds_txt        = '%s_cmds.txt'     % ale_wd
 
     ufboot_file_re   = '%s/*.ufboot' % gene_tree_dir
     ufboot_file_list = glob.glob(ufboot_file_re)
@@ -81,8 +84,9 @@ def ALE2(args):
         og_to_process_list.append(ufboot_base)
 
     # define file name
-    gnm_tree_no_underscore       = 'genome_tree.newick'
-    gnm_tree_no_underscore_in_wd = '%s/%s' % (ale_wd, gnm_tree_no_underscore)
+    gnm_tree_no_underscore          = 'genome_tree.newick'
+    gnm_tree_leaf_rename_txt        = 'genome_tree_leaf_rename.txt'
+    gnm_tree_no_underscore_in_wd    = '%s/%s'                       % (ale_wd, gnm_tree_no_underscore)
 
     # create ale_wd
     if force_create_ale_wd is True:
@@ -91,13 +95,17 @@ def ALE2(args):
     os.system('mkdir %s' % ale_wd)
 
     # prepare genome tree for running ALE
+    gnm_tree_leaf_rename_txt_handle = open(gnm_tree_leaf_rename_txt, 'w')
     gnm_tree_in = Tree(genome_tree_file_rooted, format=1)
     rename_dict = dict()
     for leaf in gnm_tree_in:
         leaf_name = leaf.name
         leaf_name_new = leaf_name.replace('_', '')
+        gnm_tree_leaf_rename_txt_handle.write('%s\t%s\n' % (leaf_name_new, leaf.name))
         leaf.name = leaf_name_new
         rename_dict[leaf_name] = leaf_name_new
+    gnm_tree_leaf_rename_txt_handle.close()
+
     gnm_tree_in.write(outfile=gnm_tree_no_underscore_in_wd)
 
     # prepare gene tree for running ALE
@@ -125,8 +133,6 @@ def ALE2(args):
             ale_cmd_list.append('%s; %s\n' % (obtain_ale_file_cmd, reconciliation_cmd))
             prepare_ale_ip_worker_arg_lol.append(current_arg_list)
     run_ale_cmds_txt_handle.close()
-
-    #
 
     # prepare input files and job script for running ALE with multiprocessing
     print('Preparing files for running ALE with %s cores for %s OGs' % (num_threads, len(prepare_ale_ip_worker_arg_lol)))
