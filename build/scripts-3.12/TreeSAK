@@ -79,7 +79,7 @@ def print_main_help():
        VisHPD95               ->  HPD95 of estimated node age
        pRTC                   ->  Perform probabilistic RTC dating
     
-    Stats
+    Phylo-related stats
        PhyloBiAssoc            ->  A wrapper for binaryPGLMM test
 
     # Upgrade with "pip3 install --upgrade TreeSAK"
@@ -470,12 +470,14 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'ALE1':
         from TreeSAK import ALE1
         ALE1_parser = subparsers.add_parser('ALE1', usage=ALE1.ALE1_usage)
-        ALE1_parser.add_argument('-i',   required=True,                         help='orthologous groups, either from orthofinder or oma')
-        ALE1_parser.add_argument('-s',   required=True,                         help='sequence file, e.g., combined.faa')
+        ALE1_parser.add_argument('-i',   required=False, default=None,          help='orthologous groups, either from orthofinder or oma')
+        ALE1_parser.add_argument('-s',   required=False, default=None,          help='sequence file, e.g., combined.faa')
+        ALE1_parser.add_argument('-ms',  required=False, default=None,          help='input is a folder holds the sequence of each marker')
+        ALE1_parser.add_argument('-msx', required=False, default='fa',          help='file extension of marker sequence file, default: fa')
         ALE1_parser.add_argument('-p',   required=True,                         help='orthologous identification program, orthofinder or oma')
         ALE1_parser.add_argument('-m',   required=False, type=int, default=50,  help='min_og_genome_num, default: 50')
         ALE1_parser.add_argument('-o',   required=True,                         help='output dir, i.e., OMA working directory')
-        ALE1_parser.add_argument('-jst', required=False, type=int, default=3,   help='number of threads for job script, default: 3')
+        ALE1_parser.add_argument('-jst', required=False, type=int, default=3,   help='number of threads specified in job script, default: 3')
         ALE1_parser.add_argument('-f',   required=False, action="store_true",   help='force overwrite')
         args = vars(parser.parse_args())
         ALE1.ALE1(args)
@@ -615,8 +617,11 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'PhyloBiAssoc':
         from TreeSAK import PhyloBiAssoc
         PhyloBiAssoc_parser = subparsers.add_parser('PhyloBiAssoc', usage=PhyloBiAssoc.PhyloBiAssoc_usage)
-        PhyloBiAssoc_parser.add_argument('-t', required=True, help='tree file')
-        PhyloBiAssoc_parser.add_argument('-d', required=True, help='data file')
+        PhyloBiAssoc_parser.add_argument('-i', required=True,                       help='tree file')
+        PhyloBiAssoc_parser.add_argument('-d', required=True,                       help='data file')
+        PhyloBiAssoc_parser.add_argument('-o', required=True,                       help='output directory')
+        PhyloBiAssoc_parser.add_argument('-t', required=False, type=int, default=1, help='number of threads, default: 1')
+        PhyloBiAssoc_parser.add_argument('-f', required=False, action="store_true", help='force overwrite')
         args = vars(parser.parse_args())
         PhyloBiAssoc.PhyloBiAssoc(args)
 

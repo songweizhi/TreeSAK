@@ -51,7 +51,8 @@ def print_main_help():
        OneLineAln             ->  One-line fasta format alignments
        SingleLinePhy          ->  Put sequences in single line in phylip format
        AlignmentPruner        ->  Remove heterogenous sites from MSA
-    
+       CS_trim                ->  (to be added) perform chi-squared trimming to reduce compositional heterogeneity
+
     Tree-related
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
@@ -79,7 +80,7 @@ def print_main_help():
        VisHPD95               ->  HPD95 of estimated node age
        pRTC                   ->  Perform probabilistic RTC dating
     
-    Stats
+    Phylo-related stats
        PhyloBiAssoc            ->  A wrapper for binaryPGLMM test
 
     # Upgrade with "pip3 install --upgrade TreeSAK"
@@ -470,12 +471,14 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'ALE1':
         from TreeSAK import ALE1
         ALE1_parser = subparsers.add_parser('ALE1', usage=ALE1.ALE1_usage)
-        ALE1_parser.add_argument('-i',   required=True,                         help='orthologous groups, either from orthofinder or oma')
-        ALE1_parser.add_argument('-s',   required=True,                         help='sequence file, e.g., combined.faa')
+        ALE1_parser.add_argument('-i',   required=False, default=None,          help='orthologous groups, either from orthofinder or oma')
+        ALE1_parser.add_argument('-s',   required=False, default=None,          help='sequence file, e.g., combined.faa')
+        ALE1_parser.add_argument('-ms',  required=False, default=None,          help='input is a folder holds the sequence of each marker')
+        ALE1_parser.add_argument('-msx', required=False, default='fa',          help='file extension of marker sequence file, default: fa')
         ALE1_parser.add_argument('-p',   required=True,                         help='orthologous identification program, orthofinder or oma')
         ALE1_parser.add_argument('-m',   required=False, type=int, default=50,  help='min_og_genome_num, default: 50')
         ALE1_parser.add_argument('-o',   required=True,                         help='output dir, i.e., OMA working directory')
-        ALE1_parser.add_argument('-jst', required=False, type=int, default=3,   help='number of threads for job script, default: 3')
+        ALE1_parser.add_argument('-jst', required=False, type=int, default=3,   help='number of threads specified in job script, default: 3')
         ALE1_parser.add_argument('-f',   required=False, action="store_true",   help='force overwrite')
         args = vars(parser.parse_args())
         ALE1.ALE1(args)
@@ -483,7 +486,7 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'ALE2':
         from TreeSAK import ALE2
         ALE2_parser = subparsers.add_parser('ALE2', usage=ALE2.ALE2_usage)
-        ALE2_parser.add_argument('-i',      required=True,                         help='ALE1 output directory')
+        ALE2_parser.add_argument('-1',      required=True,                         help='ALE1 output directory')
         ALE2_parser.add_argument('-s',      required=True,                         help='rooted species tree')
         ALE2_parser.add_argument('-o',      required=True,                         help='output dir, i.e., OMA working directory')
         ALE2_parser.add_argument('-runALE', required=False, action="store_true",   help='run ALE')
@@ -496,7 +499,7 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'ALE3':
         from TreeSAK import ALE3
         ALE3_parser = subparsers.add_parser('ALE3', usage=ALE3.ALE3_usage)
-        ALE3_parser.add_argument('-i',   required=True,                             help='Folder with uml_rec files')
+        ALE3_parser.add_argument('-2',   required=True,                             help='Folder with uml_rec files')
         ALE3_parser.add_argument('-c',   required=False, type=float, default=0.8,   help='gene family presence cutoff, default: 0.8')
         ALE3_parser.add_argument('-a',   required=False, default=None,              help='OG functional description')
         ALE3_parser.add_argument('-o',   required=True,                             help='output dir')
@@ -507,8 +510,8 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'ALE4':
         from TreeSAK import ALE4
         ALE4_parser = subparsers.add_parser('ALE4', usage=ALE4.ALE4_usage)
-        ALE4_parser.add_argument('-i1',     required=True,                              help='ALE1 output directory')
-        ALE4_parser.add_argument('-i2',     required=True,                              help='ALE2 output directory')
+        ALE4_parser.add_argument('-1',      required=True,                              help='ALE1 output directory')
+        ALE4_parser.add_argument('-2',      required=True,                              help='ALE2 output directory')
         ALE4_parser.add_argument('-c',      required=True,                              help='genome_taxon, GTDB format')
         ALE4_parser.add_argument('-color',  required=True,                              help='phylum color code')
         ALE4_parser.add_argument('-o',      required=True,                              help='output dir, i.e., ALE4_op_dir')
@@ -524,10 +527,10 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'ALE6':
         from TreeSAK import ALE6
         ALE6_parser = subparsers.add_parser('ALE6', usage=ALE6.ALE6_usage)
-        ALE6_parser.add_argument('-i1', required=True,                          help='ALE1 output directory')
-        ALE6_parser.add_argument('-i3', required=True,                          help='ALE3 output directory')
+        ALE6_parser.add_argument('-1',  required=True,                          help='ALE1 output directory')
+        ALE6_parser.add_argument('-3',  required=True,                          help='ALE3 output directory')
         ALE6_parser.add_argument('-s',  required=True,                          help='rooted species tree')
-        ALE6_parser.add_argument('-n', required=False, default=None,            help='interested internal node(s)')
+        ALE6_parser.add_argument('-n',  required=False, default=None,            help='interested internal node(s)')
         ALE6_parser.add_argument('-o',  required=True,                          help='output directory')
         ALE6_parser.add_argument('-f',  required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
@@ -615,8 +618,11 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'PhyloBiAssoc':
         from TreeSAK import PhyloBiAssoc
         PhyloBiAssoc_parser = subparsers.add_parser('PhyloBiAssoc', usage=PhyloBiAssoc.PhyloBiAssoc_usage)
-        PhyloBiAssoc_parser.add_argument('-t', required=True, help='tree file')
-        PhyloBiAssoc_parser.add_argument('-d', required=True, help='data file')
+        PhyloBiAssoc_parser.add_argument('-i', required=True,                       help='tree file')
+        PhyloBiAssoc_parser.add_argument('-d', required=True,                       help='data file')
+        PhyloBiAssoc_parser.add_argument('-o', required=True,                       help='output directory')
+        PhyloBiAssoc_parser.add_argument('-t', required=False, type=int, default=1, help='number of threads, default: 1')
+        PhyloBiAssoc_parser.add_argument('-f', required=False, action="store_true", help='force overwrite')
         args = vars(parser.parse_args())
         PhyloBiAssoc.PhyloBiAssoc(args)
 

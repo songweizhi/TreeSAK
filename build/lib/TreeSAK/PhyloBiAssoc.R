@@ -26,9 +26,12 @@ geodata <- read.table(data_file, header = TRUE, sep = "\t")
 row.names(geodata) <- geodata[,1]
 row.names(geodata) <- geodata$ID
 geodata <- geodata[geotree$tip.label,]
+colnames_all = colnames(geodata[, ,])
+colnames_to_process = tail(colnames_all, -2)
 
-cat('ID', "phylosig", "binaryPGLMM", "chisq.test", "coefficient", "significant", '\n', fill=FALSE, sep = "\t")
-for (i in colnames(geodata[, 3:ncol(geodata)])){
+cat('ID', "phylosig", "binaryPGLMM", "chisq.test", "coefficient", "significance", '\n', fill=FALSE, sep = "\t")
+
+for (i in colnames_to_process){
 
   # perform phylosig test
   phylosig_test <- phylosig(tree = geotree, x = setNames(geodata[, i], geodata$ID), method = "lambda", test = TRUE)

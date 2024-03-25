@@ -3,7 +3,7 @@ import argparse
 
 
 pb_mpi_usage = '''
-======================= pb_mpi example commands =======================
+============================== pb_mpi example commands ==============================
 
 # Dependency: PhyloBayes-MPI
 
@@ -11,7 +11,7 @@ export OMPI_MCA_btl=^openib
 TreeSAK pb_mpi -i in.phylip -p chain_name -t 12
 
 # It is a wrapper for:
-mpirun -np 2 pb_mpi -d in.phylip -cat -gtr -x 10 -1 -dgam 4 -s chain_name
+mpirun -np 12 pb_mpi -d in.phylip -cat -gtr -x 10 -1 -dgam 4 -s chain_name
 
 # Input MSA need to be in phylip format.
 
@@ -21,7 +21,7 @@ unless stated otherwise (maxdiff < 0.3; settings: bpcomp -x 25%_burnin chain1 ch
 Additionally, we checked for the minimum effective size using tracecomp 
 (minimum effective size > 50; settings: -x 25%_burnin chain1 chain2 chain3 chain4).
 
-=======================================================================
+=====================================================================================
 '''
 
 

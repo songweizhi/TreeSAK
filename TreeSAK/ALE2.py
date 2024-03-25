@@ -8,7 +8,7 @@ import multiprocessing as mp
 ALE2_usage = '''
 ========================= ALE2 example commands =========================
 
-TreeSAK ALE2 -i ALE1_op_dir -s genome.treefile -t 10 -f -runALE -docker gregmich/alesuite_new -o ALE2_op_dir
+TreeSAK ALE2 -1 ALE1_op_dir -s genome.treefile -t 10 -f -runALE -docker gregmich/alesuite_new -o ALE2_op_dir
 
 Note: 
 Genome names should NOT contain "_", the program will tackle this automatically.
@@ -67,7 +67,7 @@ def prepare_ale_ip_worker(arg_list):
 
 def ALE2(args):
 
-    gene_tree_dir           = args['i']
+    gene_tree_dir           = args['1']
     genome_tree_file_rooted = args['s']
     force_create_ale_wd     = args['f']
     num_threads             = args['t']
@@ -156,7 +156,7 @@ def ALE2(args):
 if __name__ == '__main__':
 
     ALE2_parser = argparse.ArgumentParser()
-    ALE2_parser.add_argument('-i',      required=True,                         help='ALE1 output directory')
+    ALE2_parser.add_argument('-1',      required=True,                         help='ALE1 output directory')
     ALE2_parser.add_argument('-s',      required=True,                         help='rooted species tree')
     ALE2_parser.add_argument('-o',      required=True,                         help='output dir, i.e., OMA working directory')
     ALE2_parser.add_argument('-runALE', required=False, action="store_true",   help='run ALE')
