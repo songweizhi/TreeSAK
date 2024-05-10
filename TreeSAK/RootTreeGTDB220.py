@@ -5,24 +5,24 @@ import argparse
 from ete3 import Tree
 
 
-tree_usage = '''
-============================================ tree example command ============================================
+RootTreeGTDB220_usage = '''
+========================================= RootTreeGTDB220 example command =========================================
 
-TreeSAK gtdb_root -tree ar53.unrooted.tree -tax ar53.summary.tsv -db db_dir -d ar -o ar53.rooted.tree
-TreeSAK gtdb_root -tree bac120.unrooted.tree -tax bac120.summary.tsv -db db_dir -d ar -o bac120.rooted.tree
+TreeSAK RootTreeGTDB220 -tree ar53.unrooted.tree -tax ar53.summary.tsv -db db_dir -d ar -o ar53.rooted.tree
+TreeSAK RootTreeGTDB220 -tree bac120.unrooted.tree -tax bac120.summary.tsv -db db_dir -d ar -o bac120.rooted.tree
 
 # prepare GTDB database files
 cd db_dir
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/ar53_r214.tree.tar.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/bac120_r214.tree.tar.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/ar53_metadata_r214.tsv.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/bac120_metadata_r214.tsv.gz
-tar -xzvf ar53_r214.tree.tar.gz
-tar -xzvf bac120_r214.tree.tar.gz
-gunzip ar53_metadata_r214.tsv.gz
-gunzip bac120_metadata_r214.tsv.gz
+wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/ar53_r220.tree.tar.gz
+wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/bac120_r220.tree.tar.gz
+wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/ar53_metadata_r220.tsv.gz
+wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/bac120_metadata_r220.tsv.gz
+tar -xzvf ar53_r220.tree.tar.gz
+tar -xzvf bac120_r220.tree.tar.gz
+gunzip ar53_metadata_r220.tsv.gz
+gunzip bac120_metadata_r220.tsv.gz
 
-==============================================================================================================
+================================================================================================================
 '''
 
 
@@ -115,7 +115,7 @@ def root_with_outgroup(input_tree, out_group_list, tree_file_rooted):
         tree.write_to_path(tree_file_rooted, schema='newick', suppress_rooting=True, unquoted_underscores=True)
 
 
-def gtdb_root(args):
+def RootTreeGTDB220(args):
 
     input_unrooted_tree = args['tree']
     user_gnm_taxon      = args['tax']
@@ -124,10 +124,10 @@ def gtdb_root(args):
     rooted_tree         = args['o']
 
     # define file name
-    gtdb_ref_tree_ar    = '%s/ar53_r214.tree'           % db_dir
-    gtdb_ref_tree_bac   = '%s/bac120_r214.tree'         % db_dir
-    gtdb_gnm_meta_ar    = '%s/ar53_metadata_r214.tsv'   % db_dir
-    gtdb_gnm_meta_bac   = '%s/bac120_metadata_r214.tsv' % db_dir
+    gtdb_ref_tree_ar    = '%s/ar53_r220.tree'           % db_dir
+    gtdb_ref_tree_bac   = '%s/bac120_r220.tree'         % db_dir
+    gtdb_gnm_meta_ar    = '%s/ar53_metadata_r220.tsv'   % db_dir
+    gtdb_gnm_meta_bac   = '%s/bac120_metadata_r220.tsv' % db_dir
 
     if gnm_domain == 'bac':
         gtdb_ref_tree = gtdb_ref_tree_bac
@@ -277,12 +277,12 @@ def gtdb_root(args):
 
 if __name__ == '__main__':
 
-    tree_parser = argparse.ArgumentParser(usage=tree_usage)
-    tree_parser.add_argument('-tree', required=True,                 help='input unrooted tree')
-    tree_parser.add_argument('-tax',  required=False, default='fna', help='leaf taxon')
-    tree_parser.add_argument('-db',   required=True,                 help='GTDB database files')
-    tree_parser.add_argument('-d',    required=False, default=None,  help='domain, either ar or bac')
-    tree_parser.add_argument('-o',    required=True,                 help='output folder')
-    args = vars(tree_parser.parse_args())
-    gtdb_root(args)
+    RootTreeGTDB220_parser = argparse.ArgumentParser(usage=RootTreeGTDB220_usage)
+    RootTreeGTDB220_parser.add_argument('-tree', required=True,                 help='input unrooted tree')
+    RootTreeGTDB220_parser.add_argument('-tax',  required=False, default='fna', help='leaf taxon')
+    RootTreeGTDB220_parser.add_argument('-db',   required=True,                 help='GTDB database files')
+    RootTreeGTDB220_parser.add_argument('-d',    required=False, default=None,  help='domain, either ar or bac')
+    RootTreeGTDB220_parser.add_argument('-o',    required=True,                 help='output folder')
+    args = vars(RootTreeGTDB220_parser.parse_args())
+    RootTreeGTDB220(args)
 

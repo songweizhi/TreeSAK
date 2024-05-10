@@ -16,6 +16,11 @@ iqtree2 -T 12 -B 1000 --alrt 1000 --quiet --seqtype AA -s in.aln --prefix PMSF -
 
 # more information: http://www.iqtree.org/doc/Complex-Models
 
+# Reference: The evolutionary origin of host association in the Rickettsiales
+Maximum likelihood phylogenetic reconstructions were done under the PMSF approximation 
+(with 100 non-parametric bootstraps; guidetree under LG+G+F) of the LG+C60+F+Γ4 model 
+(selected by ModelFinder) for both supermatrix alignments with IQTREE v1.6.5.
+
 ===============================================================
 '''
 
@@ -94,9 +99,3 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     PMSF(args)
 
-'''
-
-cd /home-user/wzsong/DateArTree_GTDB_r214_2
-python3 PMSF.py -s gtdbtk.ar53.r214.phy -o gtdbtk.ar53.r214.PMSF_wd -p gtdbtk.ar53.r214 -t 12 
-
-'''

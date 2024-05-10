@@ -6,7 +6,7 @@ import pandas as pd
 ALE3_usage = '''
 ================= ALE3 example commands =================
 
-TreeSAK ALE3 -i ALE2_op_dir -o ALE3_op_dir -f -c 0.75
+TreeSAK ALE3 -2 ALE2_op_dir -o ALE3_op_dir -f -c 0.75
 
 =========================================================
 '''
@@ -96,7 +96,7 @@ def get_verticality_and_transfer_propensity(TableEvents_tsv, verticality_txt, tr
 
 def ALE3(args):
 
-    uml_rec_dir             = args['i']
+    uml_rec_dir             = args['2']
     gene_presence_cutoff    = args['c']
     fun_des_txt             = args['a']
     op_dir                  = args['o']
@@ -190,7 +190,7 @@ def ALE3(args):
 if __name__ == '__main__':
 
     ALE3_parser = argparse.ArgumentParser()
-    ALE3_parser.add_argument('-i',   required=True,                             help='Folder with uml_rec files')
+    ALE3_parser.add_argument('-2',   required=True,                             help='Folder with uml_rec files')
     ALE3_parser.add_argument('-c',   required=False, type=float, default=0.8,   help='gene family presence cutoff, default: 0.8')
     ALE3_parser.add_argument('-a',   required=False, default=None,              help='OG functional description')
     ALE3_parser.add_argument('-o',   required=True,                             help='output dir')

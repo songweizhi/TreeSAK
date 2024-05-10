@@ -9,7 +9,7 @@ Dating_usage = '''
 ============================= Dating example commands =============================
 
 # example commands
-TreeSAK Dating -deltall DeltaLL_stdout.txt -aod s11_marker_sets_by_DeltaLL -o s12_dating_wd -c 25-50-75-100 -mmn 20 -f
+TreeSAK Dating_ss -deltall DeltaLL_stdout.txt -aod s11_marker_sets_by_DeltaLL -o s12_dating_wd -c 25-50-75-100 -mmn 20 -f
 
 ===================================================================================
 '''
@@ -144,7 +144,7 @@ def fa2phy(fasta_in, phy_out):
             msa_out_handle.write('%s%s\n' % (seq_id_with_space, str(each_seq.seq)))
 
 
-def Dating(args):
+def dating_ss(args):
 
     deltall_stdout_txt      = args['deltall']
     aod                     = args['aod']
@@ -347,15 +347,15 @@ if __name__ == '__main__':
     parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
     parser.add_argument('-to_test', required=True,                          help='Settings to test')
     args = vars(parser.parse_args())
-    Dating(args)
+    dating_ss(args)
 
 
 '''
 
 cd /Users/songweizhi/Desktop/dating_test
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/Dating.py -deltall Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s10_assess_marker_deltaLL/PA_75_DeltaLL_stdout.txt -aod Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s11_marker_sets_by_DeltaLL -og out_group.txt -eu 27.nwk -o Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s12_dating_wd -c 25-50-75-100 -mmn 20 -f 
+python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/dating_ss.py -deltall Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s10_assess_marker_deltaLL/PA_75_DeltaLL_stdout.txt -aod Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s11_marker_sets_by_DeltaLL -og out_group.txt -eu 27.nwk -o Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s12_dating_wd -c 25-50-75-100 -mmn 20 -f 
 
 cd /home-user/wzsong/DateArTree
-python3 Dating.py -deltall Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s10_assess_marker_deltaLL/PA_75_DeltaLL_stdout.txt -aod Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s11_marker_sets_by_DeltaLL -og out_group.txt -eu 27.nwk -o Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s12_dating_wd -c 25-50-75-100 -mmn 20 -f 
+python3 dating_ss.py -deltall Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s10_assess_marker_deltaLL/PA_75_DeltaLL_stdout.txt -aod Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s11_marker_sets_by_DeltaLL -og out_group.txt -eu 27.nwk -o Marker_set_2_Betts_2018_29_arCOG_Marker2Tree_e30/s12_dating_wd -c 25-50-75-100 -mmn 20 -f 
 
 '''

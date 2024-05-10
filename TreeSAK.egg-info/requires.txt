@@ -12,3 +12,4 @@ arviz
 plotly
 kaleido
 PyPDF3
+dendropy

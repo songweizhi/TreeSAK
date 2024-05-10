@@ -303,9 +303,10 @@ def MarkerRef2Tree(args):
     force_overwrite         = args['f']
     pa_cutoff_str           = args['c']
     minimal_marker_number   = args['mmn']
+    run_psiblast            = args['psiblast']
 
     # check dependencies
-    check_dependencies(['blastp', 'mafft-einsi', 'trimal', 'iqtree'])
+    check_dependencies(['psiblast', 'blastp', 'mafft-einsi', 'trimal', 'iqtree'])
 
     # get marker id set
     marker_seq_re   = '%s/*.%s' % (marker_seq_dir, marker_seq_ext)
@@ -350,9 +351,9 @@ def MarkerRef2Tree(args):
     #################### check file/folder name ####################
 
     # define output dir
-    blastp_cmd_txt                      = '%s/s01_blastp_cmds_%s.txt'           % (op_dir, (len(marker_seq_list)*len(faa_file_list)))
+    blastp_cmd_txt                      = '%s/s01_blast_cmds_%s.txt'            % (op_dir, (len(marker_seq_list)*len(faa_file_list)))
     pwd_combined_protein                = '%s/combined.faa'                     % op_dir
-    blast_op_dir                        = '%s/s01_blastp'                       % op_dir
+    blast_op_dir                        = '%s/s01_blast'                        % op_dir
     best_hit_id_by_marker_dir           = '%s/s02_marker_id'                    % op_dir
     best_hit_seq_by_marker_dir          = '%s/s03_marker_seq'                   % op_dir
     best_hit_seq_by_marker_dir_renamed  = '%s/s04_marker_seq_by_genome_name'    % op_dir
@@ -366,16 +367,15 @@ def MarkerRef2Tree(args):
     ############################################################
 
     # create folder
-    if force_overwrite is True:
-        if os.path.isdir(op_dir) is True:
+    if os.path.isdir(op_dir) is True:
+        if force_overwrite is True:
             os.system('rm -r %s' % op_dir)
-        os.system('mkdir %s' % op_dir)
-        os.system('mkdir %s' % blast_op_dir)
-    else:
-        if os.path.isdir(op_dir) is False:
-            os.system('mkdir %s' % op_dir)
-        if os.path.isdir(blast_op_dir) is False:
-            os.system('mkdir %s' % blast_op_dir)
+        else:
+            print('Output folder detected, program exited!')
+            exit()
+
+    os.system('mkdir %s' % op_dir)
+    os.system('mkdir %s' % blast_op_dir)
 
     # get blastp command
     blast_cmd_list = []
@@ -384,10 +384,14 @@ def MarkerRef2Tree(args):
     for gnm_id in gnm_id_list_sorted:
         for each_cog in marker_id_set:
             pwd_blast_op = '%s/%s_vs_%s_blastp.txt'                                                  % (blast_op_dir, gnm_id, each_cog)
-            blastp_cmd   = 'blastp -subject %s/%s.%s -evalue %s -outfmt 6 -query %s/%s.%s -out %s' % (marker_seq_dir, each_cog, marker_seq_ext, e_value, faa_file_dir, gnm_id, faa_file_ext, pwd_blast_op)
-            blast_op_to_cmd_dict[pwd_blast_op] = blastp_cmd
-            blastp_cmd_txt_handle.write(blastp_cmd + '\n')
-            blast_cmd_list.append(blastp_cmd)
+
+            blast_cmd   = 'blastp -subject %s/%s.%s -evalue %s -outfmt 6 -query %s/%s.%s -out %s' % (marker_seq_dir, each_cog, marker_seq_ext, e_value, faa_file_dir, gnm_id, faa_file_ext, pwd_blast_op)
+            if run_psiblast is True:
+                blast_cmd = 'psiblast -subject %s/%s.%s -evalue %s -outfmt 6 -query %s/%s.%s -out %s' % (marker_seq_dir, each_cog, marker_seq_ext, e_value, faa_file_dir, gnm_id, faa_file_ext, pwd_blast_op)
+
+            blast_op_to_cmd_dict[pwd_blast_op] = blast_cmd
+            blastp_cmd_txt_handle.write(blast_cmd + '\n')
+            blast_cmd_list.append(blast_cmd)
     blastp_cmd_txt_handle.close()
 
     # run blastp
@@ -545,16 +549,17 @@ if __name__ == '__main__':
 
     # initialize the options parser
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i',               required=True,                          help='faa dir')
-    parser.add_argument('-x',               required=False, default='faa',          help='faa file extension, default: faa')
-    parser.add_argument('-m',               required=True,                          help='marker seq dir, file extension need to be faa')
-    parser.add_argument('-mx',              required=False, default='faa',          help='marker seq file extension, default: faa')
-    parser.add_argument('-g',               required=False, default=None,           help='genome group')
-    parser.add_argument('-c',               required=False, default='85',           help='presence-absence cutoffs, default: 85')
-    parser.add_argument('-o',               required=True,                          help='output dir')
-    parser.add_argument('-e',               required=False, default='1e-30',        help='e-value cutoff, default: 1e-30')
-    parser.add_argument('-t',               required=True,  type=int,               help='num of threads')
-    parser.add_argument('-mmn',             required=False, default=1, type=int,    help='minimal marker number, default: 1')
-    parser.add_argument('-f',               required=False, action="store_true",    help='force overwrite')
+    parser.add_argument('-i',               required=True,                              help='faa dir')
+    parser.add_argument('-x',               required=False, default='faa',              help='faa file extension, default: faa')
+    parser.add_argument('-m',               required=True,                              help='marker seq dir, file extension need to be faa')
+    parser.add_argument('-mx',              required=False, default='faa',              help='marker seq file extension, default: faa')
+    parser.add_argument('-g',               required=False, default=None,               help='genome group')
+    parser.add_argument('-c',               required=False, default='85',               help='presence-absence cutoffs, default: 85')
+    parser.add_argument('-o',               required=True,                              help='output dir')
+    parser.add_argument('-e',               required=False, default='1e-30',            help='e-value cutoff, default: 1e-30')
+    parser.add_argument('-t',               required=True,  type=int,                   help='num of threads')
+    parser.add_argument('-mmn',             required=False, default=1, type=int,        help='minimal marker number, default: 1')
+    parser.add_argument('-f',               required=False, action="store_true",        help='force overwrite')
+    parser.add_argument('-psiblast',        required=False, action="store_true",        help='run psiblast')
     args = vars(parser.parse_args())
     MarkerRef2Tree(args)

@@ -57,7 +57,7 @@ def print_main_help():
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        GTDB_tree              ->  get GTDB tree
-       subset_tree            ->  Subset tree
+       subset                 ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        print_leaves           ->  print out tree leaves
@@ -66,7 +66,10 @@ def print_main_help():
        GeneRax                ->  (to be added) Run GeneRax    
        ALE                    ->  Modules for running ALE
        RootTree               ->  Root tree with outgroup leaves
+       RootTreeGTDB214        ->  Root tree by GTDB taxonomy (r214)
+       RootTreeGTDB220        ->  Root tree by GTDB taxonomy (r220)
        LcaToLeaves            ->  Get two leaves that define an internal node
+       replace_clade          ->  Replace tree clade
        
     Model-related
        PMSF                   ->  run iqtree with PMSF
@@ -105,14 +108,16 @@ if __name__ == '__main__':
         print_main_help()
         sys.exit(0)
 
-    elif sys.argv[1] == 'subset_tree':
-        from TreeSAK import subset_tree
-        subset_tree_parser = subparsers.add_parser('subset_tree', description='Subset tree', usage=subset_tree.subset_tree_usage)
-        subset_tree_parser.add_argument('-i',               required=True,                                  help='input tree file')
-        subset_tree_parser.add_argument('-k',               required=True,                                  help='leaves to keep, one id per line')
-        subset_tree_parser.add_argument('-o',               required=True,                                  help='output tree file')
+    elif sys.argv[1] == 'subset':
+        from TreeSAK import subset
+        subset_parser = subparsers.add_parser('subset', description='Subset tree', usage=subset.subset_usage)
+        subset_parser.add_argument('-i',   required=True,                          help='input tree file')
+        subset_parser.add_argument('-o',   required=True,                          help='output tree file')
+        subset_parser.add_argument('-k',   required=False, default=None,           help='leaves to keep')
+        subset_parser.add_argument('-r',   required=False, default=None,           help='leaves to remove')
+        subset_parser.add_argument('-fmt', required=False, default=1, type=int,    help='tree format, default: 1')
         args = vars(parser.parse_args())
-        subset_tree.subset_tree(args)
+        subset.subset(args)
 
     elif sys.argv[1] == 'label_tree':
         from TreeSAK import label_tree
@@ -225,17 +230,18 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'MarkerRef2Tree':
         from TreeSAK import MarkerRef2Tree
         MarkerRef2Tree_parser = subparsers.add_parser('MarkerRef2Tree', usage=MarkerRef2Tree.MarkerRef2Tree_usage)
-        MarkerRef2Tree_parser.add_argument('-i',               required=True,                          help='faa dir')
-        MarkerRef2Tree_parser.add_argument('-x',               required=False, default='faa',          help='faa file extension, default: faa')
-        MarkerRef2Tree_parser.add_argument('-m',               required=True,                          help='marker seq dir, file extension need to be faa')
-        MarkerRef2Tree_parser.add_argument('-mx',              required=False, default='faa',          help='marker seq file extension, default: faa')
-        MarkerRef2Tree_parser.add_argument('-g',               required=False, default=None,           help='genome group')
-        MarkerRef2Tree_parser.add_argument('-c',               required=False, default='85',           help='presence absence cutoffs, default: 85')
-        MarkerRef2Tree_parser.add_argument('-o',               required=True,                          help='output dir')
-        MarkerRef2Tree_parser.add_argument('-e',               required=False, default='1e-30',        help='e-value cutoff, default: 1e-30')
-        MarkerRef2Tree_parser.add_argument('-t',               required=True,  type=int,               help='num of threads')
-        MarkerRef2Tree_parser.add_argument('-mmn',             required=False, default=1, type=int,    help='minimal marker number, default: 1')
-        MarkerRef2Tree_parser.add_argument('-f',               required=False, action="store_true",    help='force overwrite')
+        MarkerRef2Tree_parser.add_argument('-i',               required=True,                           help='faa dir')
+        MarkerRef2Tree_parser.add_argument('-x',               required=False, default='faa',           help='faa file extension, default: faa')
+        MarkerRef2Tree_parser.add_argument('-m',               required=True,                           help='marker seq dir, file extension need to be faa')
+        MarkerRef2Tree_parser.add_argument('-mx',              required=False, default='faa',           help='marker seq file extension, default: faa')
+        MarkerRef2Tree_parser.add_argument('-g',               required=False, default=None,            help='genome group')
+        MarkerRef2Tree_parser.add_argument('-c',               required=False, default='85',            help='presence absence cutoffs, default: 85')
+        MarkerRef2Tree_parser.add_argument('-o',               required=True,                           help='output dir')
+        MarkerRef2Tree_parser.add_argument('-e',               required=False, default='1e-30',         help='e-value cutoff, default: 1e-30')
+        MarkerRef2Tree_parser.add_argument('-t',               required=True,  type=int,                help='num of threads')
+        MarkerRef2Tree_parser.add_argument('-mmn',             required=False, default=1, type=int,     help='minimal marker number, default: 1')
+        MarkerRef2Tree_parser.add_argument('-f',               required=False, action="store_true",     help='force overwrite')
+        MarkerRef2Tree_parser.add_argument('-psiblast',        required=False, action="store_true",     help='run psiblast')
         args = vars(parser.parse_args())
         MarkerRef2Tree.MarkerRef2Tree(args)
 
@@ -267,9 +273,9 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         AssessMarkerDeltaLL.AssessMarkerDeltaLL(args)
 
-    elif sys.argv[1] == 'Dating':
-        from TreeSAK import Dating
-        Dating_parser = subparsers.add_parser('Dating', usage=Dating.Dating_usage)
+    elif sys.argv[1] == 'dating_ss':
+        from TreeSAK import dating_ss
+        Dating_parser = subparsers.add_parser('Dating_ss', usage=dating_ss.Dating_usage)
         Dating_parser.add_argument('-deltall', required=True,                          help='DeltaLL stdout')
         Dating_parser.add_argument('-aod',     required=True,                          help='AssessMarkerDeltaLL output dir')
         Dating_parser.add_argument('-og',      required=True,                          help='outgroup leaves, one leaf id per line')
@@ -282,7 +288,19 @@ if __name__ == '__main__':
         Dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
         Dating_parser.add_argument('-to_test', required=True,                          help='Settings to test')
         args = vars(parser.parse_args())
-        Dating.Dating(args)
+        dating_ss.dating_ss(args)
+
+    elif sys.argv[1] == 'Dating':
+        from TreeSAK import dating
+        dating_parser = subparsers.add_parser('Dating', usage=dating.dating_usage)
+        dating_parser.add_argument('-tree',    required=True,                          help='outgroup leaves, one id per line')
+        dating_parser.add_argument('-msa',     required=True,                          help='EU tree with time constraints')
+        dating_parser.add_argument('-o',       required=True,                          help='dating wd')
+        dating_parser.add_argument('-s',       required=True,                          help='settings to compare')
+        dating_parser.add_argument('-st',      required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
+        dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
+        args = vars(parser.parse_args())
+        dating.dating(args)
 
     elif sys.argv[1] == 'fa2phy':
         from TreeSAK import fa2phy
@@ -527,12 +545,14 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'ALE6':
         from TreeSAK import ALE6
         ALE6_parser = subparsers.add_parser('ALE6', usage=ALE6.ALE6_usage)
-        ALE6_parser.add_argument('-1',  required=True,                          help='ALE1 output directory')
-        ALE6_parser.add_argument('-3',  required=True,                          help='ALE3 output directory')
-        ALE6_parser.add_argument('-s',  required=True,                          help='rooted species tree')
-        ALE6_parser.add_argument('-n',  required=False, default=None,            help='interested internal node(s)')
-        ALE6_parser.add_argument('-o',  required=True,                          help='output directory')
-        ALE6_parser.add_argument('-f',  required=False, action="store_true",    help='force overwrite')
+        ALE6_parser.add_argument('-1',      required=True,                          help='ALE1 output directory')
+        ALE6_parser.add_argument('-3',      required=True,                          help='ALE3 output directory')
+        ALE6_parser.add_argument('-s',      required=True,                          help='rooted species tree')
+        ALE6_parser.add_argument('-n',      required=False, default=None,           help='interested internal node(s)')
+        ALE6_parser.add_argument('-cog',    required=False, default=None,           help='COG annotation results')
+        ALE6_parser.add_argument('-kegg',   required=False, default=None,           help='KEGG annotation results')
+        ALE6_parser.add_argument('-o',      required=True,                          help='output directory')
+        ALE6_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         ALE6.ALE6(args)
 
@@ -625,6 +645,38 @@ if __name__ == '__main__':
         PhyloBiAssoc_parser.add_argument('-f', required=False, action="store_true", help='force overwrite')
         args = vars(parser.parse_args())
         PhyloBiAssoc.PhyloBiAssoc(args)
+
+    elif sys.argv[1] == 'replace_clade':
+        from TreeSAK import replace_clade
+        replace_clade_parser = subparsers.add_parser('replace_clade', usage=replace_clade.replace_clade_usage)
+        replace_clade_parser.add_argument('-m', required=True, help='main file')
+        replace_clade_parser.add_argument('-s', required=True, help='sub file')
+        replace_clade_parser.add_argument('-l', required=True, help='main tree leaves')
+        replace_clade_parser.add_argument('-o', required=True, help='output tree')
+        args = vars(parser.parse_args())
+        replace_clade.replace_clade(args)
+
+    elif sys.argv[1] == 'RootTreeGTDB214':
+        from TreeSAK import RootTreeGTDB214
+        RootTreeGTDB214_parser = subparsers.add_parser('RootTreeGTDB214', usage=RootTreeGTDB214.RootTreeGTDB214_usage)
+        RootTreeGTDB214_parser.add_argument('-tree',   required=True,                  help='input unrooted tree')
+        RootTreeGTDB214_parser.add_argument('-tax',    required=False, default='fna',  help='leaf taxon')
+        RootTreeGTDB214_parser.add_argument('-db',     required=True,                  help='GTDB database files')
+        RootTreeGTDB214_parser.add_argument('-d',      required=False, default=None,   help='domain, either ar or bac')
+        RootTreeGTDB214_parser.add_argument('-o',      required=True,                  help='output folder')
+        args = vars(parser.parse_args())
+        RootTreeGTDB214.RootTreeGTDB214(args)
+
+    elif sys.argv[1] == 'RootTreeGTDB220':
+        from TreeSAK import RootTreeGTDB220
+        RootTreeGTDB220_parser = subparsers.add_parser('RootTreeGTDB220', usage=RootTreeGTDB220.RootTreeGTDB220_usage)
+        RootTreeGTDB220_parser.add_argument('-tree',   required=True,                  help='input unrooted tree')
+        RootTreeGTDB220_parser.add_argument('-tax',    required=False, default='fna',  help='leaf taxon')
+        RootTreeGTDB220_parser.add_argument('-db',     required=True,                  help='GTDB database files')
+        RootTreeGTDB220_parser.add_argument('-d',      required=False, default=None,   help='domain, either ar or bac')
+        RootTreeGTDB220_parser.add_argument('-o',      required=True,                  help='output folder')
+        args = vars(parser.parse_args())
+        RootTreeGTDB220.RootTreeGTDB220(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

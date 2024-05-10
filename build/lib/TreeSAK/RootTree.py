@@ -7,15 +7,9 @@ RootTree_usage = '''
 
 BioSAK RootTree -i input.tree -og outgroup_genomes.txt -o rooted.tree
 
-cd /Users/songweizhi/Desktop
-/usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/RootTree.py -i IQTree_r214_tree.treefile -og og_gnms.txt -o IQTree_r214_tree.rooted.fmt0.treefile -fmt 0
-/usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/RootTree.py -i IQTree_r214_tree.treefile -og og_gnms.txt -o IQTree_r214_tree.rooted.fmt1.treefile -fmt 1
-
 =======================================================================
 '''
 
-
-# root_with_out_group
 def RootTree(args):
 
     tree_file           = args['i']

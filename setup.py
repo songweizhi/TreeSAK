@@ -21,5 +21,5 @@ setup(name="TreeSAK",
       packages=['TreeSAK'],
       package_data={'': ['*.r', '*.R', '*.py', '*.pl', '*.rb', '*.jar', 'VERSION', '*.hmm']},
       include_package_data=True,
-      install_requires=['biopython', 'matplotlib', 'numpy', 'scipy', 'itolapi', 'networkx', 'seaborn', 'lxml', 'beautifulsoup4', 'ete3', 'arviz', 'plotly', 'kaleido', 'PyPDF3'],  # reportlab
+      install_requires=['biopython', 'matplotlib', 'numpy', 'scipy', 'itolapi', 'networkx', 'seaborn', 'lxml', 'beautifulsoup4', 'ete3', 'arviz', 'plotly', 'kaleido', 'PyPDF3', 'dendropy'],  # reportlab
       scripts=['bin/TreeSAK'])

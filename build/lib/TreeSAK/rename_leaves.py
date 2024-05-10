@@ -6,7 +6,7 @@ from ete3 import Tree
 rename_leaves_usage = '''
 ==================== rename_leaves example commands ====================
 
-BioSAK rename_leaves -i input.tree -r rename.txt -o output.tree
+TreeSAK rename_leaves -i input.tree -r rename.txt -o output.tree
 
 # format of rename.txt (tab separated)
 leaf_1  leaf_1_new_name

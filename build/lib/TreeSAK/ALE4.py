@@ -13,9 +13,9 @@ from PyPDF3 import PdfFileWriter, PdfFileReader
 ALE4_usage = '''
 ========================= ALE4 example commands =========================
 
-TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.3 -o ALE4_op_dir_0.3
-TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.5 -o ALE4_op_dir_0.5
-TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.8 -o ALE4_op_dir_0.8
+TreeSAK ALE4 -1 ALE1_op_dir -2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.3 -o ALE4_op_dir_0.3
+TreeSAK ALE4 -1 ALE1_op_dir -2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.5 -o ALE4_op_dir_0.5
+TreeSAK ALE4 -1 ALE1_op_dir -2 ALE2_op_dir -c genome_taxon.txt -color phylum_color.txt -f -api your_own_itol_api -fc 0.8 -o ALE4_op_dir_0.8
 
 # To do:
 # add protein family to the top of the pdf file
@@ -504,8 +504,8 @@ def parse_ale_op_worker(arg_list):
 
 def ALE4(args):
 
-    ale1_op_dir                 = args['i1']
-    ale2_op_dir                 = args['i2']
+    ale1_op_dir                 = args['1']
+    ale2_op_dir                 = args['2']
     genome_taxon_txt            = args['c']
     ar_phylum_color_code_txt    = args['color']
     op_dir                      = args['o']
@@ -621,8 +621,8 @@ def ALE4(args):
 if __name__ == '__main__':
 
     ALE4_parser = argparse.ArgumentParser()
-    ALE4_parser.add_argument('-i1',     required=True,                              help='ALE1 output directory')
-    ALE4_parser.add_argument('-i2',     required=True,                              help='ALE2 output directory')
+    ALE4_parser.add_argument('-1',     required=True,                              help='ALE1 output directory')
+    ALE4_parser.add_argument('-2',     required=True,                              help='ALE2 output directory')
     ALE4_parser.add_argument('-c',      required=True,                              help='genome_taxon, GTDB format')
     ALE4_parser.add_argument('-color',  required=True,                              help='phylum color code')
     ALE4_parser.add_argument('-o',      required=True,                              help='output dir, i.e., ALE4_op_dir')
