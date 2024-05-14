@@ -13,8 +13,8 @@ MarkerRef2Tree_usage = '''
 Dependencies: blastp, mafft-einsi, trimal, iqtree2
 
 # example commands
-TreeSAK MarkerRef2Tree -i gnm_faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 85
-TreeSAK MarkerRef2Tree -i gnm_faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 75,100
+TreeSAK MarkerRef2Tree -i faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 85
+TreeSAK MarkerRef2Tree -i faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 75,100
 
 # file extension need to be faa
 
@@ -348,9 +348,8 @@ def MarkerRef2Tree(args):
                     else:
                         group_to_gnm_dict[domain_name].add(gnm_id)
 
-    #################### check file/folder name ####################
+    ############################################## check file/folder name ##############################################
 
-    # define output dir
     blastp_cmd_txt                      = '%s/s01_blast_cmds_%s.txt'            % (op_dir, (len(marker_seq_list)*len(faa_file_list)))
     pwd_combined_protein                = '%s/combined.faa'                     % op_dir
     blast_op_dir                        = '%s/s01_blast'                        % op_dir
@@ -364,7 +363,7 @@ def MarkerRef2Tree(args):
     iqtree_dir                          = '%s/s08_iqtree_wd'                    % op_dir
     iqtree_cmd_txt                      = '%s/iqtree_cmds.txt'                  % iqtree_dir
 
-    ############################################################
+    ####################################################################################################################
 
     # create folder
     if os.path.isdir(op_dir) is True:

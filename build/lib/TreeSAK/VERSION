@@ -1,5 +1,8 @@
-1.33.2
+1.34.1
 - fixed bugs
+
+1.34.0
+- new module added: pb
 
 1.33.0
 - new module added: RootTreeGTDB214 and RootTreeGTDB220

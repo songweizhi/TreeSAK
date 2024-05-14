@@ -36,6 +36,7 @@ TreeSAK/ModifyTopo.py
 TreeSAK/OMA.py
 TreeSAK/OMA2.py
 TreeSAK/OneLineAln.py
+TreeSAK/PB.py
 TreeSAK/PMSF.py
 TreeSAK/PhyloBiAssoc.R
 TreeSAK/PhyloBiAssoc.py
@@ -71,7 +72,6 @@ TreeSAK/global_functions.py
 TreeSAK/merge_pdf.py
 TreeSAK/pRTC.py
 TreeSAK/parse_deltall_stdout.py
-TreeSAK/pb_mpi.py
 TreeSAK/plot_distruibution_th.py
 TreeSAK/prep_mcmctree_ctl.py
 TreeSAK/print_leaves.py

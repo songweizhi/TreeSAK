@@ -1,5 +1,6 @@
 import operator
 
+
 def keep_highest_rrtc(rrtc_in, rrtc_out):
 
     rrtc_highest_prob_dict = dict()
@@ -29,11 +30,8 @@ rrtc_out = '/Users/songweizhi/Desktop/rrtc_out.txt'
 keep_highest_rrtc(rrtc_in, rrtc_out)
 
 
-
 demo_dict = { 'a': 6, 'b': 2, 'c': 2 }
-
-print()
-
 for each in sorted(demo_dict.items(), key=operator.itemgetter(1))[::-1]:
     print(each[0])
     print(each[1])
+
