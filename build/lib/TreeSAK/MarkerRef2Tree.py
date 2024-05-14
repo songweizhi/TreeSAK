@@ -13,8 +13,8 @@ MarkerRef2Tree_usage = '''
 Dependencies: blastp, mafft-einsi, trimal, iqtree2
 
 # example commands
-TreeSAK MarkerRef2Tree -i gnm_faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 85
-TreeSAK MarkerRef2Tree -i gnm_faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 75,100
+TreeSAK MarkerRef2Tree -i faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 85
+TreeSAK MarkerRef2Tree -i faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 75,100
 
 # file extension need to be faa
 

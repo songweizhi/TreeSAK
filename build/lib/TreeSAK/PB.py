@@ -18,8 +18,8 @@ TreeSAK PB -i in.phylip -p chain_name -t 12
 
 3. Settings used by Nina Dombrowski: -cat -gtr -x 10 -1 -dgam 4
    For each marker protein family, four parallel chains were run until convergence was reached, unless stated 
-   otherwise (maxdiff < 0.3; settings: bpcomp -x 25%_burnin chain1 chain2 chain3 chain4). Additionally, we 
-   checked for the minimum effective size using tracecomp (minimum effective size > 50; settings: -x 25%_burnin 
+   otherwise (maxdiff < 0.3; settings: bpcomp -x 25_burnin chain1 chain2 chain3 chain4). Additionally, we 
+   checked for the minimum effective size using tracecomp (minimum effective size > 50; settings: -x 25_burnin 
    chain1 chain2 chain3 chain4).
 
 4. Settings used by Fan Lu:
@@ -52,13 +52,12 @@ def fa2phy(fasta_in, phy_out):
 
 def PB(args):
 
-    msa_in              = args['i']
-    op_prefix           = args['p']
-    fa_to_plp           = args['fa2plp']
-    num_of_threads      = args['t']
+    msa_in         = args['i']
+    op_prefix      = args['p']
+    fa_to_plp      = args['fa2plp']
+    num_of_threads = args['t']
 
     settings_dombrowski = '-cat -gtr -x 10 -1 -dgam 4'
-    settings_fan        = ''
 
     msa_to_use = msa_in
     if fa_to_plp is True:
@@ -66,15 +65,15 @@ def PB(args):
         fa2phy(msa_in, msa_in_plp)
         msa_to_use = msa_in_plp
 
-    pb_mpi_cmd          = 'mpirun -np %s pb_mpi -d %s %s -s %s' % (num_of_threads, msa_to_use, settings_dombrowski, op_prefix)
+    pb_mpi_cmd = 'mpirun -np %s pb_mpi -d %s %s -s %s' % (num_of_threads, msa_to_use, settings_dombrowski, op_prefix)
+    readpb_cmd = ''
+    bpcomp_cmd = ''
+
     print(pb_mpi_cmd)
     os.system(pb_mpi_cmd)
 
-    readpb_cmd          = ''
-    print(readpb_cmd)
-
-    bpcomp_cmd          = ''
-    print(bpcomp_cmd)
+    # print(readpb_cmd)
+    # print(bpcomp_cmd)
 
 
 if __name__ == '__main__':
@@ -83,16 +82,6 @@ if __name__ == '__main__':
     parser.add_argument('-i',       required=True,                          help='input MSA file')
     parser.add_argument('-p',       required=True,                          help='output prefix')
     parser.add_argument('-fa2plp',  required=False, action="store_true",    help='convert MSA format from fasta to phylip')
-    parser.add_argument('-t',       required=False, type=int, default=2,    help='num of threads')
+    parser.add_argument('-t',       required=False, type=int, default=1,    help='num of threads, default 1')
     args = vars(parser.parse_args())
     PB(args)
-
-
-'''
-
-export OMPI_MCA_btl=^openib
-cd /scratch/PI/ocessongwz/Sponge_2023_12_01/MarkerRef2Tree_marker_set_4/s08_iqtree_wd/pb_test
-mpirun -np 12 pb_mpi -d marker_pa85_pruner0.BMGE.phylip -cat -gtr -x 10 -1 -dgam 4 -s chain_test
-
-'''
-

@@ -682,10 +682,10 @@ if __name__ == '__main__':
     elif sys.argv[1] in ['PB', 'Pb', 'pb']:
         from TreeSAK import PB
         PB_parser = subparsers.add_parser('PB', usage=PB.PB_usage)
-        PB_parser.add_argument('-i',        required=True,                          help='input MSA file')
-        PB_parser.add_argument('-p',        required=True,                          help='output prefix')
-        PB_parser.add_argument('-fa2plp',   required=False, action="store_true",    help='convert MSA format from fasta to phylip')
-        PB_parser.add_argument('-t',        required=False, type=int, default=1,    help='num of threads, default: 1')
+        PB_parser.add_argument('-i',       required=True,                          help='input MSA file')
+        PB_parser.add_argument('-p',       required=True,                          help='output prefix')
+        PB_parser.add_argument('-fa2plp',  required=False, action="store_true",    help='convert MSA format from fasta to phylip')
+        PB_parser.add_argument('-t',       required=False, type=int, default=1,    help='num of threads, default 1')
         args = vars(parser.parse_args())
         PB.PB(args)
 
