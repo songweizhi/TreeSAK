@@ -4,11 +4,12 @@ from Bio import SeqIO
 
 
 OMA2_usage = '''
-============================ OMA2 example commands ============================
+============================== OMA2 example commands ==============================
 
-TreeSAK OMA2 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o op_dir -f 
+TreeSAK OMA2 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o op_dir -f -n 3
+TreeSAK OMA2 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o op_dir -f -c 85
 
-===============================================================================
+===================================================================================
 '''
 
 
@@ -52,16 +53,31 @@ def OMA2(args):
     op_dir              = args['o']
     force_overwrite     = args['f']
     min_gene_num        = args['n']
+    min_gene_cov        = args['c']
 
-    og_txt_out       = '%s/OrthologousGroups_min%s.txt'  % (op_dir, min_gene_num)
-    filtered_seq_dir = '%s/OrthologousGroupsFasta_min%s' % (op_dir, min_gene_num)
+    if (min_gene_num is None) and (min_gene_cov is None):
+        print('Please specify either -c or -n, program exited!')
+        exit()
+    elif (min_gene_num is not None) and (min_gene_cov is not None):
+        print('-c and -n are not compatible, program exited!')
+        exit()
+
+    og_txt_out = ''
+    filtered_seq_dir = ''
+    if min_gene_num is not None:
+        og_txt_out       = '%s/OrthologousGroups_num%s.txt'  % (op_dir, min_gene_num)
+        filtered_seq_dir = '%s/OrthologousGroupsFasta_num%s' % (op_dir, min_gene_num)
+    if min_gene_cov is not None:
+        og_txt_out       = '%s/OrthologousGroups_cov%s.txt'  % (op_dir, min_gene_cov)
+        filtered_seq_dir = '%s/OrthologousGroupsFasta_cov%s' % (op_dir, min_gene_cov)
 
     # check genome files
     interested_gnm_set = set()
     if gnm_txt is not None:
         if os.path.isfile(gnm_txt) is True:
             for each_gnm in open(gnm_txt):
-                interested_gnm_set.add(each_gnm.strip())
+                gnm_id = each_gnm.strip().split()[0]
+                interested_gnm_set.add(gnm_id)
         else:
             print('%s not found, program exited!' % gnm_txt)
             exit()
@@ -75,6 +91,16 @@ def OMA2(args):
             exit()
     os.system('mkdir %s' % op_dir)
     os.system('mkdir %s' % filtered_seq_dir)
+
+    # get overall genome set
+    overall_gnm_set = set()
+    for each_line in open(og_txt):
+        if not each_line.startswith('#'):
+            each_line_split = each_line.strip().split('\t')
+            gene_list = each_line_split[1:]
+            for each_gene in gene_list:
+                gene_gnm = each_gene.split(':')[0]
+                overall_gnm_set.add(gene_gnm)
 
     qualified_og_set = set()
     id_to_name_dict = dict()
@@ -97,7 +123,20 @@ def OMA2(args):
                     if gene_gnm in interested_gnm_set:
                         filtered_gene_set.add(gene_id)
 
-            if len(filtered_gene_set) >= min_gene_num:
+            qualified_og = False
+            if min_gene_num is not None:
+                if len(filtered_gene_set) >= float(min_gene_num):
+                    qualified_og = True
+            if min_gene_cov is not None:
+                if len(interested_gnm_set) == 0:
+                    gnm_cov = len(filtered_gene_set)*100/len(overall_gnm_set)
+                else:
+                    gnm_cov = len(filtered_gene_set)*100/len(interested_gnm_set)
+
+                if gnm_cov >= float(min_gene_cov):
+                    qualified_og = True
+
+            if qualified_og is True:
                 qualified_og_set.add(og_id)
                 og_txt_out_handle.write('%s\t%s\n' % (filename, ','.join(sorted(list(filtered_gene_set)))))
                 gene_to_extract_dict[og_id] = filtered_gene_set
@@ -109,18 +148,23 @@ def OMA2(args):
         filtered_file = '%s/%s.fa' % (filtered_seq_dir, seq_file_name)
         select_seq(source_file, gene_to_extract_dict[each_og], filtered_file)
 
-    print('the number of OG with genes >= %s is %s' % (min_gene_num, len(qualified_og_set)))
+    if min_gene_num is not None:
+        print('The number of OG with genes >= %s is %s' % (min_gene_num, len(qualified_og_set)))
+    if min_gene_cov is not None:
+        print('The number of OG with coverage >= %s is %s' % (min_gene_cov, len(qualified_og_set)))
+
     print('Done!')
 
 
 if __name__ == '__main__':
 
     OMA2_parser = argparse.ArgumentParser()
-    OMA2_parser.add_argument('-i',   required=True,                          help='OrthologousGroups.txt')
-    OMA2_parser.add_argument('-s',   required=True,                          help='sequence dir, OrthologousGroupsFasta')
-    OMA2_parser.add_argument('-g',   required=False, default=None,           help='id of interested genomes')
-    OMA2_parser.add_argument('-o',   required=True,  default=None,           help='output directory')
-    OMA2_parser.add_argument('-n',   required=False, type=int, default=3,    help='minimal number of gene in a OG, deafult: 3')
-    OMA2_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
+    OMA2_parser.add_argument('-i',   required=True,                         help='OrthologousGroups.txt')
+    OMA2_parser.add_argument('-s',   required=True,                         help='sequence dir, OrthologousGroupsFasta')
+    OMA2_parser.add_argument('-g',   required=False, default=None,          help='interested genomes')
+    OMA2_parser.add_argument('-o',   required=True,  default=None,          help='output directory')
+    OMA2_parser.add_argument('-n',   required=False, default=None,          help='minimal number of gene in a OG, not compatible with -c')
+    OMA2_parser.add_argument('-c',   required=False, default=None,          help='minimal genome coverage cutoff, not compatible with -n')
+    OMA2_parser.add_argument('-f',   required=False, action="store_true",   help='force overwrite')
     args = vars(OMA2_parser.parse_args())
     OMA2(args)

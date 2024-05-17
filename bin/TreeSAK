@@ -55,6 +55,7 @@ def print_main_help():
 
     Tree-related
        PB                     ->  Infer tree with PhyloBayes-MPI 
+       AssessPB               ->  Compare PhyloBayes chains
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        GTDB_tree              ->  get GTDB tree
@@ -406,7 +407,6 @@ if __name__ == '__main__':
         SplitScore1_parser.add_argument('-c',   required=False, type=int, default=85,   help='coverage cutoff, default: 85')
         SplitScore1_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
         SplitScore1_parser.add_argument('-jst', required=False, type=int, default=1,    help='num of threads for iqtree2, default: 1')
-        SplitScore1_parser.add_argument('-r',   required=False, action="store_true",    help='run commands')
         args = vars(parser.parse_args())
         SplitScore1.SplitScore1(args)
 
@@ -473,12 +473,13 @@ if __name__ == '__main__':
     elif sys.argv[1] in ['OMA2', 'oma2', 'Oma2']:
         from TreeSAK import OMA2
         OMA2_parser = subparsers.add_parser('OMA2', usage=OMA2.OMA2_usage)
-        OMA2_parser.add_argument('-i',   required=True,                          help='OrthologousGroups.txt')
-        OMA2_parser.add_argument('-s',   required=True,                          help='sequence dir, OrthologousGroupsFasta')
-        OMA2_parser.add_argument('-g',   required=False, default=None,           help='id of interested genomes')
-        OMA2_parser.add_argument('-o',   required=True,  default=None,           help='output directory')
-        OMA2_parser.add_argument('-n',   required=False, type=int, default=3,    help='minimal number of gene in a OG, deafult: 3')
-        OMA2_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
+        OMA2_parser.add_argument('-i',  required=True,                          help='OrthologousGroups.txt')
+        OMA2_parser.add_argument('-s',  required=True,                          help='sequence dir, OrthologousGroupsFasta')
+        OMA2_parser.add_argument('-g',  required=False, default=None,           help='interested genomes')
+        OMA2_parser.add_argument('-o',  required=True,  default=None,           help='output directory')
+        OMA2_parser.add_argument('-n', required=False, default=None,            help='minimal number of gene in a OG, not compatible with -c')
+        OMA2_parser.add_argument('-c', required=False, default=None,            help='minimal genome coverage cutoff, not compatible with -n')
+        OMA2_parser.add_argument('-f',  required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         OMA2.OMA2(args)
 
@@ -487,7 +488,7 @@ if __name__ == '__main__':
         print(ALE.ALE_usage)
         exit()
 
-    elif sys.argv[1] == 'ALE1':
+    elif sys.argv[1] in ['ALE1', 'ale1', 'Ale1']:
         from TreeSAK import ALE1
         ALE1_parser = subparsers.add_parser('ALE1', usage=ALE1.ALE1_usage)
         ALE1_parser.add_argument('-i',   required=False, default=None,          help='orthologous groups, either from orthofinder or oma')
@@ -502,7 +503,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE1.ALE1(args)
 
-    elif sys.argv[1] == 'ALE2':
+    elif sys.argv[1] in ['ALE2', 'ale2', 'Ale2']:
         from TreeSAK import ALE2
         ALE2_parser = subparsers.add_parser('ALE2', usage=ALE2.ALE2_usage)
         ALE2_parser.add_argument('-1',      required=True,                         help='ALE1 output directory')
@@ -515,7 +516,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE2.ALE2(args)
 
-    elif sys.argv[1] == 'ALE3':
+    elif sys.argv[1] in ['ALE3', 'ale3', 'Ale3']:
         from TreeSAK import ALE3
         ALE3_parser = subparsers.add_parser('ALE3', usage=ALE3.ALE3_usage)
         ALE3_parser.add_argument('-2',   required=True,                             help='Folder with uml_rec files')
@@ -526,7 +527,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE3.ALE3(args)
 
-    elif sys.argv[1] == 'ALE4':
+    elif sys.argv[1] in ['ALE4', 'ale4', 'Ale4']:
         from TreeSAK import ALE4
         ALE4_parser = subparsers.add_parser('ALE4', usage=ALE4.ALE4_usage)
         ALE4_parser.add_argument('-1',      required=True,                              help='ALE1 output directory')
@@ -543,7 +544,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE4.ALE4(args)
 
-    elif sys.argv[1] == 'ALE6':
+    elif sys.argv[1] in ['ALE6', 'ale6', 'Ale6']:
         from TreeSAK import ALE6
         ALE6_parser = subparsers.add_parser('ALE6', usage=ALE6.ALE6_usage)
         ALE6_parser.add_argument('-1',      required=True,                          help='ALE1 output directory')
@@ -683,11 +684,27 @@ if __name__ == '__main__':
         from TreeSAK import PB
         PB_parser = subparsers.add_parser('PB', usage=PB.PB_usage)
         PB_parser.add_argument('-i',       required=True,                          help='input MSA file')
+        PB_parser.add_argument('-o',       required=True,                          help='output directory')
         PB_parser.add_argument('-p',       required=True,                          help='output prefix')
         PB_parser.add_argument('-fa2plp',  required=False, action="store_true",    help='convert MSA format from fasta to phylip')
-        PB_parser.add_argument('-t',       required=False, type=int, default=1,    help='num of threads, default 1')
+        PB_parser.add_argument('-chain',   required=False, type=int, default=4,    help='num of chains to run in parallel, default: 4')
+        PB_parser.add_argument('-t',       required=False, type=int, default=4,    help='num of cores, default: 4')
+        PB_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         PB.PB(args)
+
+    elif sys.argv[1] in ['AssessPB', 'assessPB', 'assesspb']:
+        from TreeSAK import AssessPB
+        AssessPB_parser = subparsers.add_parser('AssessPB', usage=AssessPB.AssessPB_usage)
+        AssessPB_parser.add_argument('-c1',     required=False, default=None,           help='chain 1')
+        AssessPB_parser.add_argument('-c2',     required=False, default=None,           help='chain 2')
+        AssessPB_parser.add_argument('-cdir',   required=False, default=None,           help='chain folder')
+        AssessPB_parser.add_argument('-bi',     required=False, default=1000,           help='burn-in, default: 1000')
+        AssessPB_parser.add_argument('-si',     required=False, default=10,             help='sample interval, default: 10')
+        AssessPB_parser.add_argument('-o',      required=True, default=None,            help='output directory')
+        AssessPB_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
+        args = vars(parser.parse_args())
+        AssessPB.AssessPB(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

@@ -16,6 +16,7 @@ TreeSAK/AssessCVG.py
 TreeSAK/AssessMarker.py
 TreeSAK/AssessMarkerDeltaLL.py
 TreeSAK/AssessMarkerPA.py
+TreeSAK/AssessPB.py
 TreeSAK/BMGE.jar
 TreeSAK/BMGE.py
 TreeSAK/CompareMCMC.py
