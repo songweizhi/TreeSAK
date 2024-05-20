@@ -586,7 +586,7 @@ def SplitScore2(args):
             exit()
     os.mkdir(step_2_op_dir)
 
-    print('Counting sister taxa')
+    print('Counting sister taxa with %s cores' % num_of_threads)
     run_count_sister_taxa(gtdb_classification_txt, contree_ufboot_shared_sorted, qualified_og_seq_dir, qualified_og_seq_dir, gnm_group_txt, target_label, num_of_threads, count_sister_taxa_op_dir, force_overwrite)
 
     print('Summarising sister taxa')

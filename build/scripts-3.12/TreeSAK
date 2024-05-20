@@ -52,6 +52,8 @@ def print_main_help():
        SingleLinePhy          ->  Put sequences in single line in phylip format
        AlignmentPruner        ->  Remove heterogenous sites from MSA
        CS_trim                ->  (to be added) perform chi-squared trimming to reduce compositional heterogeneity
+       gap_stats              ->  The percentage of gap in each sequence of a MSA
+       recodeAA               ->  Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories
 
     Tree-related
        PB                     ->  Infer tree with PhyloBayes-MPI 
@@ -88,7 +90,7 @@ def print_main_help():
     Phylo-related stats
        PhyloBiAssoc            ->  A wrapper for binaryPGLMM test
 
-    # Upgrade with "pip3 install --upgrade TreeSAK"
+    # Upgrade with: pip3 install --upgrade TreeSAK
     ''' % version(config_dict)
 
     print(help_message)
@@ -705,6 +707,22 @@ if __name__ == '__main__':
         AssessPB_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         AssessPB.AssessPB(args)
+
+    elif sys.argv[1] == 'gap_stats':
+        from TreeSAK import gap_stats
+        gap_stats_parser = subparsers.add_parser('gap_stats', usage=gap_stats.gap_stats_usage)
+        gap_stats_parser.add_argument('-i', required=True, help='MSA in fasta format')
+        args = vars(parser.parse_args())
+        gap_stats.gap_stats(args)
+
+    elif sys.argv[1] == 'recodeAA':
+        from TreeSAK import recodeAA
+        recodeAA_parser = subparsers.add_parser('recodeAA', usage=recodeAA.recodeAA_usage)
+        recodeAA_parser.add_argument('-i', required=True, help='input file')
+        recodeAA_parser.add_argument('-c', required=True, help='recoding scheme, choose from d4, d6 or s4')
+        recodeAA_parser.add_argument('-o', required=True, help='output file')
+        args = vars(parser.parse_args())
+        recodeAA.recodeAA(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

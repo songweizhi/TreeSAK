@@ -109,11 +109,11 @@ def SplitScore1(args):
     cmd_2_trimal_txt_handle = open(cmd_2_trimal_txt, 'w')
     cmd_3_iqtree_txt_handle = open(cmd_3_iqtree_txt, 'w')
     ignored_og_dict = dict()
-    for each_og in og_to_gene_dict:
-        seq_file_in           = '%s/%s.%s'       % (oma_op_fasta, each_og, fasta_file_ext)
-        file_out_seq          = '%s/%s.%s'       % (qualified_og_dir, each_og, fasta_file_ext)
-        file_out_aln          = '%s.aln'         % each_og
-        file_out_aln_trimmed  = '%s_trimmed.aln' % each_og
+    for each_og in sorted(list(og_to_gene_dict.keys())):
+        seq_file_in          = '%s/%s.%s'       % (oma_op_fasta, each_og, fasta_file_ext)
+        file_out_seq         = '%s/%s.%s'       % (qualified_og_dir, each_og, fasta_file_ext)
+        file_out_aln         = '%s.aln'         % each_og
+        file_out_aln_trimmed = '%s_trimmed.aln' % each_og
 
         seq_file_out_handle = open(file_out_seq, 'w')
         current_gnm_set = set()

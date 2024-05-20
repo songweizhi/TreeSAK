@@ -3,21 +3,9 @@ import argparse
 
 
 GTDB_tree_usage = '''
-==================== GTDB_tree example command ====================
+======================== GTDB_tree example command ========================
 
-module load python/3.7.4
-source ~/mypython3env/bin/activate
-module load perl/5.36.0
-module load prodigal/2.6.3
-module load pplacer/1.1.alpha19
-module load hmmer/3.3
-module load gcc/12.2.0
-module load gsl/2.7.1
-module load fastani/1.33
-module load r/4.3.1
-module load fasttree/2.1.11-openmp 
-export GTDBTK_DATA_PATH=/data/bio/gtdbtk/release214
-
+export GTDBTK_DATA_PATH=/scratch/PI/boqianpy/Database/gtdb_r220/release220
 TreeSAK GTDB_tree -p Demo -i gnm_folder -x fa -t 12
 
 # This is a wrapper for the following commands
@@ -26,8 +14,7 @@ gtdbtk align --identify_dir Demo_op_dir --out_dir op_dir --cpus 12
 gtdbtk infer --msa_file Demo_op_dir/align/gtdbtk.bac120.user_msa.fasta.gz --out_dir op_dir --cpus 12 --prefix Demo_bac120
 gtdbtk infer --msa_file Demo_op_dir/align/gtdbtk.ar53.user_msa.fasta.gz --out_dir op_dir --cpus 12 --prefix Demo_ar53
 
-========================================================================
-
+===========================================================================
 '''
 
 def GTDB_tree(args):

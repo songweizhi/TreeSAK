@@ -290,6 +290,25 @@ def AssessMarkerPA(trimmed_aln_dir, gnm_set, group_to_gnm_dict, present_pct_cuto
     print('Assessment results exported to:\n%s\n%s' % (assess_summary_1_txt, assess_summary_2_txt))
 
 
+def get_gap_stats(msa_in_fa, stats_txt):
+
+    gap_pct_dict = dict()
+    for each_seq in SeqIO.parse(msa_in_fa, 'fasta'):
+        seq_id = each_seq.id
+        seq_str = str(each_seq.seq)
+        gap_pct = seq_str.count('-')*100/len(seq_str)
+        gap_pct = float("{0:.2f}".format(gap_pct))
+        gap_pct_dict[seq_id] = gap_pct
+
+    gap_pct_sorted = sorted(gap_pct_dict.items(), key=lambda x:x[1])
+
+    stats_txt_handle = open(stats_txt, 'w')
+    stats_txt_handle.write('Sequence\tGap\n')
+    for each_seq in gap_pct_sorted:
+        stats_txt_handle.write('%s\t%s\n' % (each_seq[0], each_seq[1]))
+    stats_txt_handle.close()
+
+
 def MarkerRef2Tree(args):
 
     faa_file_dir            = args['i']

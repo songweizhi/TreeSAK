@@ -7,7 +7,7 @@ OMA2_usage = '''
 ============================== OMA2 example commands ==============================
 
 TreeSAK OMA2 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o op_dir -f -n 3
-TreeSAK OMA2 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o op_dir -f -n 85
+TreeSAK OMA2 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o op_dir -f -c 85
 
 ===================================================================================
 '''
@@ -59,7 +59,7 @@ def OMA2(args):
         print('Please specify either -c or -n, program exited!')
         exit()
     elif (min_gene_num is not None) and (min_gene_cov is not None):
-        print('-c and -n are not compatible, please provide only one, program exited!')
+        print('-c and -n are not compatible, program exited!')
         exit()
 
     og_txt_out = ''

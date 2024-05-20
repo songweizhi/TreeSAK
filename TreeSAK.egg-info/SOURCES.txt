@@ -68,6 +68,7 @@ TreeSAK/dating_ss.py
 TreeSAK/do_rrtc.rb
 TreeSAK/fa2phy.py
 TreeSAK/format_leaf_name.py
+TreeSAK/gap_stats.py
 TreeSAK/get_arCOG_seq.py
 TreeSAK/global_functions.py
 TreeSAK/merge_pdf.py
@@ -76,6 +77,7 @@ TreeSAK/parse_deltall_stdout.py
 TreeSAK/plot_distruibution_th.py
 TreeSAK/prep_mcmctree_ctl.py
 TreeSAK/print_leaves.py
+TreeSAK/recodeAA.py
 TreeSAK/rename_leaves.py
 TreeSAK/replace_clade.py
 TreeSAK/root_with_out_group.py
