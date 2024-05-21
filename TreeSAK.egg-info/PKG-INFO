@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: TreeSAK
-Version: 1.37.1
+Version: 1.38.7
 Summary: BioSAK
 Home-page: https://github.com/songweizhi/TreeSAK
 Author: Weizhi Song
@@ -24,4 +24,4 @@ Requires-Dist: kaleido
 Requires-Dist: PyPDF3
 Requires-Dist: dendropy
 
- TreeSAK v1.37.1 
+ TreeSAK v1.38.7 

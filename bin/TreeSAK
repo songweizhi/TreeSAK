@@ -44,18 +44,19 @@ def print_main_help():
 
     Multiple Sequence Alignment
        BMGE                   ->  Run BMGE
+       pruneMSA               ->  Prune MSA with alignment_pruner.pl
+       recodeAA               ->  Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories
        fa2phy                 ->  Convert MSA format (fasta to phylip)
        SliceMSA               ->  Slice MSA by column 
        ConcateMSA             ->  Concatenate MSA
        ConvertMSA             ->  Convert MSA format
        OneLineAln             ->  One-line fasta format alignments
        SingleLinePhy          ->  Put sequences in single line in phylip format
-       AlignmentPruner        ->  Remove heterogenous sites from MSA
        CS_trim                ->  (to be added) perform chi-squared trimming to reduce compositional heterogeneity
        gap_stats              ->  The percentage of gap in each sequence of a MSA
-       recodeAA               ->  Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories
 
     Tree-related
+       iTOL                   ->  Prepare iTOL files
        PB                     ->  Infer tree with PhyloBayes-MPI 
        AssessPB               ->  Compare PhyloBayes chains
        MarkerSeq2Tree         ->  Marker sequence to tree
@@ -244,8 +245,11 @@ if __name__ == '__main__':
         MarkerRef2Tree_parser.add_argument('-e',               required=False, default='1e-30',         help='e-value cutoff, default: 1e-30')
         MarkerRef2Tree_parser.add_argument('-t',               required=True,  type=int,                help='num of threads')
         MarkerRef2Tree_parser.add_argument('-mmn',             required=False, default=1, type=int,     help='minimal marker number, default: 1')
-        MarkerRef2Tree_parser.add_argument('-f',               required=False, action="store_true",     help='force overwrite')
         MarkerRef2Tree_parser.add_argument('-psiblast',        required=False, action="store_true",     help='run psiblast')
+        MarkerRef2Tree_parser.add_argument('-bmge',            required=False, action="store_true",     help='perform BMGE trimming on concatenated MSA')
+        MarkerRef2Tree_parser.add_argument('-bmge_m',          required=False, default='BLOSUM30',      help='BMGE trim model, default: BLOSUM30')
+        MarkerRef2Tree_parser.add_argument('-bmge_esc',        required=False, default='0.55',          help='BMGE entropy score cutoff, default: 0.55')
+        MarkerRef2Tree_parser.add_argument('-f',               required=False, action="store_true",     help='force overwrite')
         args = vars(parser.parse_args())
         MarkerRef2Tree.MarkerRef2Tree(args)
 
@@ -570,15 +574,6 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         RootTree.RootTree(args)
 
-    elif sys.argv[1] == 'AlignmentPruner':
-        from TreeSAK import AlignmentPruner
-        AlignmentPruner_parser = subparsers.add_parser('AlignmentPruner', usage=AlignmentPruner.AlignmentPruner_usage)
-        AlignmentPruner_parser.add_argument('-i', required=True, help='input MSA')
-        AlignmentPruner_parser.add_argument('-c', required=True, help='heterogeneity cutoff')
-        AlignmentPruner_parser.add_argument('-o', required=True, help='output MSA')
-        args = vars(parser.parse_args())
-        AlignmentPruner.AlignmentPruner(args)
-
     elif sys.argv[1] in ['BMGE', 'bmge']:
         from TreeSAK import BMGE
         BMGE_parser = subparsers.add_parser('BMGE', usage=BMGE.BMGE_usage)
@@ -723,6 +718,41 @@ if __name__ == '__main__':
         recodeAA_parser.add_argument('-o', required=True, help='output file')
         args = vars(parser.parse_args())
         recodeAA.recodeAA(args)
+
+    elif sys.argv[1] == 'pruneMSA':
+        from TreeSAK import pruneMSA
+        pruneMSA_parser = subparsers.add_parser('pruneMSA', usage=pruneMSA.pruneMSA_usage)
+        pruneMSA_parser.add_argument('-i', required=True, help='input MSA file')
+        pruneMSA_parser.add_argument('-c', required=True, help='conservation cutoffs, comma separated')
+        args = vars(parser.parse_args())
+        pruneMSA.pruneMSA(args)
+
+    elif sys.argv[1] == 'iTOL':
+        from TreeSAK import iTOL
+        iTOL_parser = subparsers.add_parser('iTOL', description='Decorate tree with iTOL', usage=iTOL.iTOL_usage)
+        iTOL_parser.add_argument('-Labels',          required=False, action='store_true',   help='Labels')
+        iTOL_parser.add_argument('-ColorStrip',      required=False, action='store_true',   help='ColorStrip')
+        iTOL_parser.add_argument('-ColorRange',      required=False, action='store_true',   help='ColorRange')
+        iTOL_parser.add_argument('-SimpleBar',       required=False, action='store_true',   help='SimpleBar')
+        iTOL_parser.add_argument('-Heatmap',         required=False, action='store_true',   help='Heatmap')
+        iTOL_parser.add_argument('-ExternalShape',   required=False, action='store_true',   help='ExternalShape')
+        iTOL_parser.add_argument('-Binary',          required=False, action='store_true',   help='Binary')
+        iTOL_parser.add_argument('-BinaryID',        required=False, action='store_true',   help='Binary specified IDs as 1')
+        iTOL_parser.add_argument('-Connection',      required=False, action='store_true',   help='Connection')
+        iTOL_parser.add_argument('-PieChart',        required=False, action='store_true',   help='PieChart')
+        iTOL_parser.add_argument('-id',              required=False, default=None,          help='File contains leaf id')
+        iTOL_parser.add_argument('-ll',              required=False, default=None,          help='Leaf Label')
+        iTOL_parser.add_argument('-gc',              required=False, default=None,          help='Specify Group/column Color (optional)')
+        iTOL_parser.add_argument('-cc',              required=False, default=None,          help='Specify Column Color (for ExternalShape format) (optional)')
+        iTOL_parser.add_argument('-lg',              required=False, default=None,          help='Leaf to Group')
+        iTOL_parser.add_argument('-lv',              required=False, default=None,          help='Leaf to Value')
+        iTOL_parser.add_argument('-lm',              required=False, default=None,          help='Leaf to data Matrix')
+        iTOL_parser.add_argument('-dr',              required=False, default=None,          help='Donor to Recipient')
+        iTOL_parser.add_argument('-scale',           required=False, default=None,          help='Scale Values, in format 0-3-6-9')
+        iTOL_parser.add_argument('-lt',              required=False, default=None,          help='Legend Title')
+        iTOL_parser.add_argument('-o',               required=True,                         help='Output filename')
+        args = vars(parser.parse_args())
+        iTOL.iTOL(args)
 
     else:
         print('Unrecognized command: %s, program exited' % sys.argv[1])

@@ -1,5 +1,8 @@
-1.37.1
+1.38.7
 - fixed bugs
+
+1.38.0
+- new module added: pruneMSA
 
 1.37.0
 - new module added: recodeAA

@@ -5,20 +5,20 @@ from Bio import SeqIO
 recodeAA_usage = '''
 =========================== recodeAA example commands ===========================
 
-TreeSAK recodeAA -i msa.fa -o recoded_msa_D4.fa -c d4
-TreeSAK recodeAA -i msa.fa -o recoded_msa_D6.fa -c d6
-TreeSAK recodeAA -i msa.fa -o recoded_msa_S4.fa -c s4
+TreeSAK recodeAA -i msa.fa -c s4 -o recoded_msa_SR4.fa
+TreeSAK recodeAA -i msa.fa -c d4 -o recoded_msa_Dayhoff4.fa
+TreeSAK recodeAA -i msa.fa -c d6 -o recoded_msa_Dayhoff6.fa
 
 Note:
 This script is modified based on the Recode_aa.py from Anja Spang.
-It was prepared to recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories.  
+It was used to recode AA to SR4 (s4), Dayhoff4 (d4) or Dayhoff6 (d6) categories.  
 Please refer to https://doi.org/10.1038/s41467-020-17408-w for details.
 
 Recoding schemes
 1. Selenocysteine will be recoded to a gap.
-2. Dayhoff6 (d6): A,G,P,S,T = A;  D,E,N,Q = D; H,K,R = H; F,Y,W = F; I,L,M,V = I; C = C
-3. Dayhoff4 (d4): A,G,P,S,T = A; D,E,N,Q = D; H,K,R = H; F,Y,W,I,L,M,V = F; C = ?
-4. Sr4 (s4):      A,G,N,P,S,T = A; C,H,W,Y = C; D,E,K,Q,R = G; F,I,L,M,V = T
+2. s4: A,G,N,P,S,T = A; C,H,W,Y = C; D,E,K,Q,R = G; F,I,L,M,V = T
+3. d4: A,G,P,S,T = A; D,E,N,Q = D; H,K,R = H; F,Y,W,I,L,M,V = F; C = ?
+4. d6: A,G,P,S,T = A; D,E,N,Q = D; H,K,R = H; F,Y,W = F; I,L,M,V = I; C = C
 
 =================================================================================
 '''

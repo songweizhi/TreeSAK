@@ -11,7 +11,6 @@ TreeSAK/ALE4.py
 TreeSAK/ALE5.py
 TreeSAK/ALE6.py
 TreeSAK/ALE_backup.py
-TreeSAK/AlignmentPruner.py
 TreeSAK/AssessCVG.py
 TreeSAK/AssessMarker.py
 TreeSAK/AssessMarkerDeltaLL.py
@@ -61,6 +60,7 @@ TreeSAK/VisHPD95.py
 TreeSAK/__init__.py
 TreeSAK/ale_parser.py
 TreeSAK/ale_splitter.py
+TreeSAK/alignment_pruner.pl
 TreeSAK/compare_trees.R
 TreeSAK/compare_trees.py
 TreeSAK/dating.py
@@ -71,12 +71,14 @@ TreeSAK/format_leaf_name.py
 TreeSAK/gap_stats.py
 TreeSAK/get_arCOG_seq.py
 TreeSAK/global_functions.py
+TreeSAK/iTOL.py
 TreeSAK/merge_pdf.py
 TreeSAK/pRTC.py
 TreeSAK/parse_deltall_stdout.py
 TreeSAK/plot_distruibution_th.py
 TreeSAK/prep_mcmctree_ctl.py
 TreeSAK/print_leaves.py
+TreeSAK/pruneMSA.py
 TreeSAK/recodeAA.py
 TreeSAK/rename_leaves.py
 TreeSAK/replace_clade.py

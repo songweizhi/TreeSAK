@@ -7,7 +7,7 @@
 Contact
 ---
 
-+ Dr Weizhi Song
++ Dr. Weizhi Song
 + Department of Ocean Science, Hong Kong University of Science and Technology, Hong Kong
 + E-mail: songwz03@gmail.com
 
@@ -29,7 +29,7 @@ Installation
 TreeSAK modules
 ---
 
-                 ...::: TreeSAK v1.28.0 :::...
+                 ...::: TreeSAK v1.38.7 :::...
 
     Marker-related
        ExtractMarkerSeq       ->  Extract marker by blastn  
@@ -42,29 +42,42 @@ TreeSAK modules
        OMA2                   ->  Filter OMA predicted OGs
 
     Multiple Sequence Alignment
-       ConvertMSA             ->  Convert MSA format
-       fa2phy                 ->  Convert MSA format (fasta to phylip)
-       SingleLinePhy          ->  Put sequences in single line in phylip format
-       OneLineAln             ->  One-line fasta format alignments
-       SliceMSA               ->  Slice MSA by column 
-       AlignmentPruner        ->  Remove heterogenous sites from MSA
        BMGE                   ->  Run BMGE
+       pruneMSA               ->  Prune MSA with alignment_pruner.pl
+       recodeAA               ->  Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories
+       fa2phy                 ->  Convert MSA format (fasta to phylip)
+       SliceMSA               ->  Slice MSA by column 
        ConcateMSA             ->  Concatenate MSA
-    
+       ConvertMSA             ->  Convert MSA format
+       OneLineAln             ->  One-line fasta format alignments
+       SingleLinePhy          ->  Put sequences in single line in phylip format
+       CS_trim                ->  (to be added) perform chi-squared trimming to reduce compositional heterogeneity
+       gap_stats              ->  The percentage of gap in each sequence of a MSA
+
     Tree-related
+       iTOL                   ->  Prepare iTOL files
+       PB                     ->  Infer tree with PhyloBayes-MPI 
+       AssessPB               ->  Compare PhyloBayes chains
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        GTDB_tree              ->  get GTDB tree
-       PMSF                   ->  run iqtree with PMSF
-       subset_tree            ->  Subset tree
+       subset                 ->  Subset tree
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        print_leaves           ->  print out tree leaves
        FLN                    ->  Format leaf names (e.g. remove spaces in names)
        ModifyTopo             ->  Modify tree topology
+       GeneRax                ->  (to be added) Run GeneRax    
        ALE                    ->  Modules for running ALE
-       GeneRax                ->  Run GeneRax (to be added)    
        RootTree               ->  Root tree with outgroup leaves
+       RootTreeGTDB214        ->  Root tree by GTDB taxonomy (r214)
+       RootTreeGTDB220        ->  Root tree by GTDB taxonomy (r220)
+       LcaToLeaves            ->  Get two leaves that define an internal node
+       replace_clade          ->  Replace tree clade
+       
+    Model-related
+       PMSF                   ->  run iqtree with PMSF
+       PPA                    ->  (to be added) Perform Posterior Predictive Analysis (across-site)
        
     Dating-related
        Dating                 ->  Perform molecular dating
@@ -73,3 +86,6 @@ TreeSAK modules
        PlotMcmcNode           ->  distribution of node's age estimation 
        VisHPD95               ->  HPD95 of estimated node age
        pRTC                   ->  Perform probabilistic RTC dating
+    
+    Phylo-related stats
+       PhyloBiAssoc            ->  A wrapper for binaryPGLMM test

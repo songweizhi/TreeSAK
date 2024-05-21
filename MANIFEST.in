@@ -5,6 +5,7 @@ include TreeSAK/do_rrtc.rb
 include TreeSAK/weighted_rand.rb
 include TreeSAK/cdd2cog.pl
 include TreeSAK/select_contig.pl
+include TreeSAK/alignment_pruner.pl
 include TreeSAK/get_fasta_stats.pl
 include TreeSAK/get_sankey_plot.R
 include TreeSAK/label_tree.R

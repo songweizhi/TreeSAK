@@ -10,7 +10,7 @@ from distutils.spawn import find_executable
 MarkerRef2Tree_usage = '''
 ============================= MarkerRef2Tree example commands =============================
 
-Dependencies: blastp, mafft-einsi, trimal, iqtree2
+Dependencies: java, blastp, mafft-einsi, trimal, iqtree2
 
 # example commands
 TreeSAK MarkerRef2Tree -i faa_files -x faa -m marker_seq -mx fa -o output_dir -e 10 -t 6 -c 85
@@ -52,9 +52,8 @@ def sep_path_basename_ext(file_in):
     return file_path, file_basename, file_extension
 
 
-def catfasta2phy(msa_dir, msa_ext, concatenated_msa_phy, partition_file):
+def catfasta2phy(msa_dir, msa_ext, concatenated_msa_phy, concatenated_msa_fasta, partition_file):
 
-    concatenated_msa_fasta = '%s.fasta' % concatenated_msa_phy
     msa_file_re            = '%s/*.%s'  % (msa_dir, msa_ext)
     msa_file_list          = [os.path.basename(file_name) for file_name in glob.glob(msa_file_re)]
     msa_file_list_sorted   = sorted(msa_file_list)
@@ -309,23 +308,44 @@ def get_gap_stats(msa_in_fa, stats_txt):
     stats_txt_handle.close()
 
 
+def BMGE(msa_in, op_prefix, trim_model, entropy_score_cutoff):
+
+    # define file name
+    msa_out_phylip = '%s.BMGE.phylip' % op_prefix
+    msa_out_fasta  = '%s.BMGE.fasta'  % op_prefix
+    msa_out_nexus  = '%s.BMGE.nexus'  % op_prefix
+    msa_out_html   = '%s.BMGE.html'   % op_prefix
+
+    # specify path to BMGE.jar
+    current_file_path   = '/'.join(os.path.realpath(__file__).split('/')[:-1])
+    pwd_bmge_jar        = '%s/BMGE.jar' % current_file_path
+
+    # run BMGE
+    bmge_cmd = 'java -jar %s -i %s -m %s -t AA -h %s -op %s -of %s -on %s -oh %s' % (pwd_bmge_jar, msa_in, trim_model, entropy_score_cutoff, msa_out_phylip, msa_out_fasta, msa_out_nexus, msa_out_html)
+    print('Running %s' % bmge_cmd)
+    os.system(bmge_cmd)
+
+
 def MarkerRef2Tree(args):
 
-    faa_file_dir            = args['i']
-    faa_file_ext            = args['x']
-    marker_seq_dir          = args['m']
-    marker_seq_ext          = args['mx']
-    gnm_group_txt           = args['g']
-    op_dir                  = args['o']
-    e_value                 = args['e']
-    num_of_threads          = args['t']
-    force_overwrite         = args['f']
-    pa_cutoff_str           = args['c']
-    minimal_marker_number   = args['mmn']
-    run_psiblast            = args['psiblast']
+    faa_file_dir                = args['i']
+    faa_file_ext                = args['x']
+    marker_seq_dir              = args['m']
+    marker_seq_ext              = args['mx']
+    gnm_group_txt               = args['g']
+    op_dir                      = args['o']
+    e_value                     = args['e']
+    num_of_threads              = args['t']
+    force_overwrite             = args['f']
+    pa_cutoff_str               = args['c']
+    minimal_marker_number       = args['mmn']
+    run_psiblast                = args['psiblast']
+    run_bmge                    = args['bmge']
+    bmge_trim_model             = args['bmge_m']
+    bmge_entropy_score_cutoff   = args['bmge_esc']
 
     # check dependencies
-    check_dependencies(['psiblast', 'blastp', 'mafft-einsi', 'trimal', 'iqtree'])
+    check_dependencies(['java', 'psiblast', 'blastp', 'mafft-einsi', 'trimal', 'iqtree'])
 
     # get marker id set
     marker_seq_re   = '%s/*.%s' % (marker_seq_dir, marker_seq_ext)
@@ -537,8 +557,13 @@ def MarkerRef2Tree(args):
         else:
             qualified_cutoff_list.append(each_c)
             pwd_concatenated_marker_phy       = '%s/marker_pa%s.phy'           % (trimmed_msa_PA_concatenated_dir, each_c)
+            pwd_concatenated_marker_fasta     = '%s/marker_pa%s.fasta'         % (trimmed_msa_PA_concatenated_dir, each_c)
             pwd_concatenated_marker_partition = '%s/marker_pa%s_partition.txt' % (trimmed_msa_PA_concatenated_dir, each_c)
-            catfasta2phy(current_cutoff_trimmed_msa_dir, 'aln', pwd_concatenated_marker_phy, pwd_concatenated_marker_partition)
+            catfasta2phy(current_cutoff_trimmed_msa_dir, 'aln', pwd_concatenated_marker_phy, pwd_concatenated_marker_fasta, pwd_concatenated_marker_partition)
+
+            if run_bmge is True:
+                bmge_op_prefix = '%s/marker_pa%s' % (trimmed_msa_PA_concatenated_dir, each_c)
+                BMGE(pwd_concatenated_marker_fasta, bmge_op_prefix, bmge_trim_model, bmge_entropy_score_cutoff)
 
     ########## get guide tree and C60+PMSF tree for each set of marker set ##########
 
@@ -547,8 +572,13 @@ def MarkerRef2Tree(args):
     for each_c in qualified_cutoff_list:
         os.system('mkdir %s/PA%s_guide_tree'    % ((iqtree_dir, each_c)))
         os.system('mkdir %s/PA%s_PMSF_C60_tree' % ((iqtree_dir, each_c)))
-        get_guide_tree_cmd = 'iqtree2 --seqtype AA -B 1000 --alrt 1000 --quiet -T %s -s marker_pa%s.phy --prefix PA%s_guide_tree/PA%s_guide_tree -m LG'                                                       % (num_of_threads, each_c, each_c, each_c)
-        get_c60_tree_cmd   = 'iqtree2 --seqtype AA -B 1000 --alrt 1000 --quiet -T %s -s marker_pa%s.phy --prefix PA%s_PMSF_C60_tree/PA%s_PMSF_C60 -m LG+C60+F+G -ft PA%s_guide_tree/PA%s_guide_tree.treefile' % (num_of_threads, each_c, each_c, each_c, each_c, each_c)
+
+        msa_to_use = 'marker_pa%s.fasta' % each_c
+        if run_bmge is True:
+            msa_to_use = 'marker_pa%s.BMGE.fasta' % each_c
+
+        get_guide_tree_cmd = 'iqtree2 --seqtype AA -B 1000 --alrt 1000 --quiet -T %s -s %s --prefix PA%s_guide_tree/PA%s_guide_tree -m LG'                                                       % (num_of_threads, msa_to_use, each_c, each_c)
+        get_c60_tree_cmd   = 'iqtree2 --seqtype AA -B 1000 --alrt 1000 --quiet -T %s -s %s --prefix PA%s_PMSF_C60_tree/PA%s_PMSF_C60 -m LG+C60+F+G -ft PA%s_guide_tree/PA%s_guide_tree.treefile' % (num_of_threads, msa_to_use, each_c, each_c, each_c, each_c)
         cmds_in_one_line   = '%s; %s' % (get_guide_tree_cmd, get_c60_tree_cmd)
         iqtree_cmd_txt_handle.write('%s\n' % cmds_in_one_line)
         iqtree_cmd_list.append(cmds_in_one_line)
@@ -577,7 +607,10 @@ if __name__ == '__main__':
     parser.add_argument('-e',               required=False, default='1e-30',            help='e-value cutoff, default: 1e-30')
     parser.add_argument('-t',               required=True,  type=int,                   help='num of threads')
     parser.add_argument('-mmn',             required=False, default=1, type=int,        help='minimal marker number, default: 1')
-    parser.add_argument('-f',               required=False, action="store_true",        help='force overwrite')
     parser.add_argument('-psiblast',        required=False, action="store_true",        help='run psiblast')
+    parser.add_argument('-bmge',            required=False, action="store_true",        help='perform BMGE trimming on concatenated MSA')
+    parser.add_argument('-bmge_m',          required=False, default='BLOSUM30',         help='BMGE trim model, default: BLOSUM30')
+    parser.add_argument('-bmge_esc',        required=False, default='0.55',             help='BMGE entropy score cutoff, default: 0.55')
+    parser.add_argument('-f',               required=False, action="store_true",        help='force overwrite')
     args = vars(parser.parse_args())
     MarkerRef2Tree(args)
