@@ -34,7 +34,7 @@ def print_main_help():
                  
     Marker-related
        ExtractMarkerSeq       ->  Extract marker by blastn  
-       parse_deltall_stdout   ->  Parse stdout of deltaLL.rb
+       deltall                ->  Parse stdout of deltaLL.rb
        get_arCOG_seq          ->  Retrieve arCOG sequences
        AssessMarkerPA         ->  Assess Markers by P/A among groups
        SplitScore             ->  Assess markers by split score
@@ -47,8 +47,8 @@ def print_main_help():
        pruneMSA               ->  Prune MSA with alignment_pruner.pl
        recodeAA               ->  Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories
        fa2phy                 ->  Convert MSA format (fasta to phylip)
-       SliceMSA               ->  Slice MSA by column 
-       ConcateMSA             ->  Concatenate MSA
+       SliceMSA               ->  Slice MSA by column
+       ConcateMSA             ->  Concatenate MSAs
        ConvertMSA             ->  Convert MSA format
        OneLineAln             ->  One-line fasta format alignments
        SingleLinePhy          ->  Put sequences in single line in phylip format
@@ -199,13 +199,13 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         AssessCVG.AssessCVG(args)
 
-    elif sys.argv[1] == 'parse_deltall_stdout':
-        from TreeSAK import parse_deltall_stdout
-        parse_deltall_stdout_parser = subparsers.add_parser('parse_deltall_stdout', usage=parse_deltall_stdout.parse_deltall_stdout_usage)
+    elif sys.argv[1] == 'deltall':
+        from TreeSAK import deltall
+        parse_deltall_stdout_parser = subparsers.add_parser('parse_deltall_stdout', usage=deltall.deltall_usage)
         parse_deltall_stdout_parser.add_argument('-i', required=True, help='input file (e.g., nohup.out)')
         parse_deltall_stdout_parser.add_argument('-o', required=True, help='output summary')
         args = vars(parser.parse_args())
-        parse_deltall_stdout.parse_deltall_stdout(args)
+        deltall.deltall(args)
 
     elif sys.argv[1] == 'get_arCOG_seq':
         from TreeSAK import get_arCOG_seq

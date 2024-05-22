@@ -200,7 +200,7 @@ if __name__ == '__main__':
         AssessCVG.AssessCVG(args)
 
     elif sys.argv[1] == 'parse_deltall_stdout':
-        from TreeSAK import parse_deltall_stdout
+        from TreeSAK import deltall
         parse_deltall_stdout_parser = subparsers.add_parser('parse_deltall_stdout', usage=parse_deltall_stdout.parse_deltall_stdout_usage)
         parse_deltall_stdout_parser.add_argument('-i', required=True, help='input file (e.g., nohup.out)')
         parse_deltall_stdout_parser.add_argument('-o', required=True, help='output summary')
