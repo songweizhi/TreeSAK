@@ -81,7 +81,6 @@ msa_file_subset = '/Users/songweizhi/Desktop/PA_75_DeltaLL_75_concatenated_subse
 
 from Bio import AlignIO
 
-
 def slice_msa_by_col(msa_in, range_str, msa_out):
     alignment = AlignIO.read(msa_in, 'phylip-relaxed')
 
@@ -126,9 +125,7 @@ for each_range in slice_range:
 
 
 def fa2phy(fasta_in, phy_out):
-
     alignment = AlignIO.read(fasta_in, 'fasta')
-
     max_seq_id_len = 0
     for each_seq in alignment:
         seq_id_len = len(each_seq.id)
@@ -141,7 +138,3 @@ def fa2phy(fasta_in, phy_out):
             seq_id = each_seq.id
             seq_id_with_space = '%s%s' % (seq_id, ' ' * (max_seq_id_len + 2 - len(seq_id)))
             msa_out_handle.write('%s%s\n' % (seq_id_with_space, str(each_seq.seq)))
-
-
-
-

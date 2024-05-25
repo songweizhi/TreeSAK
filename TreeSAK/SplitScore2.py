@@ -13,7 +13,8 @@ from collections import defaultdict
 SplitScore2_usage = '''
 ======================== SplitScore2 example commands ========================
 
-TreeSAK SplitScore2 -i step1_op_dir -g gnm_cluster.tsv -k gnm_taxon.txt -f -t 10 -o step_2_op_dir
+TreeSAK SplitScore2 -i step1_op_dir -g gnm_cluster.tsv -k gnm_taxon.txt -f -t 10 -o step_2_op_dir -c 25,50,75
+TreeSAK SplitScore2 -i step1_op_dir -g gnm_cluster.tsv -k gnm_taxon.txt -f -t 10 -o step_2_op_dir -c 20,40,60,80
 
 # format of gnm_cluster.tsv (tab separated)
 GCA_013330055.1 c01_UBA8516
@@ -64,9 +65,9 @@ def check_executables(program_list):
 def gtdb_gnm_metadata_parser(gtdb_genome_metadata):
 
     genome_to_taxon_dict = {}
+    genome_to_biosample_dict = {}
     genome_to_completeness_dict = {}
     genome_to_contamination_dict = {}
-    genome_to_biosample_dict = {}
     col_index = {}
     for each_ref in open(gtdb_genome_metadata):
         each_ref_split = each_ref.strip().split('\t')
@@ -489,57 +490,42 @@ def get_taxa_count_stats(step_1_op_dir, hog_list_sorted, get_taxa_count_stats_wd
     os.system(get_TaxaCountStats_cmd)
 
 
-def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, op_dir):
+def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, marker_rank_cutoff_str, op_dir):
 
-    # define file name
-    marker_set_top_25_txt       = '%s/top25.txt'    % (op_dir)
-    marker_set_top_50_txt       = '%s/top50.txt'    % (op_dir)
-    marker_set_top_75_txt       = '%s/top75.txt'    % (op_dir)
-    marker_set_top_100_txt      = '%s/top100.txt'   % (op_dir)
-    marker_set_top_25_seq_dir   = '%s/top25'        % (op_dir)
-    marker_set_top_50_seq_dir   = '%s/top50'        % (op_dir)
-    marker_set_top_75_seq_dir   = '%s/top75'        % (op_dir)
-    marker_set_top_100_seq_dir  = '%s/top100'       % (op_dir)
+    marker_rank_cutoff_list = marker_rank_cutoff_str.split(',')
 
-    os.system('mkdir %s' % marker_set_top_25_seq_dir)
-    os.system('mkdir %s' % marker_set_top_50_seq_dir)
-    os.system('mkdir %s' % marker_set_top_75_seq_dir)
-    os.system('mkdir %s' % marker_set_top_100_seq_dir)
-
-    marker_set_top_25 = set()
-    marker_set_top_50 = set()
-    marker_set_top_75 = set()
-    marker_set_top_100 = set()
-    header_index_dict = {}
+    marker_score_dict = dict()
+    header_index_dict = dict()
     for each_marker in open(taxa_counts_tats_op_txt):
         each_marker_split = each_marker.replace('\n', '').split('\t')
         if each_marker.startswith('MarkerID\t'):
             header_index_dict = {k: v for v, k in enumerate(each_marker_split)}
         else:
-            marker_id = each_marker_split[header_index_dict['MarkerID']]
-            best_25perc = each_marker_split[header_index_dict['best_25perc']]
-            best_50perc = each_marker_split[header_index_dict['best_50perc']]
-            worst_25perc = each_marker_split[header_index_dict['worst_25perc']]
-            if best_25perc != '':
-                marker_set_top_25.add(marker_id)
-                os.system('cp %s/%s.fa %s/' % (marker_seq_dir, marker_id, marker_set_top_25_seq_dir))
-            if best_50perc != '':
-                marker_set_top_50.add(marker_id)
-                os.system('cp %s/%s.fa %s/' % (marker_seq_dir, marker_id, marker_set_top_50_seq_dir))
-            if worst_25perc == '':
-                marker_set_top_75.add(marker_id)
-                os.system('cp %s/%s.fa %s/' % (marker_seq_dir, marker_id, marker_set_top_75_seq_dir))
-            marker_set_top_100.add(marker_id)
-            os.system('cp %s/%s.fa %s/' % (marker_seq_dir, marker_id, marker_set_top_100_seq_dir))
+            marker_id    = each_marker_split[header_index_dict['MarkerID']]
+            marker_score = int(each_marker_split[header_index_dict['RankA_B']])
+            marker_score_dict[marker_id] = marker_score
 
-    with open(marker_set_top_25_txt, 'w') as marker_set_top_25_txt_handle:
-        marker_set_top_25_txt_handle.write('\n'.join(sorted([i for i in marker_set_top_25])))
-    with open(marker_set_top_50_txt, 'w') as marker_set_top_50_txt_handle:
-        marker_set_top_50_txt_handle.write('\n'.join(sorted([i for i in marker_set_top_50])))
-    with open(marker_set_top_75_txt, 'w') as marker_set_top_75_txt_handle:
-        marker_set_top_75_txt_handle.write('\n'.join(sorted([i for i in marker_set_top_75])))
-    with open(marker_set_top_100_txt, 'w') as marker_set_top_100_txt_handle:
-        marker_set_top_100_txt_handle.write('\n'.join(sorted([i for i in marker_set_top_100])))
+    marker_list_sorted_best_to_wrost = [i[0] for i in sorted(marker_score_dict.items(), key=lambda x: x[1])]
+    marker_list_sorted_wrost_to_best = [i[0] for i in sorted(marker_score_dict.items(), key=lambda x: x[1])][::-1]
+
+    for each_cutoff in marker_rank_cutoff_list:
+
+        marker_num_rounded  = round(len(marker_list_sorted_wrost_to_best)*float(each_cutoff)/100)
+        marker_list_best    = marker_list_sorted_best_to_wrost[:marker_num_rounded]
+        marker_list_worst   = marker_list_sorted_wrost_to_best[:marker_num_rounded]
+        seq_dir_best        = '%s/best_%s'   % (op_dir, each_cutoff)
+        seq_dir_worst       = '%s/worst_%s'  % (op_dir, each_cutoff)
+
+        os.system('mkdir %s' % seq_dir_best)
+        os.system('mkdir %s' % seq_dir_worst)
+
+        # get the best markers
+        for bm in marker_list_best:
+            os.system('cp %s/%s.fa %s/' % (marker_seq_dir, bm, seq_dir_best))
+
+        # get the worst markers
+        for wm in marker_list_worst:
+            os.system('cp %s/%s.fa %s/' % (marker_seq_dir, wm, seq_dir_worst))
 
 
 def SplitScore2(args):
@@ -550,10 +536,9 @@ def SplitScore2(args):
     force_overwrite             = args['f']
     num_of_threads              = args['t']
     step_2_op_dir               = args['o']
+    marker_rank_cutoff_str      = args['c']
     target_label                = 'cluster'
-
     check_executables(['Rscript'])
-
 
     current_file_path           = '/'.join(os.path.realpath(__file__).split('/')[:-1])
     TaxaCountStats_Rscript      = '%s/TaxaCountStats.R'                                     % current_file_path
@@ -593,7 +578,7 @@ def SplitScore2(args):
     get_taxa_count_stats(count_sister_taxa_op_dir, contree_ufboot_shared_sorted, get_taxa_count_stats_op_dir, force_overwrite, TaxaCountStats_Rscript)
 
     print('Exporting markers by split score')
-    group_marker(TaxaCountStats_output_txt, qualified_og_seq_dir, step_2_op_dir)
+    group_marker(TaxaCountStats_output_txt, qualified_og_seq_dir, marker_rank_cutoff_str, step_2_op_dir)
 
     print('Done!')
 
@@ -606,6 +591,7 @@ if __name__ == '__main__':
     SplitScore2_parser.add_argument('-k', required=True,                        help='genome taxon, GTDB format')
     SplitScore2_parser.add_argument('-f', required=False, action="store_true",  help='force overwrite')
     SplitScore2_parser.add_argument('-t', required=False, type=int, default=1,  help='num of threads, default: 1')
+    SplitScore2_parser.add_argument('-c', required=False, default='25,50,75',   help='marker ranking cutoffs, default: 25,50,75')
     SplitScore2_parser.add_argument('-o', required=True,                        help='output directory')
     args = vars(SplitScore2_parser.parse_args())
     SplitScore2(args)

@@ -7,13 +7,13 @@ from distutils.spawn import find_executable
 
 
 MarkerSeq2Tree_usage = '''
-=================== MarkerSeq2Tree example commands ===================
+================= MarkerSeq2Tree example commands =================
 
-Dependencies: mafft, trimal and iqtree2
+Dependencies: mafft, trimal, bmge and iqtree2
 
-TreeSAK MarkerSeq2Tree -i marker_seq_top25 -x fa -o op_dir -t 12 -f
+TreeSAK MarkerSeq2Tree -i best_25 -x fa -o op_dir -t 12 -f -bmge
 
-=======================================================================
+===================================================================
 '''
 
 
@@ -113,13 +113,34 @@ def get_gap_stats(msa_in_fa, stats_txt):
     stats_txt_handle.close()
 
 
+def BMGE(msa_in, op_prefix, trim_model, entropy_score_cutoff):
+
+    # define file name
+    msa_out_phylip = '%s.BMGE.phylip' % op_prefix
+    msa_out_fasta  = '%s.BMGE.fasta'  % op_prefix
+    msa_out_nexus  = '%s.BMGE.nexus'  % op_prefix
+    msa_out_html   = '%s.BMGE.html'   % op_prefix
+
+    # specify path to BMGE.jar
+    current_file_path   = '/'.join(os.path.realpath(__file__).split('/')[:-1])
+    pwd_bmge_jar        = '%s/BMGE.jar' % current_file_path
+
+    # run BMGE
+    bmge_cmd = 'java -jar %s -i %s -m %s -t AA -h %s -op %s -of %s -on %s -oh %s' % (pwd_bmge_jar, msa_in, trim_model, entropy_score_cutoff, msa_out_phylip, msa_out_fasta, msa_out_nexus, msa_out_html)
+    print('Running %s' % bmge_cmd)
+    os.system(bmge_cmd)
+
+
 def MarkerSeq2Tree(args):
 
-    marker_seq_dir          = args['i']
-    marker_seq_ext          = args['x']
-    op_dir                  = args['o']
-    num_of_threads          = args['t']
-    force_overwrite         = args['f']
+    marker_seq_dir              = args['i']
+    marker_seq_ext              = args['x']
+    op_dir                      = args['o']
+    num_of_threads              = args['t']
+    run_bmge                    = args['bmge']
+    bmge_trim_model             = args['bmge_m']
+    bmge_entropy_score_cutoff   = args['bmge_esc']
+    force_overwrite             = args['f']
 
     # check dependencies
     not_detected_programs = []
@@ -139,7 +160,10 @@ def MarkerSeq2Tree(args):
     renamed_marker_aln_dir              = '%s/renamed_markers_aln'                  % op_dir
     renamed_marker_aln_dir_trimmed      = '%s/renamed_markers_aln_trimmed'          % op_dir
     concatenated_phy                    = '%s/concatenated.phy'                     % op_dir
+    concatenated_phy_fasta              = '%s/concatenated.phy.fasta'               % op_dir
+    concatenated_phy_fasta_bmge         = '%s/concatenated.BMGE.fasta'              % op_dir
     concatenated_phy_partition          = '%s/concatenated_partition.txt'           % op_dir
+    bmge_op_prefix                      = '%s/concatenated'                         % op_dir
     iqtree_dir                          = '%s/iqtree_wd'                            % op_dir
     cmds_1_mafft_txt                    = '%s/cmds_1_mafft.txt'                     % op_dir
     cmds_2_trimal_txt                   = '%s/cmds_2_trimal.txt'                    % op_dir
@@ -194,10 +218,18 @@ def MarkerSeq2Tree(args):
     # concatenate alignments
     catfasta2phy(renamed_marker_aln_dir_trimmed, 'aln', concatenated_phy, concatenated_phy_partition)
 
+    # run BMGE
+    if run_bmge is True:
+        BMGE(concatenated_phy_fasta, bmge_op_prefix, bmge_trim_model, bmge_entropy_score_cutoff)
+
+    msa_to_use = concatenated_phy
+    if run_bmge is True:
+        msa_to_use = concatenated_phy_fasta_bmge
+
     # run iqtree2
     os.mkdir(iqtree_dir)
-    get_guide_tree_cmd  = 'iqtree2 --seqtype AA -T %s -B 1000 --alrt 1000 --quiet -s %s --prefix %s/guide_tree -m LG '                  % (num_of_threads, concatenated_phy, iqtree_dir, )
-    get_c60_tree_cmd    = 'iqtree2 --seqtype AA -T %s -B 1000 --alrt 1000 --quiet -s %s --prefix %s/concatenated -m LG+C60+G+F -ft %s'  % (num_of_threads, concatenated_phy, iqtree_dir, pwd_guide_tree)
+    get_guide_tree_cmd  = 'iqtree2 --seqtype AA -T %s -B 1000 --alrt 1000 --quiet -s %s --prefix %s/guide_tree -m LG '                  % (num_of_threads, msa_to_use, iqtree_dir, )
+    get_c60_tree_cmd    = 'iqtree2 --seqtype AA -T %s -B 1000 --alrt 1000 --quiet -s %s --prefix %s/concatenated -m LG+C60+G+F -ft %s'  % (num_of_threads, msa_to_use, iqtree_dir, pwd_guide_tree)
 
     # write out iqtree2 cmds
     with open(cmds_3_iqtree_txt, 'a') as cmds_3_iqtree_txt_handle:
@@ -205,6 +237,7 @@ def MarkerSeq2Tree(args):
         cmds_3_iqtree_txt_handle.write(get_c60_tree_cmd + '\n')
 
     # run cmds
+    print('Running iqtree')
     os.system(get_guide_tree_cmd)
     os.system(get_c60_tree_cmd)
 
@@ -214,10 +247,13 @@ def MarkerSeq2Tree(args):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i',   required=True,                          help='marker seq dir')
-    parser.add_argument('-x',   required=True,                          help='marker seq ext')
-    parser.add_argument('-o',   required=True,                          help='output dir')
-    parser.add_argument('-t',   required=False, type=int, default=1,    help='num of threads')
-    parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
+    parser.add_argument('-i',           required=True,                          help='marker seq dir')
+    parser.add_argument('-x',           required=True,                          help='marker seq ext')
+    parser.add_argument('-o',           required=True,                          help='output dir')
+    parser.add_argument('-t',           required=False, type=int, default=1,    help='num of threads')
+    parser.add_argument('-bmge',        required=False, action="store_true",    help='perform BMGE trimming on concatenated MSA')
+    parser.add_argument('-bmge_m',      required=False, default='BLOSUM30',     help='BMGE trim model, default: BLOSUM30')
+    parser.add_argument('-bmge_esc',    required=False, default='0.55',         help='BMGE entropy score cutoff, default: 0.55')
+    parser.add_argument('-f',           required=False, action="store_true",    help='force overwrite')
     args = vars(parser.parse_args())
     MarkerSeq2Tree(args)

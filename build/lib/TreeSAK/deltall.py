@@ -1,18 +1,18 @@
 import argparse
 
 
-parse_deltall_stdout_usage = '''
-=================== parse_deltall_stdout example commands ===================
+deltall_usage = '''
+========================= deltall example commands =========================
 
-TreeSAK parse_deltall_stdout -i nohup.out -o DeltaLL_op_summary.txt
+TreeSAK deltall -i nohup.out -o DeltaLL_op_summary.txt
 
 # This script was wrote to parse the stdout of deltaLL.rb from Sishuo Wang
 
-=============================================================================
+============================================================================
 '''
 
 
-def parse_deltall_stdout(args):
+def deltall(args):
 
     deltall_stdout_txt = args['i']
     summary_txt        = args['o']
@@ -79,4 +79,4 @@ if __name__ == '__main__':
     parser.add_argument('-i', required=True, help='input file (e.g., nohup.out)')
     parser.add_argument('-o', required=True, help='output summary')
     args = vars(parser.parse_args())
-    parse_deltall_stdout(args)
+    deltall(args)
