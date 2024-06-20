@@ -510,11 +510,11 @@ def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, marker_rank_cutoff_str
 
     for each_cutoff in marker_rank_cutoff_list:
 
-        marker_num_rounded  = round(len(marker_list_sorted_wrost_to_best)*float(each_cutoff)/100)
-        marker_list_best    = marker_list_sorted_best_to_wrost[:marker_num_rounded]
-        marker_list_worst   = marker_list_sorted_wrost_to_best[:marker_num_rounded]
-        seq_dir_best        = '%s/best_%s'   % (op_dir, each_cutoff)
-        seq_dir_worst       = '%s/worst_%s'  % (op_dir, each_cutoff)
+        marker_num_rounded = round(len(marker_list_sorted_wrost_to_best)*float(each_cutoff)/100)
+        marker_list_best   = marker_list_sorted_best_to_wrost[:marker_num_rounded]
+        marker_list_worst  = marker_list_sorted_wrost_to_best[:marker_num_rounded]
+        seq_dir_best       = '%s/best%s'  % (op_dir, each_cutoff)
+        seq_dir_worst      = '%s/worst%s' % (op_dir, each_cutoff)
 
         os.system('mkdir %s' % seq_dir_best)
         os.system('mkdir %s' % seq_dir_worst)

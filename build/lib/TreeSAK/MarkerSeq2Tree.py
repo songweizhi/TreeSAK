@@ -7,13 +7,13 @@ from distutils.spawn import find_executable
 
 
 MarkerSeq2Tree_usage = '''
-=================== MarkerSeq2Tree example commands ===================
+================= MarkerSeq2Tree example commands =================
 
-Dependencies: mafft, trimal and iqtree2
+Dependencies: mafft, trimal, bmge and iqtree2
 
-TreeSAK MarkerSeq2Tree -i marker_seq_top25 -x fa -o op_dir -t 12 -f
+TreeSAK MarkerSeq2Tree -i best_25 -x fa -o op_dir -t 12 -f -bmge
 
-=======================================================================
+===================================================================
 '''
 
 
@@ -237,6 +237,7 @@ def MarkerSeq2Tree(args):
         cmds_3_iqtree_txt_handle.write(get_c60_tree_cmd + '\n')
 
     # run cmds
+    print('Running iqtree')
     os.system(get_guide_tree_cmd)
     os.system(get_c60_tree_cmd)
 

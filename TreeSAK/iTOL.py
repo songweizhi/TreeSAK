@@ -20,6 +20,7 @@ TreeSAK iTOL -ColorRange -lg MagTaxon.txt -lt Phylum -o ColorRange_taxon.txt
 TreeSAK iTOL -ColorRange -taxon Taxonomy.txt -rank f -lt Family -o ColorRange_taxon.txt
 TreeSAK iTOL -ExternalShape -lm identity_matrix.txt -lt Identity -scale 25-50-75-100 -o ExternalShape_identity.txt
 TreeSAK iTOL -PieChart -lv MagCompleteness.txt -lt Completeness -o PieChart_completeness.txt
+TreeSAK iTOL -Collapse -lg MagTaxon.txt -o Collapse_by_taxon.txt
 
 # Leaf-to-Group file format (-lg, tab separated, no header)
 genome_1	Bacteria
@@ -122,6 +123,7 @@ def iTOL(args):
     BinaryID        = args['BinaryID']
     Connection      = args['Connection']
     PieChart        = args['PieChart']
+    Collapse        = args['Collapse']
     leaf_id_txt     = args['id']
     LeafGroup       = args['lg']
     GroupColor      = args['gc']
@@ -153,15 +155,15 @@ def iTOL(args):
 
     # check the number of specified file type
     True_num = 0
-    for file_type in [Labels, ColorStrip, ColorRange, SimpleBar, Heatmap, ExternalShape, Binary, BinaryID, PieChart]:
+    for file_type in [Labels, ColorStrip, ColorRange, SimpleBar, Heatmap, ExternalShape, Binary, BinaryID, PieChart, Collapse]:
         if file_type is True:
             True_num += 1
 
     if True_num == 0:
-        print('Please specify one file type, choose from -ColorStrip, -ColorRange, -SimpleBar, -Heatmap, -ExternalShape, -Binary or BinaryID')
+        print('Please specify one file type, choose from -ColorStrip, -ColorRange, -SimpleBar, -Heatmap, -ExternalShape, -Binary, -BinaryID or -Collapse')
         exit()
     if True_num > 1:
-        print('Please specify one file type ONLY, choose from -ColorStrip, -ColorRange, -SimpleBar, -Heatmap, -ExternalShape or -Binary')
+        print('Please specify one file type ONLY, choose from -ColorStrip, -ColorRange, -SimpleBar, -Heatmap, -ExternalShape, -Binary, -BinaryID or -Collapse')
         exit()
 
     ####################################################################################################################
@@ -215,7 +217,11 @@ def iTOL(args):
         if ColorStrip is True:
             FileOut_handle.write('DATASET_COLORSTRIP\n')
             FileOut_handle.write('SEPARATOR TAB\n')
-            FileOut_handle.write('DATASET_LABEL\t%s_ColorStrip\n' % LegendTitle)
+            FileOut_handle.write('DATASET_LABEL\t%s\n' % LegendTitle)
+            FileOut_handle.write('SHOW_LABELS\t1\n')
+            FileOut_handle.write('LABEL_ROTATION\t45\n')
+            FileOut_handle.write('COLOR_BRANCHES\t0\n')
+
         if ColorRange is True:
             FileOut_handle.write('TREE_COLORS\n')
             FileOut_handle.write('SEPARATOR TAB\n')
@@ -363,6 +369,7 @@ def iTOL(args):
         BinaryID_FileOut_handle.write('SHOW_LABELS\t1\nLABEL_ROTATION\t45\nLABEL_SHIFT\t5\n')
         BinaryID_FileOut_handle.write('FIELD_LABELS\t%s\n' % LegendTitle)
         BinaryID_FileOut_handle.write('FIELD_COLORS\tred\n')
+        BinaryID_FileOut_handle.write('# FIELD_SHAPES: 1: rectangle; 2: circle; 3: star; 4: right pointing triangle; 5: left pointing triangle; 6: check mark\n')
         BinaryID_FileOut_handle.write('FIELD_SHAPES\t3\n')
         BinaryID_FileOut_handle.write('MARGIN\t10\n')
         BinaryID_FileOut_handle.write('\nDATA\n')
@@ -465,6 +472,43 @@ def iTOL(args):
 
     ####################################################################################################################
 
+    # Prepare Collapse file
+    if Collapse is True:
+
+        corresponding_label_file = '%s.label.txt' % FileOut
+
+        # read in grouping file
+        group_to_leaf_dict = dict()
+        for each_line in open(LeafGroup):
+            each_line_split = each_line.strip().split('\t')
+            leaf_id         = each_line_split[0]
+            leaf_group      = each_line_split[1]
+            if leaf_group not in group_to_leaf_dict:
+                group_to_leaf_dict[leaf_group] = [leaf_id]
+            else:
+                group_to_leaf_dict[leaf_group].append(leaf_id)
+
+        Collapse_FileOut_handle = open(FileOut, 'w')
+        Collapse_FileOut_handle.write('COLLAPSE\n')
+        Collapse_FileOut_handle.write('DATA\n')
+        label_FileOut_handle = open(corresponding_label_file, 'w')
+        label_FileOut_handle.write('LABELS\n')
+        label_FileOut_handle.write('SEPARATOR TAB\n')
+        label_FileOut_handle.write('DATA\n')
+        for each_group in group_to_leaf_dict:
+            group_member = group_to_leaf_dict[each_group]
+            concate_str = '|'.join(group_member)
+            Collapse_FileOut_handle.write(concate_str + '\n')
+            label_FileOut_handle.write('%s\t%s\n' % (concate_str, each_group))
+        Collapse_FileOut_handle.close()
+        label_FileOut_handle.close()
+
+        print('iTOL files exported to:')
+        print(FileOut)
+        print(corresponding_label_file)
+
+    ####################################################################################################################
+
     # Prepare ExternalShape file
     if ExternalShape is True:
 
@@ -554,27 +598,28 @@ def iTOL(args):
 if __name__ == '__main__':
 
     # initialize the options parser
-    parser = argparse.ArgumentParser(usage=iTOL_usage)
-    parser.add_argument('-Labels',          required=False, action='store_true',   help='Labels')
-    parser.add_argument('-ColorStrip',      required=False, action='store_true',   help='ColorStrip')
-    parser.add_argument('-ColorRange',      required=False, action='store_true',   help='ColorRange')
-    parser.add_argument('-SimpleBar',       required=False, action='store_true',   help='SimpleBar')
-    parser.add_argument('-Heatmap',         required=False, action='store_true',   help='Heatmap')
-    parser.add_argument('-ExternalShape',   required=False, action='store_true',   help='ExternalShape')
-    parser.add_argument('-Binary',          required=False, action='store_true',   help='Binary')
-    parser.add_argument('-BinaryID',        required=False, action='store_true',   help='Binary specified IDs as 1')
-    parser.add_argument('-Connection',      required=False, action='store_true',   help='Connection')
-    parser.add_argument('-PieChart',        required=False, action='store_true',   help='PieChart')
-    parser.add_argument('-id',              required=False, default=None,          help='File contains leaf id')
-    parser.add_argument('-ll',              required=False, default=None,          help='Leaf Label')
-    parser.add_argument('-lg',              required=False, default=None,          help='Leaf Group')
-    parser.add_argument('-gc',              required=False, default=None,          help='Specify Group/column Color (optional)')
-    parser.add_argument('-cc',              required=False, default=None,          help='Specify Column Color (for ExternalShape format) (optional)')
-    parser.add_argument('-lv',              required=False, default=None,          help='Leaf Value')
-    parser.add_argument('-lm',              required=False, default=None,          help='Leaf Matrix')
-    parser.add_argument('-dr',              required=False, default=None,          help='Donor to Recipient')
-    parser.add_argument('-scale',           required=False, default=None,          help='Scale Values, in format 0-3-6-9')
-    parser.add_argument('-lt',              required=False, default=None,          help='Legend Title')
-    parser.add_argument('-o',               required=True,                         help='Output filename')
-    args = vars(parser.parse_args())
+    iTOL_parser = argparse.ArgumentParser(usage=iTOL_usage)
+    iTOL_parser.add_argument('-Labels',         required=False, action='store_true',    help='Labels')
+    iTOL_parser.add_argument('-ColorStrip',     required=False, action='store_true',    help='ColorStrip')
+    iTOL_parser.add_argument('-ColorRange',     required=False, action='store_true',    help='ColorRange')
+    iTOL_parser.add_argument('-SimpleBar',      required=False, action='store_true',    help='SimpleBar')
+    iTOL_parser.add_argument('-Heatmap',        required=False, action='store_true',    help='Heatmap')
+    iTOL_parser.add_argument('-ExternalShape',  required=False, action='store_true',    help='ExternalShape')
+    iTOL_parser.add_argument('-Binary',         required=False, action='store_true',    help='Binary')
+    iTOL_parser.add_argument('-BinaryID',       required=False, action='store_true',    help='Binary specified IDs as 1')
+    iTOL_parser.add_argument('-Connection',     required=False, action='store_true',    help='Connection')
+    iTOL_parser.add_argument('-PieChart',       required=False, action='store_true',    help='PieChart')
+    iTOL_parser.add_argument('-Collapse',       required=False, action='store_true',    help='Collapse')
+    iTOL_parser.add_argument('-id',             required=False, default=None,           help='File contains leaf id')
+    iTOL_parser.add_argument('-ll',             required=False, default=None,           help='Leaf Label')
+    iTOL_parser.add_argument('-lg',             required=False, default=None,           help='Leaf Group')
+    iTOL_parser.add_argument('-gc',             required=False, default=None,           help='Specify Group/column Color (optional)')
+    iTOL_parser.add_argument('-cc',             required=False, default=None,           help='Specify Column Color (for ExternalShape format) (optional)')
+    iTOL_parser.add_argument('-lv',             required=False, default=None,           help='Leaf Value')
+    iTOL_parser.add_argument('-lm',             required=False, default=None,           help='Leaf Matrix')
+    iTOL_parser.add_argument('-dr',             required=False, default=None,           help='Donor to Recipient')
+    iTOL_parser.add_argument('-scale',          required=False, default=None,           help='Scale Values, in format 0-3-6-9')
+    iTOL_parser.add_argument('-lt',             required=False, default=None,           help='Legend Title')
+    iTOL_parser.add_argument('-o',              required=True,                          help='Output filename')
+    args = vars(iTOL_parser.parse_args())
     iTOL(args)

@@ -1,4 +1,3 @@
-import os
 import random
 import dendropy
 import argparse
@@ -107,12 +106,17 @@ def root_with_outgroup(input_tree, out_group_list, tree_file_rooted):
         mrca = tree.mrca(taxa=outgroup_in_tree)
         if len(mrca.leaf_nodes()) == mrca_leaves:
             break
-
         mrca_leaves = len(mrca.leaf_nodes())
 
     if mrca.edge_length is not None:
         tree.reroot_at_edge(mrca.edge, length1=0.5 * mrca.edge_length, length2=0.5 * mrca.edge_length)
-        tree.write_to_path(tree_file_rooted, schema='newick', suppress_rooting=True, unquoted_underscores=True)
+
+        # tree.write_to_path(tree_file_rooted, schema='newick', suppress_rooting=True, unquoted_underscores=True)
+        tree_out_string = tree.as_string(schema='newick', suppress_rooting=True, unquoted_underscores=True)
+        tree_out_string = tree_out_string.replace("'", "")
+        tree_file_rooted_handle = open(tree_file_rooted, 'w')
+        tree_file_rooted_handle.write(tree_out_string)
+        tree_file_rooted_handle.close()
 
 
 def RootTreeGTDB220(args):
@@ -285,4 +289,3 @@ if __name__ == '__main__':
     RootTreeGTDB220_parser.add_argument('-o',    required=True,                 help='output folder')
     args = vars(RootTreeGTDB220_parser.parse_args())
     RootTreeGTDB220(args)
-

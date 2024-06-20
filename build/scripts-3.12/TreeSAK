@@ -688,8 +688,8 @@ if __name__ == '__main__':
         PB_parser.add_argument('-o',                required=True,                          help='output directory')
         PB_parser.add_argument('-p',                required=True,                          help='output prefix')
         PB_parser.add_argument('-fa2plp',           required=False, action="store_true",    help='convert MSA format from fasta to phylip')
-        PB_parser.add_argument('-chain',            required=False, type=int, default=4,    help='num of chains to run in parallel, default: 4')
-        PB_parser.add_argument('-t',                required=False, type=int, default=4,    help='num of cores, default: 4')
+        PB_parser.add_argument('-n',                required=False, type=int, default=4,    help='number of chains to run in parallel, default: 4')
+        PB_parser.add_argument('-t',                required=False, type=int, default=12,   help='num of cores, default: 12')
         PB_parser.add_argument('-f',                required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         PB.PB(args)
@@ -714,14 +714,14 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         gap_stats.gap_stats(args)
 
-    elif sys.argv[1] == 'recodeAA':
-        from TreeSAK import recodeAA
-        recodeAA_parser = subparsers.add_parser('recodeAA', usage=recodeAA.recodeAA_usage)
-        recodeAA_parser.add_argument('-i',          required=True, help='input file')
-        recodeAA_parser.add_argument('-c',          required=True, help='recoding scheme, choose from d4, d6 or s4')
-        recodeAA_parser.add_argument('-o',          required=True, help='output file')
+    elif sys.argv[1] == 'recode':
+        from TreeSAK import recode
+        recode_parser = subparsers.add_parser('recode', usage=recode.recode_usage)
+        recode_parser.add_argument('-i',          required=True, help='input file')
+        recode_parser.add_argument('-m',          required=True, help='recoding scheme, choose from d4, d6 or s4')
+        recode_parser.add_argument('-o',          required=True, help='output file')
         args = vars(parser.parse_args())
-        recodeAA.recodeAA(args)
+        recode.recode(args)
 
     elif sys.argv[1] == 'pruneMSA':
         from TreeSAK import pruneMSA
@@ -744,6 +744,7 @@ if __name__ == '__main__':
         iTOL_parser.add_argument('-BinaryID',        required=False, action='store_true',   help='Binary specified IDs as 1')
         iTOL_parser.add_argument('-Connection',      required=False, action='store_true',   help='Connection')
         iTOL_parser.add_argument('-PieChart',        required=False, action='store_true',   help='PieChart')
+        iTOL_parser.add_argument('-Collapse',        required=False, action='store_true',   help='Collapse')
         iTOL_parser.add_argument('-id',              required=False, default=None,          help='File contains leaf id')
         iTOL_parser.add_argument('-ll',              required=False, default=None,          help='Leaf Label')
         iTOL_parser.add_argument('-gc',              required=False, default=None,          help='Specify Group/column Color (optional)')
@@ -759,7 +760,7 @@ if __name__ == '__main__':
         iTOL.iTOL(args)
 
     else:
-        print('Unrecognized command: %s, program exited' % sys.argv[1])
+        print('Unrecognized module: %s, program exited' % sys.argv[1])
         exit()
 
 

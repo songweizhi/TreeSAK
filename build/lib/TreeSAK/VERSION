@@ -1,11 +1,11 @@
-1.38.10
+1.38.17
 - fixed bugs
 
 1.38.0
 - new module added: pruneMSA
 
 1.37.0
-- new module added: recodeAA
+- new module added: recode
 
 1.36.0
 - new module added: gap_stats

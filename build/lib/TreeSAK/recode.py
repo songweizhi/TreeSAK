@@ -2,12 +2,12 @@ import argparse
 from Bio import SeqIO
 
 
-recodeAA_usage = '''
-=========================== recodeAA example commands ===========================
+recode_usage = '''
+============================ recode example commands ============================
 
-TreeSAK recodeAA -i msa.fa -c s4 -o recoded_msa_SR4.fa
-TreeSAK recodeAA -i msa.fa -c d4 -o recoded_msa_Dayhoff4.fa
-TreeSAK recodeAA -i msa.fa -c d6 -o recoded_msa_Dayhoff6.fa
+TreeSAK recode -i msa.fa -m s4 -o recoded_msa_SR4.fa
+TreeSAK recode -i msa.fa -m d4 -o recoded_msa_Dayhoff4.fa
+TreeSAK recode -i msa.fa -m d6 -o recoded_msa_Dayhoff6.fa
 
 Note:
 This script is modified based on the Recode_aa.py from Anja Spang.
@@ -24,11 +24,11 @@ Recoding schemes
 '''
 
 
-def recodeAA(args):
+def recode(args):
 
     msa_in   = args['i']
     msa_out  = args['o']
-    category = args['c']
+    category = args['m']
 
     DH6 = {'-': '-', 'A': 'A', 'G': 'A', 'P': 'A', 'S': 'A', 'T': 'A', 'D': 'D', 'E': 'D', 'N': 'D', 'Q': 'D', 'H': 'H', 'K': 'H', 'R': 'H', 'F': 'F', 'Y': 'F', 'W': 'F', 'I': 'I', 'L': 'I', 'M': 'I', 'V': 'I', 'C': 'C'}
     DH4 = {'-': '-', 'A': 'A', 'G': 'A', 'P': 'A', 'S': 'A', 'T': 'A', 'D': 'D', 'E': 'D', 'N': 'D', 'Q': 'D', 'H': 'H', 'K': 'H', 'R': 'H', 'F': 'F', 'Y': 'F', 'W': 'F', 'I': 'F', 'L': 'F', 'M': 'F', 'V': 'F', 'C': '-'}
@@ -65,9 +65,9 @@ def recodeAA(args):
 
 if __name__ == '__main__':
 
-    recodeAA_parser = argparse.ArgumentParser(description='Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories')
-    recodeAA_parser.add_argument('-i', required=True,  help='input file')
-    recodeAA_parser.add_argument('-c', required=True,  help='recoding scheme, choose from d4, d6 or s4')
-    recodeAA_parser.add_argument('-o', required=True,  help='output file')
-    args = vars(recodeAA_parser.parse_args())
-    recodeAA(args)
+    recode_parser = argparse.ArgumentParser(description='Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories')
+    recode_parser.add_argument('-i', required=True,  help='input file')
+    recode_parser.add_argument('-m', required=True,  help='recoding scheme, choose from d4, d6 or s4')
+    recode_parser.add_argument('-o', required=True,  help='output file')
+    args = vars(recode_parser.parse_args())
+    recode(args)

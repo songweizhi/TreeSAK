@@ -86,7 +86,7 @@ TreeSAK/plot_distruibution_th.py
 TreeSAK/prep_mcmctree_ctl.py
 TreeSAK/print_leaves.py
 TreeSAK/pruneMSA.py
-TreeSAK/recodeAA.py
+TreeSAK/recode.py
 TreeSAK/rename_leaves.py
 TreeSAK/replace_clade.py
 TreeSAK/root_with_out_group.py

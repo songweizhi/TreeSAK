@@ -10,7 +10,9 @@ PB_usage = '''
 # Dependency: mpirun, pb_mpi and readpb_mpi (from PhyloBayes-MPI)
 
 export OMPI_MCA_btl=^openib
-TreeSAK PB -i in.phylip -p chain_name -t 12
+TreeSAK PB -i in.phylip -p best20pb -t 52 
+TreeSAK PB -i in.phylip -p best20pb -t 52 -n 1
+TreeSAK PB -i in.phylip -p worst20pb -t 52 
 
 # Notes:
 1. This is a wrapper for: mpirun -np 12 pb_mpi -d in.phylip -cat -gtr -x 10 -1 -dgam 4 -s chain_name
@@ -19,6 +21,7 @@ TreeSAK PB -i in.phylip -p chain_name -t 12
 4. Be careful not to restart an already running chain.
 5. You can stop a chain and restart it under a diﬀerent degree of parallelization.
 6. Generally, PhyloBayes provides good results for a total number of points of 10000-30000.
+7. Results can be assessed with bpcomp and tracecomp
 
 *  Settings used by Nina Dombrowski: -cat -gtr -x 10 -1 -dgam 4
    For each marker protein family, four parallel chains were run until convergence was reached, unless stated 
@@ -61,7 +64,7 @@ def PB(args):
     op_prefix       = args['p']
     fa_to_plp       = args['fa2plp']
     num_of_threads  = args['t']
-    num_of_chains   = args['chain']
+    num_of_chains   = args['n']
     force_overwrite = args['f']
 
     ####################################################################################################################
@@ -88,6 +91,7 @@ def PB(args):
         fa2phy(msa_in, msa_in_plp)
         msa_to_use = msa_in_plp
 
+    chain_name_list = []
     pb_mpi_cmd_list = []
     jobs_to_run_in_parallel = 0
     if num_of_chains == 1:
@@ -101,6 +105,7 @@ def PB(args):
             current_wd = '%s/%s_chain%s' % (op_dir, op_prefix, chain_index)
             os.mkdir(current_wd)
             pb_mpi_cmd = 'mpirun -np %s pb_mpi -d %s %s -s %s/%s_chain%s' % (1, msa_to_use, setting_to_use, current_wd, op_prefix, chain_index)
+            chain_name_list.append('%s/%s_chain%s' % (current_wd, op_prefix, chain_index))
             pb_mpi_cmd_list.append(pb_mpi_cmd)
 
     else:
@@ -110,6 +115,7 @@ def PB(args):
             current_wd = '%s/%s_chain%s' % (op_dir, op_prefix, chain_index)
             os.mkdir(current_wd)
             pb_mpi_cmd = 'mpirun -np %s pb_mpi -d %s %s -s %s/%s_chain%s' % (cores_per_run, msa_to_use, setting_to_use, current_wd, op_prefix, chain_index)
+            chain_name_list.append('%s/%s_chain%s' % (current_wd, op_prefix, chain_index))
             pb_mpi_cmd_list.append(pb_mpi_cmd)
 
     # write out commands
@@ -125,10 +131,24 @@ def PB(args):
     pool.close()
     pool.join()
 
-    # readpb_cmd = ''
-    # bpcomp_cmd = ''
-    # print(readpb_cmd)
-    # print(bpcomp_cmd)
+    # assess the results
+    if num_of_chains > 1:
+
+        readpb_cmd = 'bpcomp -x 1000 10 %s' % (' '.join(chain_name_list))
+        bpcomp_cmd = 'tracecomp -x 1000 %s' % (' '.join(chain_name_list))
+
+        # write out commands
+        cmd_txt_handle = open(cmd_txt, 'a')
+        cmd_txt_handle.write(readpb_cmd + '\n')
+        cmd_txt_handle.write(bpcomp_cmd + '\n')
+        cmd_txt_handle.close()
+
+        # report
+        print('You may want to use the following commands to assess the results:')
+        print(readpb_cmd)
+        print(bpcomp_cmd)
+
+    print('Done!')
 
 
 if __name__ == '__main__':
@@ -138,8 +158,8 @@ if __name__ == '__main__':
     PB_parser.add_argument('-o',       required=True,                          help='output directory')
     PB_parser.add_argument('-p',       required=True,                          help='output prefix')
     PB_parser.add_argument('-fa2plp',  required=False, action="store_true",    help='convert MSA format from fasta to phylip')
-    PB_parser.add_argument('-chain',   required=False, type=int, default=4,    help='num of chains to run in parallel, default: 4')
-    PB_parser.add_argument('-t',       required=False, type=int, default=4,    help='num of cores, default: 4')
+    PB_parser.add_argument('-n',       required=False, type=int, default=4,    help='number of chains to run in parallel, default: 4')
+    PB_parser.add_argument('-t',       required=False, type=int, default=12,   help='num of cores, default: 12')
     PB_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
     args = vars(PB_parser.parse_args())
     PB(args)

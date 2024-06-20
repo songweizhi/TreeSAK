@@ -10,7 +10,8 @@ PB_usage = '''
 # Dependency: mpirun, pb_mpi and readpb_mpi (from PhyloBayes-MPI)
 
 export OMPI_MCA_btl=^openib
-TreeSAK PB -i in.phylip -p chain_name -t 12
+TreeSAK PB -i in.phylip -p best20pb -t 52
+TreeSAK PB -i in.phylip -p worst20pb -t 52
 
 # Notes:
 1. This is a wrapper for: mpirun -np 12 pb_mpi -d in.phylip -cat -gtr -x 10 -1 -dgam 4 -s chain_name
@@ -61,7 +62,7 @@ def PB(args):
     op_prefix       = args['p']
     fa_to_plp       = args['fa2plp']
     num_of_threads  = args['t']
-    num_of_chains   = args['chain']
+    num_of_chains   = args['n']
     force_overwrite = args['f']
 
     ####################################################################################################################
@@ -138,8 +139,8 @@ if __name__ == '__main__':
     PB_parser.add_argument('-o',       required=True,                          help='output directory')
     PB_parser.add_argument('-p',       required=True,                          help='output prefix')
     PB_parser.add_argument('-fa2plp',  required=False, action="store_true",    help='convert MSA format from fasta to phylip')
-    PB_parser.add_argument('-chain',   required=False, type=int, default=4,    help='num of chains to run in parallel, default: 4')
-    PB_parser.add_argument('-t',       required=False, type=int, default=4,    help='num of cores, default: 4')
+    PB_parser.add_argument('-n',       required=False, type=int, default=4,    help='number of chains to run in parallel, default: 4')
+    PB_parser.add_argument('-t',       required=False, type=int, default=12,   help='num of cores, default: 12')
     PB_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
     args = vars(PB_parser.parse_args())
     PB(args)
