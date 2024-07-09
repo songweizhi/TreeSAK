@@ -58,11 +58,13 @@ def print_main_help():
     Tree-related
        iTOL                   ->  Prepare iTOL files
        PB                     ->  Infer tree with PhyloBayes-MPI 
+       aster                  ->  Infer species tree from gene trees 
        AssessPB               ->  Compare PhyloBayes chains
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
-       GTDB_tree              ->  get GTDB tree
+       GTDB_tree              ->  Get GTDB tree
        subset                 ->  Subset tree
+       TaxonTree              ->  Subset GTDB tree by taxon
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
        print_leaves           ->  print out tree leaves
@@ -652,10 +654,11 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'replace_clade':
         from TreeSAK import replace_clade
         replace_clade_parser = subparsers.add_parser('replace_clade', usage=replace_clade.replace_clade_usage)
-        replace_clade_parser.add_argument('-m',     required=True, help='main file')
-        replace_clade_parser.add_argument('-s',     required=True, help='sub file')
-        replace_clade_parser.add_argument('-l',     required=True, help='main tree leaves')
-        replace_clade_parser.add_argument('-o',     required=True, help='output tree')
+        parser.add_argument('-m',   required=True,              help='main tree file')
+        parser.add_argument('-s',   required=True,              help='subtree file')
+        parser.add_argument('-l',   required=True,              help='leaves on main tree to be replaced')
+        parser.add_argument('-o',   required=True,              help='output tree')
+        parser.add_argument('-of',  required=True, default=8,   help='output tree format, default is 8')
         args = vars(parser.parse_args())
         replace_clade.replace_clade(args)
 
@@ -699,6 +702,8 @@ if __name__ == '__main__':
         AssessPB_parser = subparsers.add_parser('AssessPB', usage=AssessPB.AssessPB_usage)
         AssessPB_parser.add_argument('-c1',         required=False, default=None,           help='chain 1')
         AssessPB_parser.add_argument('-c2',         required=False, default=None,           help='chain 2')
+        AssessPB_parser.add_argument('-c3',         required=False, default=None,           help='chain 3')
+        AssessPB_parser.add_argument('-c4',         required=False, default=None,           help='chain 4')
         AssessPB_parser.add_argument('-cdir',       required=False, default=None,           help='chain folder')
         AssessPB_parser.add_argument('-bi',         required=False, default=1000,           help='burn-in, default: 1000')
         AssessPB_parser.add_argument('-si',         required=False, default=10,             help='sample interval, default: 10')
@@ -758,6 +763,31 @@ if __name__ == '__main__':
         iTOL_parser.add_argument('-o',               required=True,                         help='Output filename')
         args = vars(parser.parse_args())
         iTOL.iTOL(args)
+
+    elif sys.argv[1] == 'aster':
+        from TreeSAK import aster
+        aster_parser = subparsers.add_parser('aster', usage=aster.aster_usage)
+        aster_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
+        aster_parser.add_argument('-x',         required=True,                          help='faa file extension')
+        aster_parser.add_argument('-o',         required=True,                          help='output directory')
+        aster_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
+        aster_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
+        aster_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
+        aster_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
+        aster_parser.add_argument('-pb',        required=False, action="store_true",    help='infer tree with PhyloBayes-MPI, default is iqtree')
+        aster_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
+        aster_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
+        args = vars(parser.parse_args())
+        aster.aster(args)
+
+    elif sys.argv[1] == 'TaxonTree':
+        from TreeSAK import TaxonTree
+        TaxonTree_parser = subparsers.add_parser('TaxonTree', usage=TaxonTree.TaxonTree_usage)
+        TaxonTree_parser.add_argument('-i',     required=True,  help='input tree file')
+        TaxonTree_parser.add_argument('-tax',   required=True,  help='interested taxon')
+        TaxonTree_parser.add_argument('-o',     required=True,  help='output tree file')
+        args = vars(parser.parse_args())
+        TaxonTree.TaxonTree(args)
 
     else:
         print('Unrecognized module: %s, program exited' % sys.argv[1])

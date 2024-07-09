@@ -1,5 +1,11 @@
-1.38.17
+1.40.2
 - fixed bugs
+
+1.40.0
+- new module added: TaxonTree
+
+1.39.0
+- new module added: aster
 
 1.38.0
 - new module added: pruneMSA

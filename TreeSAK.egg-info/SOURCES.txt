@@ -55,6 +55,7 @@ TreeSAK/SplitScore1.py
 TreeSAK/SplitScore1OMA.py
 TreeSAK/SplitScore2.py
 TreeSAK/TaxaCountStats.R
+TreeSAK/TaxonTree.py
 TreeSAK/TreeSAK_config.py
 TreeSAK/VERSION
 TreeSAK/VisHPD95.R
@@ -63,6 +64,7 @@ TreeSAK/__init__.py
 TreeSAK/ale_parser.py
 TreeSAK/ale_splitter.py
 TreeSAK/alignment_pruner.pl
+TreeSAK/aster.py
 TreeSAK/catfasta2phy.py
 TreeSAK/compare_trees.R
 TreeSAK/compare_trees.py
@@ -80,6 +82,7 @@ TreeSAK/iTOL.py
 TreeSAK/keep_highest_rrtc.py
 TreeSAK/label_tree.R
 TreeSAK/label_tree.py
+TreeSAK/mad.py
 TreeSAK/merge_pdf.py
 TreeSAK/pRTC.py
 TreeSAK/plot_distruibution_th.py

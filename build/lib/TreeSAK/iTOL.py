@@ -217,7 +217,11 @@ def iTOL(args):
         if ColorStrip is True:
             FileOut_handle.write('DATASET_COLORSTRIP\n')
             FileOut_handle.write('SEPARATOR TAB\n')
-            FileOut_handle.write('DATASET_LABEL\t%s_ColorStrip\n' % LegendTitle)
+            FileOut_handle.write('DATASET_LABEL\t%s\n' % LegendTitle)
+            FileOut_handle.write('SHOW_LABELS\t1\n')
+            FileOut_handle.write('LABEL_ROTATION\t45\n')
+            FileOut_handle.write('COLOR_BRANCHES\t0\n')
+
         if ColorRange is True:
             FileOut_handle.write('TREE_COLORS\n')
             FileOut_handle.write('SEPARATOR TAB\n')

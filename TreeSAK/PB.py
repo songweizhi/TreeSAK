@@ -10,9 +10,9 @@ PB_usage = '''
 # Dependency: mpirun, pb_mpi and readpb_mpi (from PhyloBayes-MPI)
 
 export OMPI_MCA_btl=^openib
-TreeSAK PB -i in.phylip -p best20pb -t 52 
-TreeSAK PB -i in.phylip -p best20pb -t 52 -n 1
-TreeSAK PB -i in.phylip -p worst20pb -t 52 
+TreeSAK PB -i in.phylip -p best20pb -o best20pb -t 52 
+TreeSAK PB -i in.phylip -p best20pb -o best20pb -t 52 -n 1
+TreeSAK PB -i in.phylip -p worst20pb -o worst20pb -t 52 
 
 # Notes:
 1. This is a wrapper for: mpirun -np 12 pb_mpi -d in.phylip -cat -gtr -x 10 -1 -dgam 4 -s chain_name
@@ -37,6 +37,16 @@ TreeSAK PB -i in.phylip -p worst20pb -t 52
 
 =========================================================================================================
 '''
+
+
+def sep_path_basename_ext(file_in):
+
+    f_path, f_name = os.path.split(file_in)
+    if f_path == '':
+        f_path = '.'
+    f_base, f_ext = os.path.splitext(f_name)
+
+    return f_name, f_path, f_base, f_ext[1:]
 
 
 def fa2phy(fasta_in, phy_out):
@@ -69,10 +79,12 @@ def PB(args):
 
     ####################################################################################################################
 
+    msa_in_name, msa_in_path, msa_in_base, msa_in_ext = sep_path_basename_ext(msa_in)
+
     settings_dombrowski = '-cat -gtr -x 10 -1 -dgam 4'
-    setting_to_use      = settings_dombrowski
-    msa_in_plp          = '%s/%s.phylip'        % (op_dir, msa_in)
-    cmd_txt             = '%s/cmds.txt'         % op_dir
+    setting_to_use  = settings_dombrowski
+    msa_in_plp      = '%s/%s.phylip'        % (op_dir, msa_in_base)
+    cmd_txt         = '%s/%s_cmds.txt'      % (op_dir, msa_in_base)
 
     ####################################################################################################################
 
@@ -91,13 +103,16 @@ def PB(args):
         fa2phy(msa_in, msa_in_plp)
         msa_to_use = msa_in_plp
 
+    cores_per_chain = 0
     chain_name_list = []
     pb_mpi_cmd_list = []
     jobs_to_run_in_parallel = 0
     if num_of_chains == 1:
         jobs_to_run_in_parallel = 1
         pb_mpi_cmd = 'mpirun -np %s pb_mpi -d %s %s -s %s/%s' % (num_of_threads, msa_to_use, setting_to_use, op_dir, op_prefix)
+        chain_name_list.append('%s/%s' % (op_dir, op_prefix))
         pb_mpi_cmd_list.append(pb_mpi_cmd)
+        cores_per_chain = num_of_threads
 
     elif num_of_threads <= num_of_chains:
         jobs_to_run_in_parallel = num_of_threads
@@ -107,6 +122,7 @@ def PB(args):
             pb_mpi_cmd = 'mpirun -np %s pb_mpi -d %s %s -s %s/%s_chain%s' % (1, msa_to_use, setting_to_use, current_wd, op_prefix, chain_index)
             chain_name_list.append('%s/%s_chain%s' % (current_wd, op_prefix, chain_index))
             pb_mpi_cmd_list.append(pb_mpi_cmd)
+            cores_per_chain = 1
 
     else:
         jobs_to_run_in_parallel = num_of_chains
@@ -117,11 +133,16 @@ def PB(args):
             pb_mpi_cmd = 'mpirun -np %s pb_mpi -d %s %s -s %s/%s_chain%s' % (cores_per_run, msa_to_use, setting_to_use, current_wd, op_prefix, chain_index)
             chain_name_list.append('%s/%s_chain%s' % (current_wd, op_prefix, chain_index))
             pb_mpi_cmd_list.append(pb_mpi_cmd)
+            cores_per_chain = cores_per_run
 
     # write out commands
     cmd_txt_handle = open(cmd_txt, 'w')
     for cmd in pb_mpi_cmd_list:
         cmd_txt_handle.write(cmd + '\n')
+
+    cmd_txt_handle.write('\n# To restart a terminated run (e.g., due to walltime limitation)\n')
+    for each_chain in chain_name_list:
+        cmd_txt_handle.write('mpirun -np %s pb_mpi %s\n' % (cores_per_chain, each_chain))
     cmd_txt_handle.close()
 
     # run chains with mp

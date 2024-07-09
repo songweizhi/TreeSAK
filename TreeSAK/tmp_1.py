@@ -21,11 +21,11 @@ def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, marker_rank_cutoff_str
 
     for each_cutoff in marker_rank_cutoff_list:
 
-        marker_num_rounded  = round(len(marker_list_sorted_wrost_to_best)*float(each_cutoff)/100)
-        marker_list_best    = marker_list_sorted_best_to_wrost[:marker_num_rounded]
-        marker_list_worst   = marker_list_sorted_wrost_to_best[:marker_num_rounded]
-        seq_dir_best        = '%s/best_%s'   % (op_dir, each_cutoff)
-        seq_dir_worst       = '%s/worst_%s'  % (op_dir, each_cutoff)
+        marker_num_rounded = round(len(marker_list_sorted_wrost_to_best)*float(each_cutoff)/100)
+        marker_list_best   = marker_list_sorted_best_to_wrost[:marker_num_rounded]
+        marker_list_worst  = marker_list_sorted_wrost_to_best[:marker_num_rounded]
+        seq_dir_best       = '%s/best%s'  % (op_dir, each_cutoff)
+        seq_dir_worst      = '%s/worst%s' % (op_dir, each_cutoff)
 
         os.system('mkdir %s' % seq_dir_best)
         os.system('mkdir %s' % seq_dir_worst)
@@ -39,10 +39,15 @@ def group_marker(taxa_counts_tats_op_txt, marker_seq_dir, marker_rank_cutoff_str
             os.system('cp %s/%s.fa %s/' % (marker_seq_dir, wm, seq_dir_worst))
 
 
-TaxaCountStats_output_txt = '/Users/songweizhi/Desktop/TaxaCountStats_output.txt'
-qualified_og_seq_dir      = '/Users/songweizhi/Desktop/qualified_OGs'
-step_2_op_dir             = '/Users/songweizhi/Desktop/SplitScore2_op_dir'
-marker_rank_cutoff_str    = '25,50,75'
+# TaxaCountStats_output_txt = '/Users/songweizhi/Desktop/TaxaCountStats_output.txt'
+# qualified_og_seq_dir      = '/Users/songweizhi/Desktop/qualified_OGs'
+# step_2_op_dir             = '/Users/songweizhi/Desktop/SplitScore2_op_dir'
+# marker_rank_cutoff_str    = '25,50,75'
+
+TaxaCountStats_output_txt = '/scratch/PI/ocessongwz/Sponge_r220/4_OMA_wd_115_genomes/OMA_wd/Output/OMA_75_5_dRep85_115_cov90/SplitScore2_op_dir/get_taxa_count_stats_wd/TaxaCountStats_output.txt'
+qualified_og_seq_dir      = '/scratch/PI/ocessongwz/Sponge_r220/4_OMA_wd_115_genomes/OMA_wd/Output/OMA_75_5_dRep85_115_cov90/SplitScore1_op_dir/qualified_OGs'
+step_2_op_dir             = '/scratch/PI/ocessongwz/Sponge_r220/4_OMA_wd_115_genomes/OMA_wd/Output/OMA_75_5_dRep85_115_cov90/SplitScore2_op_dir'
+marker_rank_cutoff_str    = '10'
 
 group_marker(TaxaCountStats_output_txt, qualified_og_seq_dir, marker_rank_cutoff_str, step_2_op_dir)
 

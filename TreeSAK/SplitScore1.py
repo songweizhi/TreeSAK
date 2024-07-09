@@ -54,7 +54,7 @@ def SplitScore1(args):
     fa_file_re   = '%s/*.%s' % (oma_op_fasta, fasta_file_ext)
     fa_file_list = glob.glob(fa_file_re)
     if len(fa_file_list) == 0:
-        print('No file found in %s, progeam exited!' % oma_op_fasta)
+        print('No file found in %s, program exited!' % oma_op_fasta)
         exit()
 
     og_to_gene_dict = dict()
