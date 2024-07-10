@@ -83,6 +83,7 @@ TreeSAK/keep_highest_rrtc.py
 TreeSAK/label_tree.R
 TreeSAK/label_tree.py
 TreeSAK/mad.py
+TreeSAK/mcmctree.py
 TreeSAK/merge_pdf.py
 TreeSAK/pRTC.py
 TreeSAK/plot_distruibution_th.py
@@ -97,6 +98,7 @@ TreeSAK/run_TaxaCountStats_R_s1.py
 TreeSAK/subsample_drep_gnms.py
 TreeSAK/subset.py
 TreeSAK/subset_tree_stupid_old_way.py
+TreeSAK/tc.py
 TreeSAK/tmp_1.py
 TreeSAK/weighted_rand.rb
 TreeSAK.egg-info/PKG-INFO

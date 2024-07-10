@@ -1,12 +1,13 @@
 import os
 import argparse
 import itertools
+from distutils.spawn import find_executable
 
 
 dating_usage = '''
 ======================== Dating example commands ========================
 
-# requireMENT: mcmctree, baseml and codeml (all from PAML)
+# Requirement: PAML
 
 # example commands
 TreeSAK Dating -tree tree.treefile -msa markers.phylip -o dating_wd -f
@@ -14,6 +15,18 @@ TreeSAK Dating -tree tree.treefile -msa markers.phylip -o dating_wd -f
 =========================================================================
 '''
 
+def check_dependencies(program_list):
+
+    # check whether executables exist
+    not_detected_programs = []
+    for needed_program in program_list:
+        if find_executable(needed_program) is None:
+            not_detected_programs.append(needed_program)
+
+    # report
+    if not_detected_programs != []:
+        print('%s not found, program exited!' % ','.join(not_detected_programs))
+        exit()
 
 def sep_path_basename_ext(file_in):
 
@@ -94,12 +107,14 @@ def get_parameter_combinations(para_to_test_dict):
 
 def dating(args):
 
-    op_dir              = args['o']
     tree_file           = args['tree']
     msa_file            = args['msa']
-    force_overwrite     = args['f']
+    op_dir              = args['o']
     seq_type            = args['st']
     settings_to_compare = args['s']
+    force_overwrite     = args['f']
+
+    check_dependencies(['mcmctree'])
 
     para_to_test_dict = dict()
     for each_para in open(settings_to_compare):
@@ -194,12 +209,11 @@ def dating(args):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-tree',    required=True,                          help='outgroup leaves, one id per line')
-    parser.add_argument('-msa',     required=True,                          help='EU tree with time constraints')
-    parser.add_argument('-o',       required=True,                          help='dating wd')
+    parser.add_argument('-tree',    required=True,                          help='tree file')
+    parser.add_argument('-msa',     required=True,                          help='sequence alignments')
+    parser.add_argument('-o',       required=True,                          help='output directory')
     parser.add_argument('-s',       required=True,                          help='settings to compare')
     parser.add_argument('-st',      required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
     parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
     args = vars(parser.parse_args())
     dating(args)
-

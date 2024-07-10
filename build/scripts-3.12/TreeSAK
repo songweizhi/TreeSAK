@@ -89,6 +89,7 @@ def print_main_help():
        PlotMcmcNode           ->  distribution of node's age estimation 
        VisHPD95               ->  HPD95 of estimated node age
        pRTC                   ->  Perform probabilistic RTC dating
+       tc                     ->  adding time constraints to mcmctree tree
     
     Phylo-related stats
        PhyloBiAssoc            ->  A wrapper for binaryPGLMM test
@@ -248,7 +249,7 @@ if __name__ == '__main__':
         MarkerRef2Tree_parser.add_argument('-t',               required=True,  type=int,                help='num of threads')
         MarkerRef2Tree_parser.add_argument('-mmn',             required=False, default=1, type=int,     help='minimal marker number, default: 1')
         MarkerRef2Tree_parser.add_argument('-psiblast',        required=False, action="store_true",     help='run psiblast')
-        MarkerRef2Tree_parser.add_argument('-bmge',            required=False, action="store_true",     help='perform BMGE trimming on concatenated MSA')
+        MarkerRef2Tree_parser.add_argument('-bmge',            required=False, action="store_true",     help='trim MSA with BMGE, default is trimal')
         MarkerRef2Tree_parser.add_argument('-bmge_m',          required=False, default='BLOSUM30',      help='BMGE trim model, default: BLOSUM30')
         MarkerRef2Tree_parser.add_argument('-bmge_esc',        required=False, default='0.55',          help='BMGE entropy score cutoff, default: 0.55')
         MarkerRef2Tree_parser.add_argument('-f',               required=False, action="store_true",     help='force overwrite')
@@ -654,11 +655,11 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'replace_clade':
         from TreeSAK import replace_clade
         replace_clade_parser = subparsers.add_parser('replace_clade', usage=replace_clade.replace_clade_usage)
-        parser.add_argument('-m',   required=True,              help='main tree file')
-        parser.add_argument('-s',   required=True,              help='subtree file')
-        parser.add_argument('-l',   required=True,              help='leaves on main tree to be replaced')
-        parser.add_argument('-o',   required=True,              help='output tree')
-        parser.add_argument('-of',  required=True, default=8,   help='output tree format, default is 8')
+        replace_clade_parser.add_argument('-m',  required=True,                         help='main tree file')
+        replace_clade_parser.add_argument('-s',  required=True,                         help='subtree file')
+        replace_clade_parser.add_argument('-l',  required=True,                         help='leaves on main tree to be replaced')
+        replace_clade_parser.add_argument('-o',  required=True,                         help='output tree')
+        replace_clade_parser.add_argument('-of', required=False, default=9, type=int,   help='output tree format, default is 9')
         args = vars(parser.parse_args())
         replace_clade.replace_clade(args)
 
@@ -788,6 +789,15 @@ if __name__ == '__main__':
         TaxonTree_parser.add_argument('-o',     required=True,  help='output tree file')
         args = vars(parser.parse_args())
         TaxonTree.TaxonTree(args)
+
+    elif sys.argv[1] == 'tc':
+        from TreeSAK import tc
+        tc_parser = subparsers.add_parser('tc', usage=tc.tc_usage)
+        tc_parser.add_argument('-i',    required=True, help='input tree')
+        tc_parser.add_argument('-o',    required=True, help='output tree')
+        tc_parser.add_argument('-tc',   required=True, help='time constraint file')
+        args = vars(parser.parse_args())
+        tc.tc(args)
 
     else:
         print('Unrecognized module: %s, program exited' % sys.argv[1])
