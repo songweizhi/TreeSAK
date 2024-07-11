@@ -2,10 +2,10 @@ import argparse
 from ete3 import Tree
 
 
-tc_usage = '''
-======================= tc example commands =======================
+mcmcTC_usage = '''
+===================== mcmcTC example commands =====================
 
-TreeSAK tc -i in.tree -o out.tree -tc time_constraints.txt
+TreeSAK mcmcTC -i in.tree -o out.tree -tc time_constraints.txt
 
 # Format of constraint file (use tab to separate nodes and ages)
 GCA226486700_1,GCF900696045_1	3.46-4.38
@@ -17,7 +17,7 @@ GCF000152265_2,GCF000195915_1	2.32-
 '''
 
 
-def tc(args):
+def mcmcTC(args):
 
     tree_file_in        = args['i']
     time_constraint_txt = args['tc']
@@ -70,23 +70,20 @@ def tc(args):
     for each_constraint in constraint_set:
         tree_out_str = tree_out_str.replace(each_constraint, ("'%s'" % each_constraint))
 
+    # remove the most outside parenthesis
+    tree_out_str = tree_out_str[1:].replace(');', ';')
+
     # write tree to file
     with open(tree_file_out, 'w') as tree_file_out_handle:
+        tree_file_out_handle.write('%s\t1\n' % len(tree_in.get_leaves()))
         tree_file_out_handle.write(tree_out_str)
 
 
 if __name__ == '__main__':
 
-    tc_parser = argparse.ArgumentParser()
-    tc_parser.add_argument('-i',   required=True,  help='input tree')
-    tc_parser.add_argument('-o',   required=True,  help='output tree')
-    tc_parser.add_argument('-tc',  required=True,  help='time constraint file')
-    args = vars(tc_parser.parse_args())
-    tc(args)
-
-
-'''
-
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/tc.py -i in.tree -o out.tree -tc /Users/songweizhi/Desktop/time_constraints.txt
-
-'''
+    mcmcTC_parser = argparse.ArgumentParser()
+    mcmcTC_parser.add_argument('-i',   required=True,  help='input tree')
+    mcmcTC_parser.add_argument('-o',   required=True,  help='output tree')
+    mcmcTC_parser.add_argument('-tc',  required=True,  help='time constraint file')
+    args = vars(mcmcTC_parser.parse_args())
+    mcmcTC(args)

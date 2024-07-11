@@ -791,7 +791,7 @@ if __name__ == '__main__':
         TaxonTree.TaxonTree(args)
 
     elif sys.argv[1] == 'tc':
-        from TreeSAK import tc
+        from TreeSAK import mcmcTC
         tc_parser = subparsers.add_parser('tc', usage=tc.tc_usage)
         tc_parser.add_argument('-i',    required=True, help='input tree')
         tc_parser.add_argument('-o',    required=True, help='output tree')

@@ -89,7 +89,7 @@ def print_main_help():
        PlotMcmcNode           ->  distribution of node's age estimation 
        VisHPD95               ->  HPD95 of estimated node age
        pRTC                   ->  Perform probabilistic RTC dating
-       tc                     ->  adding time constraints to mcmctree tree
+       mcmcTC                 ->  adding time constraints to mcmctree tree
     
     Phylo-related stats
        PhyloBiAssoc            ->  A wrapper for binaryPGLMM test
@@ -790,14 +790,14 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         TaxonTree.TaxonTree(args)
 
-    elif sys.argv[1] == 'tc':
-        from TreeSAK import tc
-        tc_parser = subparsers.add_parser('tc', usage=tc.tc_usage)
-        tc_parser.add_argument('-i',    required=True, help='input tree')
-        tc_parser.add_argument('-o',    required=True, help='output tree')
-        tc_parser.add_argument('-tc',   required=True, help='time constraint file')
+    elif sys.argv[1] == 'mcmcTC':
+        from TreeSAK import mcmcTC
+        mcmcTC_parser = subparsers.add_parser('mcmcTC', usage=mcmcTC.mcmcTC_usage)
+        mcmcTC_parser.add_argument('-i',    required=True, help='input tree')
+        mcmcTC_parser.add_argument('-o',    required=True, help='output tree')
+        mcmcTC_parser.add_argument('-tc',   required=True, help='time constraint file')
         args = vars(parser.parse_args())
-        tc.tc(args)
+        mcmcTC.mcmcTC(args)
 
     else:
         print('Unrecognized module: %s, program exited' % sys.argv[1])

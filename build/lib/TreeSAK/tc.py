@@ -72,6 +72,7 @@ def tc(args):
 
     # write tree to file
     with open(tree_file_out, 'w') as tree_file_out_handle:
+        tree_file_out_handle.write('%s\t1\n' % len(tree_in.get_leaves()))
         tree_file_out_handle.write(tree_out_str)
 
 
@@ -83,10 +84,3 @@ if __name__ == '__main__':
     tc_parser.add_argument('-tc',  required=True,  help='time constraint file')
     args = vars(tc_parser.parse_args())
     tc(args)
-
-
-'''
-
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/tc.py -i in.tree -o out.tree -tc /Users/songweizhi/Desktop/time_constraints.txt
-
-'''

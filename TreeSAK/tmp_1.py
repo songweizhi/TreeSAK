@@ -49,5 +49,4 @@ qualified_og_seq_dir      = '/scratch/PI/ocessongwz/Sponge_r220/4_OMA_wd_115_gen
 step_2_op_dir             = '/scratch/PI/ocessongwz/Sponge_r220/4_OMA_wd_115_genomes/OMA_wd/Output/OMA_75_5_dRep85_115_cov90/SplitScore2_op_dir'
 marker_rank_cutoff_str    = '10'
 
-group_marker(TaxaCountStats_output_txt, qualified_og_seq_dir, marker_rank_cutoff_str, step_2_op_dir)
-
+# group_marker(TaxaCountStats_output_txt, qualified_og_seq_dir, marker_rank_cutoff_str, step_2_op_dir)
