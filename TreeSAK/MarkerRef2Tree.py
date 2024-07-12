@@ -340,7 +340,6 @@ def MarkerRef2Tree(args):
     pa_cutoff_str               = args['c']
     minimal_marker_number       = args['mmn']
     run_psiblast                = args['psiblast']
-    run_bmge                    = args['bmge']
     trim_with_bmge              = args['bmge']
     bmge_trim_model             = args['bmge_m']
     bmge_entropy_score_cutoff   = args['bmge_esc']

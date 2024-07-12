@@ -5,12 +5,12 @@ from distutils.spawn import find_executable
 
 
 dating_usage = '''
-======================== Dating example commands ========================
+======================== dating example commands ========================
 
 # Requirement: PAML
 
 # example commands
-TreeSAK Dating -tree tree.treefile -msa markers.phylip -o dating_wd -f
+TreeSAK dating -tree tree.treefile -msa markers.phylip -o dating_wd -f
 
 =========================================================================
 '''
@@ -124,12 +124,15 @@ def dating(args):
 
     ####################################################################################################################
 
+    current_pwd = os.getcwd()
+
     tree_f_name, tree_f_path, tree_f_base, tree_f_ext = sep_path_basename_ext(tree_file)
     msa_f_name,  msa_f_path,  msa_f_base,  msa_f_ext  = sep_path_basename_ext(msa_file)
 
-    get_bv_wd         = '%s/get_bv_wd'         % op_dir
-    mcmctree_ctl_bv   = '%s/mcmctree.ctl'      % get_bv_wd
-    mcmctree_cmds_txt = '%s/mcmctree_cmds.txt' % op_dir
+    get_bv_wd       = '%s/get_bv_wd'        % op_dir
+    mcmctree_ctl_bv = '%s/mcmctree.ctl'     % get_bv_wd
+    get_BV_cmd_txt  = '%s/get_BV_cmd.txt'   % get_bv_wd
+    dating_cmds_txt = '%s/dating_cmds.txt'  % op_dir
 
     # create output folder
     if os.path.isdir(op_dir) is True:
@@ -141,7 +144,7 @@ def dating(args):
 
     os.system('mkdir %s' % op_dir)
 
-    ####################################################################################################################
+    ############################################# write out step 1 command #############################################
 
     # prepare files for getting bv file
     os.system('mkdir %s'  % get_bv_wd)
@@ -158,17 +161,26 @@ def dating(args):
 
     prep_mcmctree_ctl(get_bv_para_dict, mcmctree_ctl_bv)
 
-    # write out command
-    mcmctree_cmds_txt_handle = open(mcmctree_cmds_txt, 'w')
-    mcmctree_cmds_txt_handle.write('cd %s; mcmctree\n' % get_bv_wd.split('/')[-1])
-    mcmctree_cmds_txt_handle.write('\n# Please wait for the above command to be finished before you move to the following ones!\n\n')
-    mcmctree_cmds_txt_handle.close()
+    # write out get bv command
+    get_BV_cmd_txt_handle = open(get_BV_cmd_txt, 'w')
+    get_BV_cmd_txt_handle.write('mcmctree\n')
+    get_BV_cmd_txt_handle.close()
 
-    ####################################################################################################################
+    # run command to get bv file
+    print('Running step one command to get the BV file.')
+    os.chdir(get_bv_wd)
+    os.system('mcmctree > log.txt')
+    #os.system('touch out.BV')
+    print('Step one finished.')
+    os.chdir(current_pwd)
+
+    ############################################# write out step 2 command #############################################
+
+    print('Preparing files for dating estimation')
 
     para_comb_dict = get_parameter_combinations(para_to_test_dict)
 
-    mcmctree_cmds_txt_handle = open(mcmctree_cmds_txt, 'a')
+    dating_cmds_txt_handle = open(dating_cmds_txt, 'w')
     for para_comb in sorted(list(para_comb_dict.keys())):
 
         # create dir
@@ -198,12 +210,16 @@ def dating(args):
         prep_mcmctree_ctl(current_para_dict, mcmctree_ctl_1)
         prep_mcmctree_ctl(current_para_dict, mcmctree_ctl_2)
 
-        # write out commands
-        mcmctree_cmds_txt_handle.write('cd %s; cp ../get_bv_wd/out.BV in.BV; mcmctree\n' % (current_dating_wd_1.split('/')[-1]))
-        mcmctree_cmds_txt_handle.write('cd %s; cp ../get_bv_wd/out.BV in.BV; mcmctree\n' % (current_dating_wd_2.split('/')[-1]))
-    mcmctree_cmds_txt_handle.close()
+        # copy BV files generated in step one
+        os.system('cp %s/out.BV %s/in.BV' % (get_bv_wd, current_dating_wd_1))
+        os.system('cp %s/out.BV %s/in.BV' % (get_bv_wd, current_dating_wd_2))
 
-    print('Job script for performing dating exported to %s' % mcmctree_cmds_txt)
+        # write out commands
+        dating_cmds_txt_handle.write('cd %s/%s/%s; mcmctree\n' % (current_pwd, op_dir, current_dating_wd_1.split('/')[-1]))
+        dating_cmds_txt_handle.write('cd %s/%s/%s; mcmctree\n' % (current_pwd, op_dir, current_dating_wd_2.split('/')[-1]))
+    dating_cmds_txt_handle.close()
+
+    print('Job script for performing dating exported to: %s' % dating_cmds_txt)
 
 
 if __name__ == '__main__':

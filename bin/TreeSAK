@@ -83,7 +83,7 @@ def print_main_help():
        PPA                    ->  (to be added) Perform Posterior Predictive Analysis (across-site)
        
     Dating-related
-       Dating                 ->  Perform molecular dating
+       dating                 ->  Perform molecular dating
        AssessCVG              ->  Assess dating convergence
        CompareMCMC            ->  Compare MCMCTree outputs
        PlotMcmcNode           ->  distribution of node's age estimation 
@@ -303,7 +303,7 @@ if __name__ == '__main__':
 
     elif sys.argv[1] in ['Dating', 'dating']:
         from TreeSAK import dating
-        dating_parser = subparsers.add_parser('Dating', usage=dating.dating_usage)
+        dating_parser = subparsers.add_parser('dating', usage=dating.dating_usage)
         dating_parser.add_argument('-tree',    required=True,                          help='outgroup leaves, one id per line')
         dating_parser.add_argument('-msa',     required=True,                          help='EU tree with time constraints')
         dating_parser.add_argument('-o',       required=True,                          help='dating wd')
@@ -504,15 +504,18 @@ if __name__ == '__main__':
     elif sys.argv[1] in ['ALE1', 'ale1', 'Ale1']:
         from TreeSAK import ALE1
         ALE1_parser = subparsers.add_parser('ALE1', usage=ALE1.ALE1_usage)
-        ALE1_parser.add_argument('-i',   required=False, default=None,          help='orthologous groups, either from orthofinder or oma')
-        ALE1_parser.add_argument('-s',   required=False, default=None,          help='sequence file, e.g., combined.faa')
-        ALE1_parser.add_argument('-ms',  required=False, default=None,          help='input is a folder holds the sequence of each marker')
-        ALE1_parser.add_argument('-msx', required=False, default='fa',          help='file extension of marker sequence file, default: fa')
-        ALE1_parser.add_argument('-p',   required=True,                         help='orthologous identification program, orthofinder or oma')
-        ALE1_parser.add_argument('-m',   required=False, type=int, default=50,  help='min_og_genome_num, default: 50')
-        ALE1_parser.add_argument('-o',   required=True,                         help='output dir, i.e., OMA working directory')
-        ALE1_parser.add_argument('-jst', required=False, type=int, default=3,   help='number of threads specified in job script, default: 3')
-        ALE1_parser.add_argument('-f',   required=False, action="store_true",   help='force overwrite')
+        ALE1_parser.add_argument('-i',          required=False, default=None,          help='orthologous groups, either from orthofinder or oma')
+        ALE1_parser.add_argument('-s',          required=False, default=None,          help='sequence file, e.g., combined.faa')
+        ALE1_parser.add_argument('-ms',         required=False, default=None,          help='input is a folder holds the sequence of each marker')
+        ALE1_parser.add_argument('-msx',        required=False, default='fa',          help='file extension of marker sequence file, default: fa')
+        ALE1_parser.add_argument('-p',          required=True,                         help='orthologous identification program, orthofinder or oma')
+        ALE1_parser.add_argument('-m',          required=False, type=int, default=50,  help='min_og_genome_num, default: 50')
+        ALE1_parser.add_argument('-bmge',       required=False, action="store_true",   help='trim MSA with BMGE, default no trimming')
+        ALE1_parser.add_argument('-bmge_m',     required=False, default='BLOSUM30',    help='BMGE trim model, default: BLOSUM30')
+        ALE1_parser.add_argument('-bmge_esc',   required=False, default='0.55',        help='BMGE entropy score cutoff, default: 0.55')
+        ALE1_parser.add_argument('-o',          required=True,                         help='output dir, i.e., OMA working directory')
+        ALE1_parser.add_argument('-jst',        required=False, type=int, default=3,   help='number of threads specified in job script, default: 3')
+        ALE1_parser.add_argument('-f',          required=False, action="store_true",   help='force overwrite')
         args = vars(parser.parse_args())
         ALE1.ALE1(args)
 

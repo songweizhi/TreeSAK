@@ -7,11 +7,14 @@ mcmcTC_usage = '''
 
 TreeSAK mcmcTC -i in.tree -o out.tree -tc time_constraints.txt
 
-# Format of constraint file (use tab to separate nodes and ages)
-GCA226486700_1,GCF900696045_1	3.46-4.38
-GCA000802205_2,GCF000299365_1	0.75-1.49
-GCF000376445_1,GCF000172995_2	-1.579
-GCF000152265_2,GCF000195915_1	2.32-
+# Format of constraint file (tab separated columns)
+IMG2264867070_yang,GCF900696045_1_yang	3.46-4.38	Archaeal root
+GCF000015225_1_yang,GCF000007225_1_yang	-2.32	Oxygen Age Constraint, Thermoproteales
+GCF000213215_1_yang,GCA000024305_1_yang	-2.32	Oxygen Age Constraint, Sulfolobales
+GCF000152265_2_yang,GCF000195915_1_yang	-2.32	Oxygen Age Constraint, Thermoplasma
+GCF000376445_1_yang,GCF000172995_2_yang	-1.579	Chitin Age Constraint, Halobacteriales
+GCF000195935_2_yang,GCF000151105_2_yang	-1.579	Chitin Age Constraint, Thermococcales
+GCA000802205_2_yang,GCA000200715_1	0.75-1.49	HGT from Viridiplantae to Thaumarchaeota
 
 ===================================================================
 '''

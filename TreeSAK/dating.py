@@ -5,12 +5,12 @@ from distutils.spawn import find_executable
 
 
 dating_usage = '''
-======================== Dating example commands ========================
+======================== dating example commands ========================
 
 # Requirement: PAML
 
 # example commands
-TreeSAK Dating -tree tree.treefile -msa markers.phylip -o dating_wd -f
+TreeSAK dating -tree tree.treefile -msa markers.phylip -o dating_wd -f
 
 =========================================================================
 '''
@@ -169,8 +169,8 @@ def dating(args):
     # run command to get bv file
     print('Running step one command to get the BV file.')
     os.chdir(get_bv_wd)
-    #os.system('mcmctree > log.txt')
-    os.system('touch out.BV')
+    os.system('mcmctree > log.txt')
+    #os.system('touch out.BV')
     print('Step one finished.')
     os.chdir(current_pwd)
 
