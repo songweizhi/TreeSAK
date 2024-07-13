@@ -5,14 +5,13 @@ from distutils.spawn import find_executable
 
 
 dating_usage = '''
-======================== dating example commands ========================
+========================= dating example commands =========================
 
 # Requirement: PAML
 
-# example commands
 TreeSAK dating -tree tree.treefile -msa markers.phylip -o dating_wd -f
 
-=========================================================================
+===========================================================================
 '''
 
 def check_dependencies(program_list):
@@ -110,6 +109,7 @@ def dating(args):
     tree_file           = args['tree']
     msa_file            = args['msa']
     op_dir              = args['o']
+    op_prefix           = args['p']
     seq_type            = args['st']
     settings_to_compare = args['s']
     force_overwrite     = args['f']
@@ -196,19 +196,35 @@ def dating(args):
         os.system('cp %s %s/' % (msa_file,  current_dating_wd_2))
 
         # prepare mcmctree.ctl file
-        mcmctree_ctl_1  = '%s/mcmctree.ctl' % current_dating_wd_1
-        mcmctree_ctl_2  = '%s/mcmctree.ctl' % current_dating_wd_2
+        mcmctree_ctl_1 = '%s/mcmctree.ctl' % current_dating_wd_1
+        mcmctree_ctl_2 = '%s/mcmctree.ctl' % current_dating_wd_2
 
-        current_para_dict = para_comb_dict[para_comb]
-        current_para_dict['seqfile']  = msa_f_name
-        current_para_dict['treefile'] = tree_f_name
-        current_para_dict['mcmcfile'] = '%s_mcmc.txt' % para_comb
-        current_para_dict['outfile']  = '%s_out.txt'  % para_comb
-        current_para_dict['seqtype']  = seq_type
-        current_para_dict['usedata']  = '2'
+        # run 1
+        current_para_dict_run1 = para_comb_dict[para_comb]
+        current_para_dict_run1['seqfile']  = msa_f_name
+        current_para_dict_run1['treefile'] = tree_f_name
+        current_para_dict_run1['mcmcfile'] = '%s_mcmc.txt' % para_comb
+        current_para_dict_run1['outfile']  = '%s_out.txt'  % para_comb
+        if op_prefix != '':
+            current_para_dict_run1['mcmcfile'] = '%s_%s_mcmc_run1.txt' % (op_prefix, para_comb)
+            current_para_dict_run1['outfile']  = '%s_%s_out_run1.txt'  % (op_prefix, para_comb)
+        current_para_dict_run1['seqtype']  = seq_type
+        current_para_dict_run1['usedata']  = '2'
 
-        prep_mcmctree_ctl(current_para_dict, mcmctree_ctl_1)
-        prep_mcmctree_ctl(current_para_dict, mcmctree_ctl_2)
+        # run 2
+        current_para_dict_run2 = para_comb_dict[para_comb]
+        current_para_dict_run2['seqfile']  = msa_f_name
+        current_para_dict_run2['treefile'] = tree_f_name
+        current_para_dict_run2['mcmcfile'] = '%s_mcmc.txt' % para_comb
+        current_para_dict_run2['outfile']  = '%s_out.txt'  % para_comb
+        if op_prefix != '':
+            current_para_dict_run2['mcmcfile'] = '%s_%s_mcmc_run2.txt' % (op_prefix, para_comb)
+            current_para_dict_run2['outfile']  = '%s_%s_out_run2.txt'  % (op_prefix, para_comb)
+        current_para_dict_run2['seqtype'] = seq_type
+        current_para_dict_run2['usedata'] = '2'
+
+        prep_mcmctree_ctl(current_para_dict_run1, mcmctree_ctl_1)
+        prep_mcmctree_ctl(current_para_dict_run2, mcmctree_ctl_2)
 
         # copy BV files generated in step one
         os.system('cp %s/out.BV %s/in.BV' % (get_bv_wd, current_dating_wd_1))
@@ -228,6 +244,7 @@ if __name__ == '__main__':
     parser.add_argument('-tree',    required=True,                          help='tree file')
     parser.add_argument('-msa',     required=True,                          help='sequence alignments')
     parser.add_argument('-o',       required=True,                          help='output directory')
+    parser.add_argument('-p',       required=False, default='',             help='output prefix')
     parser.add_argument('-s',       required=True,                          help='settings to compare')
     parser.add_argument('-st',      required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
     parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')

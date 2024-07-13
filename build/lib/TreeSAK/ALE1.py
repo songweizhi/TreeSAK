@@ -7,12 +7,12 @@ from distutils.spawn import find_executable
 
 
 ALE1_usage = '''
-===================================== ALE1 example commands =====================================
+====================================== ALE1 example commands ======================================
 
-TreeSAK ALE1 -i OrthologousGroups.txt -s combined.faa -p oma -m 50 -jst 3 -f -o ALE1_op_dir
-TreeSAK ALE1 -ms s03_marker_seq -msx fa -p marker_set_1 -m 50 -jst 3 -f -o ALE1_op_dir
+TreeSAK ALE1 -i OrthologousGroups.txt -s combined.faa -p oma -m 50 -jst 3 -f -o ALE1_op_dir -bmge
+TreeSAK ALE1 -ms s03_marker_seq -msx fa -p marker_set_1 -m 50 -jst 3 -f -o ALE1_op_dir -bmge
 
-=================================================================================================
+===================================================================================================
 '''
 
 

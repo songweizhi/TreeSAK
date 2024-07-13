@@ -307,6 +307,7 @@ if __name__ == '__main__':
         dating_parser.add_argument('-tree',    required=True,                          help='outgroup leaves, one id per line')
         dating_parser.add_argument('-msa',     required=True,                          help='EU tree with time constraints')
         dating_parser.add_argument('-o',       required=True,                          help='dating wd')
+        dating_parser.add_argument('-p',       required=False, default='',             help='output prefix')
         dating_parser.add_argument('-s',       required=True,                          help='settings to compare')
         dating_parser.add_argument('-st',      required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
         dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
