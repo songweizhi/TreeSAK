@@ -1,5 +1,8 @@
-1.41.6
+1.42.2
 - fixed bugs
+
+1.42.0
+- new module added: mcmc2tree
 
 1.41.0
 - new module added: mcmcTC

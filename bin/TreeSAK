@@ -90,6 +90,7 @@ def print_main_help():
        VisHPD95               ->  HPD95 of estimated node age
        pRTC                   ->  Perform probabilistic RTC dating
        mcmcTC                 ->  adding time constraints to mcmctree tree
+       mcmc2tree              ->  get the tree with internal node id from mcmctree output
     
     Phylo-related stats
        PhyloBiAssoc            ->  A wrapper for binaryPGLMM test
@@ -345,11 +346,12 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'PlotMcmcNode':
         from TreeSAK import PlotMcmcNode
         PlotMcmcNode_parser = subparsers.add_parser('PlotMcmcNode', usage=PlotMcmcNode.PlotMcmcNode_usage)
-        PlotMcmcNode_parser.add_argument('-i',      required=True,                  help='folder holds the *mcmc.txt and *out.txt files')
-        PlotMcmcNode_parser.add_argument('-of',     required=False, default=None,   help='the *out.txt file')
-        PlotMcmcNode_parser.add_argument('-n',      required=True,                  help='Nodes to plot')
-        PlotMcmcNode_parser.add_argument('-l',      required=False, default=None,   help='labels on y axis')
-        PlotMcmcNode_parser.add_argument('-o',      required=True,                  help='Output plot')
+        PlotMcmcNode_parser.add_argument('-i',      required=True,                       help='folder holds the *mcmc.txt and *out.txt files')
+        PlotMcmcNode_parser.add_argument('-of',     required=False, default=None,        help='the *out.txt file')
+        PlotMcmcNode_parser.add_argument('-n',      required=True,                       help='Nodes to plot')
+        PlotMcmcNode_parser.add_argument('-l',      required=False, default=None,        help='labels on y axis')
+        PlotMcmcNode_parser.add_argument('-o',      required=True,                       help='Output plot')
+        PlotMcmcNode_parser.add_argument('-tmp',    required=False, action="store_true", help='keep tmp files')
         args = vars(parser.parse_args())
         PlotMcmcNode.PlotMcmcNode(args)
 
@@ -802,6 +804,14 @@ if __name__ == '__main__':
         mcmcTC_parser.add_argument('-tc',   required=True, help='time constraint file')
         args = vars(parser.parse_args())
         mcmcTC.mcmcTC(args)
+
+    elif sys.argv[1] == 'mcmc2tree':
+        from TreeSAK import mcmc2tree
+        mcmc2tree_parser = subparsers.add_parser('mcmc2tree', usage=mcmc2tree.mcmc2tree_usage)
+        mcmc2tree_parser.add_argument('-i', required=True, help='the .out file from mcmctree')
+        mcmc2tree_parser.add_argument('-o', required=True, help='output tree file')
+        args = vars(parser.parse_args())
+        mcmc2tree.mcmc2tree(args)
 
     else:
         print('Unrecognized module: %s, program exited' % sys.argv[1])

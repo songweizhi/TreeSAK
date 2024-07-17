@@ -28,7 +28,6 @@ TreeSAK/FastRoot_backup.py
 TreeSAK/GTDB_tree.py
 TreeSAK/KEGG_Luo17.py
 TreeSAK/LcaToLeaves.py
-TreeSAK/MCMCtreeR.py
 TreeSAK/MarkerRef2Tree.py
 TreeSAK/MarkerRef2Tree_backup.py
 TreeSAK/MarkerSeq2Tree.py
@@ -83,8 +82,8 @@ TreeSAK/keep_highest_rrtc.py
 TreeSAK/label_tree.R
 TreeSAK/label_tree.py
 TreeSAK/mad.py
+TreeSAK/mcmc2tree.py
 TreeSAK/mcmcTC.py
-TreeSAK/mcmctree.py
 TreeSAK/merge_pdf.py
 TreeSAK/pRTC.py
 TreeSAK/plot_distruibution_th.py
@@ -99,7 +98,6 @@ TreeSAK/run_TaxaCountStats_R_s1.py
 TreeSAK/subsample_drep_gnms.py
 TreeSAK/subset.py
 TreeSAK/subset_tree_stupid_old_way.py
-TreeSAK/tmp_1.py
 TreeSAK/weighted_rand.rb
 TreeSAK.egg-info/PKG-INFO
 TreeSAK.egg-info/SOURCES.txt

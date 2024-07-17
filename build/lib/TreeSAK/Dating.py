@@ -5,14 +5,13 @@ from distutils.spawn import find_executable
 
 
 dating_usage = '''
-======================== dating example commands ========================
+========================= dating example commands =========================
 
 # Requirement: PAML
 
-# example commands
 TreeSAK dating -tree tree.treefile -msa markers.phylip -o dating_wd -f
 
-=========================================================================
+===========================================================================
 '''
 
 def check_dependencies(program_list):

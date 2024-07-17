@@ -149,6 +149,7 @@ def PlotMcmcNode(args):
     output_plot         = args['o']
     specified_out_file  = args['of']
     y_label_txt         = args['l']
+    keep_tmp_file       = args['tmp']
 
     # check MCMCTree output file/dir
     if os.path.isfile(mcmc_in) is True:
@@ -227,16 +228,23 @@ def PlotMcmcNode(args):
     # plot distribution
     plot_distribution(op_df_tmp, output_plot)
 
+    # remove tmp files
+    if keep_tmp_file is False:
+        os.system('rm %s' % op_tree_tmp)
+        os.system('rm %s' % op_df_tmp)
+        os.system('rm %s' % op_label_tmp)
+
     print('Plot exported to %s, done!' % output_plot)
 
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-i',      required=True,                   help='folder holds the *mcmc.txt and *out.txt files')
-    parser.add_argument('-of',     required=False, default=None,    help='the *out.txt file')
-    parser.add_argument('-n',      required=True,                   help='Nodes to plot')
-    parser.add_argument('-l',      required=False, default=None,    help='labels on y axis')
-    parser.add_argument('-o',      required=True,                   help='Output plot')
-    args = vars(parser.parse_args())
+    PlotMcmcNode_parser = argparse.ArgumentParser()
+    PlotMcmcNode_parser.add_argument('-i',      required=True,                       help='folder holds the *mcmc.txt and *out.txt files')
+    PlotMcmcNode_parser.add_argument('-of',     required=False, default=None,        help='the *out.txt file')
+    PlotMcmcNode_parser.add_argument('-n',      required=True,                       help='Nodes to plot')
+    PlotMcmcNode_parser.add_argument('-l',      required=False, default=None,        help='labels on y axis')
+    PlotMcmcNode_parser.add_argument('-o',      required=True,                       help='Output plot')
+    PlotMcmcNode_parser.add_argument('-tmp',    required=False, action="store_true", help='keep tmp files')
+    args = vars(PlotMcmcNode_parser.parse_args())
     PlotMcmcNode(args)
