@@ -7,13 +7,13 @@ from TreeSAK.TreeSAK_config import config_dict
 
 
 compare_trees_usage = '''
-================ compare_trees example command ================
+==================== compare_trees example command ====================
 
 module load R/3.5.3
-BioSAK compare_trees -t1 tree_1.newick -t2 tree_2.newick
-BioSAK compare_trees -t1 tree_dir -t2 tree_dir -tx newick -dm -t 12
+TreeSAK compare_trees -t1 tree_1.newick -t2 tree_2.newick
+TreeSAK compare_trees -t1 tree_dir -t2 tree_dir -tx newick -dm -t 12
 
-===============================================================
+=======================================================================
 '''
 
 
@@ -159,7 +159,6 @@ def compare_trees_worker(arg_list):
 def compare_trees(args):
 
     compare_trees_R = config_dict['compare_trees_R']
-    #output_prefix   = args['p']
     tree_file_1     = args['t1']
     tree_file_2     = args['t2']
     tree_file_ext   = args['tx']
@@ -230,7 +229,6 @@ def compare_trees(args):
 if __name__ == '__main__':
 
     compare_trees_parser = argparse.ArgumentParser(usage=compare_trees_usage)
-    #compare_trees_parser.add_argument('-p',   required=True,                       help='output prefix')
     compare_trees_parser.add_argument('-t1',  required=True,                       help='tree (folder) 1')
     compare_trees_parser.add_argument('-t2',  required=True,                       help='tree (folder) 2')
     compare_trees_parser.add_argument('-tx',  required=False, default='newick',    help='extention of tree files, default: newick')
