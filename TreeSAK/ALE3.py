@@ -6,7 +6,10 @@ import pandas as pd
 ALE3_usage = '''
 ================= ALE3 example commands =================
 
-TreeSAK ALE3 -2 ALE2_op_dir -o ALE3_op_dir -f -c 0.75
+TreeSAK ALE3 -2 ALE2_op_dir -o ALE3_op_dir_30 -f -c 30
+TreeSAK ALE3 -2 ALE2_op_dir -o ALE3_op_dir_75 -f -c 75
+
+# Needs the uml_rec files
 
 =========================================================
 '''
@@ -96,11 +99,11 @@ def get_verticality_and_transfer_propensity(TableEvents_tsv, verticality_txt, tr
 
 def ALE3(args):
 
-    uml_rec_dir             = args['2']
-    gene_presence_cutoff    = args['c']
-    fun_des_txt             = args['a']
-    op_dir                  = args['o']
-    force_create_op_dir     = args['f']
+    uml_rec_dir          = args['2']
+    gene_presence_cutoff = args['c']
+    fun_des_txt          = args['a']
+    op_dir               = args['o']
+    force_create_op_dir  = args['f']
 
     # read in fun_des_txt
     fun_des_dict = dict()
@@ -131,9 +134,12 @@ def ALE3(args):
     os.system('mkdir %s' % op_dir)
     os.system('mkdir %s' % gene_content_dir)
 
+    # parsing ALE2 outputs
+    print('Parsing ALE2 outputs')
     ale_parser(uml_rec_dir, SpeciesTreeRef_newick, TableInfo_tsv, TableEvents_tsv, GeneTrees_nwk)
 
     # get_verticality_and_transfer_propensity
+    print('Getting verticality and transfer propensity')
     get_verticality_and_transfer_propensity(TableEvents_tsv, verticality_txt, transfer_propensity_txt, fun_des_dict)
 
     # get genome content
@@ -150,7 +156,7 @@ def ALE3(args):
             gene_family   = gene_family.replace('.ufboot', '')
             gene_branch   = each_line_split[col_index['Branch']]
             gene_presence = float(each_line_split[col_index['presence']])
-            if gene_presence >= gene_presence_cutoff:
+            if gene_presence >= (gene_presence_cutoff/100):
                 og_set.add(gene_family)
                 if gene_branch not in branch_to_og_dict:
                     branch_to_og_dict[gene_branch] = set()
@@ -190,8 +196,8 @@ def ALE3(args):
 if __name__ == '__main__':
 
     ALE3_parser = argparse.ArgumentParser()
-    ALE3_parser.add_argument('-2',   required=True,                             help='Folder with uml_rec files')
-    ALE3_parser.add_argument('-c',   required=False, type=float, default=0.8,   help='gene family presence cutoff, default: 0.8')
+    ALE3_parser.add_argument('-2',   required=True,                             help='Folder with the uml_rec files')
+    ALE3_parser.add_argument('-c',   required=False, type=float, default=75,   help='gene family presence cutoff in percentage, default: 75')
     ALE3_parser.add_argument('-a',   required=False, default=None,              help='OG functional description')
     ALE3_parser.add_argument('-o',   required=True,                             help='output dir')
     ALE3_parser.add_argument('-f',   required=False, action="store_true",       help='force overwrite')

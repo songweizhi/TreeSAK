@@ -6,12 +6,14 @@ from Bio import AlignIO
 import multiprocessing as mp
 
 
-aster_usage = '''
-======================= aster example commands =======================
+supertree_usage = '''
+====================== supertree example commands ======================
 
-TreeSAK aster -i best10 -x fa -o best10_astral_tree -bmge -t 12 -f
+Dependencies: mafft, trimal, bmge and iqtree2
 
-======================================================================
+TreeSAK supertree -i best10 -x fa -o best10_astral_tree -bmge -t 12 -f
+
+========================================================================
 '''
 
 
@@ -139,7 +141,7 @@ def PB(msa_in, op_dir, op_prefix, fa_to_plp, num_of_threads, num_of_chains, forc
     print('Done!')
 
 
-def aster(args):
+def supertree(args):
 
     oma_op_fasta            = args['i']
     fasta_file_ext          = args['x']
@@ -160,7 +162,7 @@ def aster(args):
     fa_file_list = ['.'.join(os.path.basename(i).split('.')[:-1]) for i in glob.glob(fa_file_re)]
 
     if len(fa_file_list) == 0:
-        print('No file found in %s, progeam exited!' % oma_op_fasta)
+        print('No file found in %s, program exited!' % oma_op_fasta)
         exit()
 
     ################################################################################
@@ -313,16 +315,16 @@ def aster(args):
 
 if __name__ == '__main__':
 
-    aster_parser = argparse.ArgumentParser()
-    aster_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
-    aster_parser.add_argument('-x',         required=True,                          help='faa file extension')
-    aster_parser.add_argument('-o',         required=True,                          help='output directory')
-    aster_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
-    aster_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
-    aster_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
-    aster_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
-    aster_parser.add_argument('-pb',        required=False, action="store_true",    help='infer tree with PhyloBayes-MPI, default is iqtree')
-    aster_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
-    aster_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
-    args = vars(aster_parser.parse_args())
-    aster(args)
+    supertree_parser = argparse.ArgumentParser()
+    supertree_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
+    supertree_parser.add_argument('-x',         required=True,                          help='faa file extension')
+    supertree_parser.add_argument('-o',         required=True,                          help='output directory')
+    supertree_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
+    supertree_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
+    supertree_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
+    supertree_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
+    supertree_parser.add_argument('-pb',        required=False, action="store_true",    help='infer tree with PhyloBayes-MPI, default is iqtree')
+    supertree_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
+    supertree_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
+    args = vars(supertree_parser.parse_args())
+    supertree(args)

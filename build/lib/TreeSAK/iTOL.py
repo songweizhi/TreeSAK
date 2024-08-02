@@ -135,6 +135,7 @@ def iTOL(args):
     scale_str       = args['scale']
     LegendTitle     = args['lt']
     FileOut         = args['o']
+    show_color_strip_legend = args['legend']
 
     # General
     STRIP_WIDTH                 = 100
@@ -233,12 +234,31 @@ def iTOL(args):
             FileOut_handle.write('STRIP_WIDTH\t%s\n' % STRIP_WIDTH)
             FileOut_handle.write('MARGIN\t%s\n'      % MARGIN)
 
+            if show_color_strip_legend is False:
+                FileOut_handle.write('\n# customize labels on the trip\n')
+                FileOut_handle.write('SHOW_STRIP_LABELS\t1\n')
+                FileOut_handle.write('STRIP_LABEL_POSITION\tcenter\n')
+                FileOut_handle.write('STRIP_LABEL_ROTATION\t90\n')
+            else:
+                FileOut_handle.write('\n# uncomment to show labels on the trip\n')
+                FileOut_handle.write('# SHOW_STRIP_LABELS\t1\n')
+                FileOut_handle.write('# STRIP_LABEL_POSITION\tcenter\n')
+                FileOut_handle.write('# STRIP_LABEL_ROTATION\t90\n')
+
         # write out legend info
-        FileOut_handle.write('\n# customize legend here\n')
-        FileOut_handle.write('LEGEND_TITLE\t%s\n' % LegendTitle)
-        FileOut_handle.write('LEGEND_SHAPES\t%s\n' % '\t'.join(['1' for i in Group_to_Color_dict]))
-        FileOut_handle.write('LEGEND_COLORS\t%s\n' % '\t'.join(color_list))
-        FileOut_handle.write('LEGEND_LABELS\t%s\n' % '\t'.join(group_list))
+        if show_color_strip_legend is True:
+            FileOut_handle.write('\n# customize legend\n')
+            FileOut_handle.write('LEGEND_TITLE\t%s\n' % LegendTitle)
+            FileOut_handle.write('LEGEND_SHAPES\t%s\n' % '\t'.join(['1' for i in Group_to_Color_dict]))
+            FileOut_handle.write('LEGEND_COLORS\t%s\n' % '\t'.join(color_list))
+            FileOut_handle.write('LEGEND_LABELS\t%s\n' % '\t'.join(group_list))
+        else:
+            FileOut_handle.write('\n# uncomment if you want to show the legend\n')
+            FileOut_handle.write('# LEGEND_TITLE\t%s\n' % LegendTitle)
+            FileOut_handle.write('# LEGEND_SHAPES\t%s\n' % '\t'.join(['1' for i in Group_to_Color_dict]))
+            FileOut_handle.write('# LEGEND_COLORS\t%s\n' % '\t'.join(color_list))
+            FileOut_handle.write('# LEGEND_LABELS\t%s\n' % '\t'.join(group_list))
+
         FileOut_handle.write('\n# provide data here\nDATA\n')
         for leaf in Leaf_to_Group_dict:
             leaf_group = Leaf_to_Group_dict[leaf]
@@ -620,6 +640,7 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-dr',             required=False, default=None,           help='Donor to Recipient')
     iTOL_parser.add_argument('-scale',          required=False, default=None,           help='Scale Values, in format 0-3-6-9')
     iTOL_parser.add_argument('-lt',             required=False, default=None,           help='Legend Title')
+    iTOL_parser.add_argument('-legend',         required=False, action='store_true',    help='show legend for ColorStrip')
     iTOL_parser.add_argument('-o',              required=True,                          help='Output filename')
     args = vars(iTOL_parser.parse_args())
     iTOL(args)

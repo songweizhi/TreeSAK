@@ -57,8 +57,9 @@ def print_main_help():
 
     Tree-related
        iTOL                   ->  Prepare iTOL files
+       iTOL_gene_tree         ->  Genome metadata to gene metadata
        PB                     ->  Infer tree with PhyloBayes-MPI 
-       aster                  ->  Infer species tree from gene trees 
+       supertree              ->  Infer species tree from gene trees 
        AssessPB               ->  Compare PhyloBayes chains
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
@@ -72,6 +73,7 @@ def print_main_help():
        ModifyTopo             ->  Modify tree topology
        GeneRax                ->  (to be added) Run GeneRax    
        ALE                    ->  Modules for running ALE
+       FunTree                ->  Infer tree for individual COG/KEGG function
        RootTree               ->  Root tree with outgroup leaves
        RootTreeGTDB214        ->  Root tree by GTDB taxonomy (r214)
        RootTreeGTDB220        ->  Root tree by GTDB taxonomy (r220)
@@ -305,12 +307,13 @@ if __name__ == '__main__':
     elif sys.argv[1] in ['Dating', 'dating']:
         from TreeSAK import dating
         dating_parser = subparsers.add_parser('dating', usage=dating.dating_usage)
-        dating_parser.add_argument('-tree',    required=True,                          help='outgroup leaves, one id per line')
-        dating_parser.add_argument('-msa',     required=True,                          help='EU tree with time constraints')
-        dating_parser.add_argument('-o',       required=True,                          help='dating wd')
-        dating_parser.add_argument('-p',       required=False, default='',             help='output prefix')
+        dating_parser.add_argument('-tree',    required=True,                          help='tree file')
+        dating_parser.add_argument('-msa',     required=True,                          help='sequence alignments')
+        dating_parser.add_argument('-o',       required=True,                          help='output directory')
+        dating_parser.add_argument('-p',       required=True,                          help='output prefix')
         dating_parser.add_argument('-s',       required=True,                          help='settings to compare')
         dating_parser.add_argument('-st',      required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
+        dating_parser.add_argument('-srun',    required=False, action="store_true",    help='wrap commands with BioSAK srun')
         dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         dating.dating(args)
@@ -539,7 +542,7 @@ if __name__ == '__main__':
         from TreeSAK import ALE3
         ALE3_parser = subparsers.add_parser('ALE3', usage=ALE3.ALE3_usage)
         ALE3_parser.add_argument('-2',   required=True,                             help='Folder with uml_rec files')
-        ALE3_parser.add_argument('-c',   required=False, type=float, default=0.8,   help='gene family presence cutoff, default: 0.8')
+        ALE3_parser.add_argument('-c',   required=False, type=float, default=75,    help='gene family presence cutoff in percentage, default: 75')
         ALE3_parser.add_argument('-a',   required=False, default=None,              help='OG functional description')
         ALE3_parser.add_argument('-o',   required=True,                             help='output dir')
         ALE3_parser.add_argument('-f',   required=False, action="store_true",       help='force overwrite')
@@ -576,6 +579,16 @@ if __name__ == '__main__':
         ALE6_parser.add_argument('-f',              required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         ALE6.ALE6(args)
+
+    elif sys.argv[1] in ['ALE7', 'ale7', 'Ale7']:
+        from TreeSAK import ALE7
+        ALE7_parser = subparsers.add_parser('ALE7', usage=ALE7.ALE7_usage)
+        ALE7_parser.add_argument('-6',      required=True,  help='ALE6 output directory')
+        ALE7_parser.add_argument('-fun',    required=True,  help='interested functions')
+        ALE7_parser.add_argument('-node',   required=True,  help='interested internal nodes')
+        ALE7_parser.add_argument('-o',      required=True,  help='output directory')
+        args = vars(parser.parse_args())
+        ALE7.ALE7(args)
 
     elif sys.argv[1] == 'RootTree':
         from TreeSAK import RootTree
@@ -767,25 +780,26 @@ if __name__ == '__main__':
         iTOL_parser.add_argument('-dr',              required=False, default=None,          help='Donor to Recipient')
         iTOL_parser.add_argument('-scale',           required=False, default=None,          help='Scale Values, in format 0-3-6-9')
         iTOL_parser.add_argument('-lt',              required=False, default=None,          help='Legend Title')
+        iTOL_parser.add_argument('-legend',          required=False, action='store_true',   help='show legend for ColorStrip')
         iTOL_parser.add_argument('-o',               required=True,                         help='Output filename')
         args = vars(parser.parse_args())
         iTOL.iTOL(args)
 
-    elif sys.argv[1] == 'aster':
-        from TreeSAK import aster
-        aster_parser = subparsers.add_parser('aster', usage=aster.aster_usage)
-        aster_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
-        aster_parser.add_argument('-x',         required=True,                          help='faa file extension')
-        aster_parser.add_argument('-o',         required=True,                          help='output directory')
-        aster_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
-        aster_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
-        aster_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
-        aster_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
-        aster_parser.add_argument('-pb',        required=False, action="store_true",    help='infer tree with PhyloBayes-MPI, default is iqtree')
-        aster_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
-        aster_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
+    elif sys.argv[1] == 'supertree':
+        from TreeSAK import supertree
+        supertree_parser = subparsers.add_parser('supertree', usage=supertree.supertree_usage)
+        supertree_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
+        supertree_parser.add_argument('-x',         required=True,                          help='faa file extension')
+        supertree_parser.add_argument('-o',         required=True,                          help='output directory')
+        supertree_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
+        supertree_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
+        supertree_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
+        supertree_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
+        supertree_parser.add_argument('-pb',        required=False, action="store_true",    help='infer tree with PhyloBayes-MPI, default is iqtree')
+        supertree_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
+        supertree_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
         args = vars(parser.parse_args())
-        aster.aster(args)
+        supertree.supertree(args)
 
     elif sys.argv[1] == 'TaxonTree':
         from TreeSAK import TaxonTree
@@ -812,6 +826,34 @@ if __name__ == '__main__':
         mcmc2tree_parser.add_argument('-o', required=True, help='output tree file')
         args = vars(parser.parse_args())
         mcmc2tree.mcmc2tree(args)
+
+    elif sys.argv[1] == 'FunTree':
+        from TreeSAK import FunTree
+        FunTree_parser = subparsers.add_parser('FunTree', usage=FunTree.FunTree_usage)
+        FunTree_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
+        FunTree_parser.add_argument('-fun',       required=True,                          help='interested functions')
+        FunTree_parser.add_argument('-cog',       required=False, default=None,           help='COG annotation results')
+        FunTree_parser.add_argument('-kegg',      required=False, default=None,           help='KEGG annotation results')
+        FunTree_parser.add_argument('-o',         required=True,                          help='output directory')
+        FunTree_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
+        FunTree_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
+        FunTree_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
+        FunTree_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
+        FunTree_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
+        FunTree_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
+        args = vars(parser.parse_args())
+        FunTree.FunTree(args)
+
+    elif sys.argv[1] == 'iTOL_gene_tree':
+        from TreeSAK import iTOL_gene_tree
+        iTOL_gene_tree_parser = subparsers.add_parser('iTOL_gene_tree', usage=iTOL_gene_tree.iTOL_gene_tree_usage)
+        iTOL_gene_tree_parser.add_argument('-i',    required=True,                          help='input metadata')
+        iTOL_gene_tree_parser.add_argument('-tree', required=False, default=None,           help='gene id, in tree file')
+        iTOL_gene_tree_parser.add_argument('-txt',  required=False, default=None,           help='gene id, in txt file')
+        iTOL_gene_tree_parser.add_argument('-o',    required=True,                          help='output metadata')
+        iTOL_gene_tree_parser.add_argument('-na',   required=False, action='store_true',    help='include leaves with na values')
+        args = vars(parser.parse_args())
+        iTOL_gene_tree.iTOL_gene_tree(args)
 
     else:
         print('Unrecognized module: %s, program exited' % sys.argv[1])

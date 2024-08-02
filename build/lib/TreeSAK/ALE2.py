@@ -6,7 +6,7 @@ import multiprocessing as mp
 
 
 ALE2_usage = '''
-========================= ALE2 example commands =========================
+============================================ ALE2 example commands ===========================================
 
 TreeSAK ALE2 -1 ALE1_op_dir -s genome.treefile -t 10 -f -runALE -docker gregmich/alesuite_new -o ALE2_op_dir
 
@@ -16,7 +16,9 @@ Genome names should NOT contain "_", the program will tackle this automatically.
 # You can try to add this while building the docker images
 --platform linux/arm64/v8
 
-=========================================================================
+# Only the ufboot files in ALE1_op_dir will be needed in this step.
+
+===============================================================================================================
 '''
 
 
@@ -67,16 +69,16 @@ def prepare_ale_ip_worker(arg_list):
 
 def ALE2(args):
 
-    gene_tree_dir           = args['1']
+    ale1_op_dir             = args['1']
     genome_tree_file_rooted = args['s']
     force_create_ale_wd     = args['f']
     num_threads             = args['t']
-    ale_wd                  = args['o']
+    ale2_op_dir             = args['o']
     run_ale                 = args['runALE']
     docker_image            = args['docker']
-    run_ale_cmds_txt        = '%s_cmds.txt'     % ale_wd
+    run_ale_cmds_txt        = '%s_cmds.txt'     % ale2_op_dir
 
-    ufboot_file_re   = '%s/*.ufboot' % gene_tree_dir
+    ufboot_file_re   = '%s/*.ufboot' % ale1_op_dir
     ufboot_file_list = glob.glob(ufboot_file_re)
     og_to_process_list = []
     for each_ufboot in ufboot_file_list:
@@ -84,15 +86,15 @@ def ALE2(args):
         og_to_process_list.append(ufboot_base)
 
     # define file name
-    gnm_tree_no_underscore          = 'genome_tree.newick'
-    gnm_tree_leaf_rename_txt        = 'genome_tree_leaf_rename.txt'
-    gnm_tree_no_underscore_in_wd    = '%s/%s'                       % (ale_wd, gnm_tree_no_underscore)
+    gnm_tree_no_underscore       = 'genome_tree.newick'
+    gnm_tree_leaf_rename_txt     = 'genome_tree_leaf_rename.txt'
+    gnm_tree_no_underscore_in_wd = '%s/%s' % (ale2_op_dir, gnm_tree_no_underscore)
 
-    # create ale_wd
+    # create ale2_op_dir
     if force_create_ale_wd is True:
-        if os.path.isdir(ale_wd) is True:
-            os.system('rm -r %s' % ale_wd)
-    os.system('mkdir %s' % ale_wd)
+        if os.path.isdir(ale2_op_dir) is True:
+            os.system('rm -r %s' % ale2_op_dir)
+    os.system('mkdir %s' % ale2_op_dir)
 
     # prepare genome tree for running ALE
     gnm_tree_leaf_rename_txt_handle = open(gnm_tree_leaf_rename_txt, 'w')
@@ -113,20 +115,19 @@ def ALE2(args):
     prepare_ale_ip_worker_arg_lol = []
     ale_cmd_list = []
     for qualified_og in og_to_process_list:
-        pwd_gene_tree_ufboot = '%s/%s.ufboot' % (gene_tree_dir, qualified_og)
+        pwd_gene_tree_ufboot = '%s/%s.ufboot' % (ale1_op_dir, qualified_og)
         if os.path.isfile(pwd_gene_tree_ufboot) is False:
             print('%s not found, please build gene tree first!' % pwd_gene_tree_ufboot)
         else:
-            gene_tree_ufboot            = '%s.ufboot'                           % qualified_og
-            ALEobserve_stdout           = '%s.ALEobserve.log'                   % qualified_og
-            ALEml_undated_stdout        = '%s.ALEml_undated.log'                % qualified_og
-            pwd_gene_tree_ufboot_in     = '%s/%s'                               % (gene_tree_dir, gene_tree_ufboot)
-            pwd_gene_tree_ufboot_out    = '%s/%s'                               % (ale_wd, gene_tree_ufboot)
-            obtain_ale_file_cmd         = 'ALEobserve %s > %s'                  % (gene_tree_ufboot, ALEobserve_stdout)
-            reconciliation_cmd          = 'ALEml_undated %s %s.ufboot.ale > %s' % (gnm_tree_no_underscore, qualified_og, ALEml_undated_stdout)
+            pwd_gene_tree_ufboot_in     = '%s/%s.ufboot'                                            % (ale1_op_dir, qualified_og)
+            pwd_gene_tree_ufboot_out    = '%s/%s.ufboot'                                            % (ale2_op_dir, qualified_og)
+
+            # get commands for ALEobserve and ALEml_undated
+            obtain_ale_file_cmd         = 'ALEobserve %s.ufboot > %s.ALEobserve.log'                % (qualified_og, qualified_og)
+            reconciliation_cmd          = 'ALEml_undated %s %s.ufboot.ale > %s.ALEml_undated.log'   % (gnm_tree_no_underscore, qualified_og, qualified_og)
             if docker_image is not None:
-                obtain_ale_file_cmd = 'docker run -v $PWD:$PWD -w $PWD %s %s'   % (docker_image, obtain_ale_file_cmd)
-                reconciliation_cmd  = 'docker run -v $PWD:$PWD -w $PWD %s %s'   % (docker_image, reconciliation_cmd)
+                obtain_ale_file_cmd     = 'docker run -v $PWD:$PWD -w $PWD %s %s'                   % (docker_image, obtain_ale_file_cmd)
+                reconciliation_cmd      = 'docker run -v $PWD:$PWD -w $PWD %s %s'                   % (docker_image, reconciliation_cmd)
 
             current_arg_list = [pwd_gene_tree_ufboot_in, pwd_gene_tree_ufboot_out]
             run_ale_cmds_txt_handle.write('%s; %s\n' % (obtain_ale_file_cmd, reconciliation_cmd))
@@ -144,7 +145,7 @@ def ALE2(args):
     # run ALE
     if run_ale is True:
         print('running ALE with %s cores for %s OGs' % (num_threads, len(prepare_ale_ip_worker_arg_lol)))
-        os.chdir(ale_wd)
+        os.chdir(ale2_op_dir)
         pool = mp.Pool(processes=num_threads)
         pool.map(os.system, ale_cmd_list)
         pool.close()

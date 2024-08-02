@@ -1,5 +1,14 @@
-1.42.2
+1.45.5
 - fixed bugs
+
+1.45.0
+- new module added: iTOL_gene_tree
+
+1.44.0
+- new module added: FunTree
+
+1.43.0
+- new module added: ALE7
 
 1.42.0
 - new module added: mcmc2tree
@@ -11,7 +20,7 @@
 - new module added: TaxonTree
 
 1.39.0
-- new module added: aster
+- new module added: supertree
 
 1.38.0
 - new module added: pruneMSA

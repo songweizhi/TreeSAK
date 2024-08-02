@@ -10,6 +10,7 @@ TreeSAK/ALE3.py
 TreeSAK/ALE4.py
 TreeSAK/ALE5.py
 TreeSAK/ALE6.py
+TreeSAK/ALE7.py
 TreeSAK/ALE_backup.py
 TreeSAK/AssessCVG.py
 TreeSAK/AssessMarker.py
@@ -25,6 +26,7 @@ TreeSAK/Dir.rb
 TreeSAK/ExtractMarkerSeq.py
 TreeSAK/FastRoot.py
 TreeSAK/FastRoot_backup.py
+TreeSAK/FunTree.py
 TreeSAK/GTDB_tree.py
 TreeSAK/KEGG_Luo17.py
 TreeSAK/LcaToLeaves.py
@@ -63,7 +65,6 @@ TreeSAK/__init__.py
 TreeSAK/ale_parser.py
 TreeSAK/ale_splitter.py
 TreeSAK/alignment_pruner.pl
-TreeSAK/aster.py
 TreeSAK/catfasta2phy.py
 TreeSAK/compare_trees.R
 TreeSAK/compare_trees.py
@@ -77,7 +78,9 @@ TreeSAK/gap_stats.py
 TreeSAK/get_SCG_tree.py
 TreeSAK/get_arCOG_seq.py
 TreeSAK/global_functions.py
+TreeSAK/gnm_leaves.py
 TreeSAK/iTOL.py
+TreeSAK/iTOL_gene_tree.py
 TreeSAK/keep_highest_rrtc.py
 TreeSAK/label_tree.R
 TreeSAK/label_tree.py
@@ -98,6 +101,7 @@ TreeSAK/run_TaxaCountStats_R_s1.py
 TreeSAK/subsample_drep_gnms.py
 TreeSAK/subset.py
 TreeSAK/subset_tree_stupid_old_way.py
+TreeSAK/supertree.py
 TreeSAK/weighted_rand.rb
 TreeSAK.egg-info/PKG-INFO
 TreeSAK.egg-info/SOURCES.txt

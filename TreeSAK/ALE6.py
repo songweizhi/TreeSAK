@@ -13,8 +13,26 @@ TreeSAK ALE6 -1 ALE1_op_dir -3 ALE3_op_dir_30 -s species_tree.rooted.treefile -o
 TreeSAK ALE6 -1 ALE1_op_dir -3 ALE3_op_dir_30 -s species_tree.rooted.treefile -o ALE6_op_dir_30 -n 294,309,380,404
 TreeSAK ALE6 -1 ALE1_op_dir -3 ALE3_op_dir_30 -s species_tree.rooted.treefile -o ALE6_op_dir_30 -n interested_nodes.txt
 
+# Needed input files:
+-1: faa files
+-3: GeneContent.txt and SpeciesTreeRef.newick
+-s: the tree used as input for ALE2
+
+# To be added:
+1. A dereplication step to the produced faa file.
+
 ===================================================================================================
 '''
+
+
+def sep_path_basename_ext(file_in):
+
+    f_path, f_name = os.path.split(file_in)
+    if f_path == '':
+        f_path = '.'
+    f_base, f_ext = os.path.splitext(f_name)
+
+    return f_name, f_path, f_base, f_ext[1:]
 
 
 def get_internal_node_leaves(ale_species_tree_file, internal_node_id):
@@ -40,17 +58,20 @@ def ALE6(args):
     cog_annotation_wd           = args['cog']
     kegg_annotation_wd          = args['kegg']
 
-    GeneContent_txt = '%s/GeneContent.txt'          % ale3_op_dir
-    SpeciesTreeRef  = '%s/SpeciesTreeRef.newick'    % ale3_op_dir
+    GeneContent_txt         = '%s/GeneContent.txt'          % ale3_op_dir
+    SpeciesTreeRef          = '%s/SpeciesTreeRef.newick'    % ale3_op_dir
+    transfer_propensity_txt = '%s/Transfer_propensity.txt'  % ale3_op_dir
 
     ################################################## define op files #################################################
 
-    cog_dir             = '%s/annotation_COG'           % op_dir
-    kegg_dir            = '%s/annotation_KEGG'          % op_dir
-    cog_df_txt          = '%s/annotation_COG.txt'       % op_dir
-    cog_df_desc_txt     = '%s/annotation_COG_desc.txt'  % op_dir
-    kegg_df_txt         = '%s/annotation_KEGG.txt'      % op_dir
-    kegg_df_desc_txt    = '%s/annotation_KEGG_desc.txt' % op_dir
+    faa_dir                     = '%s/faa_files'                                    % op_dir
+    cog_dir                     = '%s/annotation_COG'                               % op_dir
+    kegg_dir                    = '%s/annotation_KEGG'                              % op_dir
+    cog_df_txt                  = '%s/annotation_COG.txt'                           % op_dir
+    cog_df_desc_txt             = '%s/annotation_COG_desc.txt'                      % op_dir
+    kegg_df_txt                 = '%s/annotation_KEGG.txt'                          % op_dir
+    kegg_df_desc_txt            = '%s/annotation_KEGG_desc.txt'                     % op_dir
+    fun_transfer_propensity_txt = '%s/function_transfer_propensity_weighted.txt'    % op_dir
 
     ########################################## get the id of nodes to process ##########################################
 
@@ -91,6 +112,7 @@ def ALE6(args):
         if os.path.isdir(op_dir) is True:
             os.system('rm -r %s' % op_dir)
     os.system('mkdir %s' % op_dir)
+    os.system('mkdir %s' % faa_dir)
 
     if cog_annotation_wd is not None:
         os.system('mkdir %s' % cog_dir)
@@ -119,7 +141,7 @@ def ALE6(args):
 
     branch_to_gene_dict = dict()
     for each_branch in branch_to_content_dict:
-        branch_faa = '%s/%s.faa' % (op_dir, each_branch)
+        branch_faa = '%s/%s.faa' % (faa_dir, each_branch)
         branch_content = branch_to_content_dict[each_branch]
         branch_child_set = branch_to_leaf_dict[each_branch]
         branch_child_set_original_name = {gnm_name_dict_new_to_old[i] for i in branch_child_set}
@@ -128,7 +150,8 @@ def ALE6(args):
         for each_prot_family in branch_content:
             each_prot_family_faa = '%s/%s.faa' % (ale1_op_dir, each_prot_family)
             for each_seq in SeqIO.parse(each_prot_family_faa, 'fasta'):
-                seq_gnm = '_'.join(each_seq.id.split('_')[:-1])
+                seq_id = each_seq.id
+                seq_gnm = '_'.join(seq_id.split('_')[:-1])
                 if seq_gnm in branch_child_set_original_name:
                     branch_faa_handle.write('>%s %s\n' % (each_seq.id, each_prot_family))
                     branch_faa_handle.write('%s\n' % each_seq.seq)
@@ -136,8 +159,9 @@ def ALE6(args):
         branch_faa_handle.close()
 
     # Read in COG annotation results
+    fun_to_gene_dict = dict()
     annotation_dict_cog = dict()
-    id_to_fun_dict_cog = dict()
+    fun_id_to_desc_dict = dict()
     if cog_annotation_wd is not None:
 
         print('Reading in COG annotation results')
@@ -157,13 +181,18 @@ def ALE6(args):
                 if line_index > 0:
                     each_line_split = each_line.strip().split('\t')
                     if len(each_line_split) == 4:
-                        annotation_dict_cog[gnm_id][each_line_split[0]] = each_line_split[1]
-                        id_to_fun_dict_cog[each_line_split[1]] = each_line_split[3]
+                        gene_id = each_line_split[0]
+                        cog_id = each_line_split[1]
+                        cog_desc = each_line_split[3]
+                        annotation_dict_cog[gnm_id][gene_id] = cog_id
+                        fun_id_to_desc_dict[cog_id] = cog_desc
+                        if cog_id not in fun_to_gene_dict:
+                            fun_to_gene_dict[cog_id] = set()
+                        fun_to_gene_dict[cog_id].add(gene_id)
                 line_index += 1
 
     # Read in KEGG annotation results
     annotation_dict_kegg = dict()
-    id_to_fun_dict_kegg = dict()
     if kegg_annotation_wd is not None:
 
         print('Reading in KEGG annotation results')
@@ -188,7 +217,10 @@ def ALE6(args):
                         ko_d_id = each_line_split[4][2:]
                         ko_d_desc = each_line_split[8]
                         annotation_dict_kegg[gnm_id][gene_id] = ko_d_id
-                        id_to_fun_dict_kegg[ko_d_id] = ko_d_desc
+                        fun_id_to_desc_dict[ko_d_id] = ko_d_desc
+                        if ko_d_id not in fun_to_gene_dict:
+                            fun_to_gene_dict[ko_d_id] = set()
+                        fun_to_gene_dict[ko_d_id].add(gene_id)
                 line_index += 1
 
     cog_dod = dict()
@@ -219,20 +251,20 @@ def ALE6(args):
                 cog_annotation_txt = '%s/%s_COG.txt' % (cog_dir, each_branch)
                 cog_annotation_txt_handle = open(cog_annotation_txt, 'w')
                 for each_cog in sorted(list(branch_cog_set)):
-                    cog_annotation_txt_handle.write('%s\t%s\n' % (each_cog, id_to_fun_dict_cog[each_cog]))
+                    cog_annotation_txt_handle.write('%s\t%s\n' % (each_cog, fun_id_to_desc_dict[each_cog]))
                 cog_annotation_txt_handle.close()
 
             if len(branch_kegg_set) > 0:
                 kegg_annotation_txt = '%s/%s_KEGG.txt' % (kegg_dir, each_branch)
                 kegg_annotation_txt_handle = open(kegg_annotation_txt, 'w')
                 for each_kegg in sorted(list(branch_kegg_set)):
-                    kegg_annotation_txt_handle.write('%s\t%s\n' % (each_kegg, id_to_fun_dict_kegg[each_kegg]))
+                    kegg_annotation_txt_handle.write('%s\t%s\n' % (each_kegg, fun_id_to_desc_dict[each_kegg]))
                 kegg_annotation_txt_handle.close()
 
     all_identified_cog_list_sorted       = sorted(list(all_identified_cog_set))
     all_identified_kegg_list_sorted      = sorted(list(all_identified_kegg_set))
-    all_identified_cog_list_sorted_desc  = [('%s__%s' % (i, id_to_fun_dict_cog[i])) for i in all_identified_cog_list_sorted]
-    all_identified_kegg_list_sorted_desc = [('%s__%s' % (i, id_to_fun_dict_kegg[i])) for i in all_identified_kegg_list_sorted]
+    all_identified_cog_list_sorted_desc  = [('%s__%s' % (i, fun_id_to_desc_dict[i])) for i in all_identified_cog_list_sorted]
+    all_identified_kegg_list_sorted_desc = [('%s__%s' % (i, fun_id_to_desc_dict[i])) for i in all_identified_kegg_list_sorted]
 
     # write out COG dataframe
     if len(all_identified_cog_set) > 0:
@@ -274,7 +306,66 @@ def ALE6(args):
         kegg_df_desc_txt_handle.close()
         print('Annotation matrix exported to: %s' % kegg_df_txt)
 
+    ################################# get transfer propensity of individual functions ##################################
+
+    print('Getting transfer propensity of individual function')
+
+    # get gene_to_oma_dict
+    faa_file_re = '%s/*.faa' % ale1_op_dir
+    faa_file_list = glob.glob(faa_file_re)
+    gene_to_oma_dict = dict()
+    for faa_file in faa_file_list:
+        _, _, faa_base, _ = sep_path_basename_ext(faa_file)
+        for each_seq in SeqIO.parse(faa_file, 'fasta'):
+            seq_id = each_seq.id
+            gene_to_oma_dict[seq_id] = faa_base
+
+    # get oma_to_transfer_propensity_dict
+    oma_to_transfer_propensity_dict = dict()
+    line_index = 0
+    for each_oma in open(transfer_propensity_txt):
+        if line_index > 0:
+            each_oma_split = each_oma.strip().split('\t')
+            oma_id = each_oma_split[0]
+            transfer_propensity = float(each_oma_split[1])
+            oma_to_transfer_propensity_dict[oma_id] = transfer_propensity
+        line_index += 1
+
+    fun_transfer_propensity_txt_handle = open(fun_transfer_propensity_txt, 'w')
+    fun_transfer_propensity_txt_handle.write('ID\tWeighted_transfer_propensity\tDescription\n')
+    oma_weighted_transfer_propensity_dict = dict()
+    for fun_id in sorted(list(fun_to_gene_dict.keys())):
+        current_fun_gene_set = fun_to_gene_dict[fun_id]
+        current_fun_oma_stats_dict = dict()
+        for gene_id in current_fun_gene_set:
+            gene_oma = gene_to_oma_dict.get(gene_id, 'na')
+            if gene_oma not in current_fun_oma_stats_dict:
+                current_fun_oma_stats_dict[gene_oma] = 1
+            else:
+                current_fun_oma_stats_dict[gene_oma] += 1
+
+        total_transfer_propensity = 0
+        total_oma_num = 0
+        for oma_id in current_fun_oma_stats_dict:
+            oma_num = current_fun_oma_stats_dict[oma_id]
+            oma_transfer_propensity = oma_to_transfer_propensity_dict.get(oma_id, 'na')
+            if oma_transfer_propensity != 'na':
+                total_transfer_propensity += (oma_num*oma_transfer_propensity)
+                total_oma_num += oma_num
+
+        oma_transfer_propensity_weighted = 'na'
+        if total_oma_num != 0:
+            oma_transfer_propensity_weighted = total_transfer_propensity/total_oma_num
+            oma_transfer_propensity_weighted = float("{0:.3f}".format(oma_transfer_propensity_weighted))
+
+        if oma_transfer_propensity_weighted != 'na':
+            oma_weighted_transfer_propensity_dict[fun_id] = oma_transfer_propensity_weighted
+            fun_transfer_propensity_txt_handle.write('%s\t%s\t%s\n' % (fun_id, oma_transfer_propensity_weighted, fun_id_to_desc_dict[fun_id]))
+
+    fun_transfer_propensity_txt_handle.close()
+
     print('Done!')
+
 
 if __name__ == '__main__':
 

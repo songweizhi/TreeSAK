@@ -5,14 +5,16 @@ from distutils.spawn import find_executable
 
 
 dating_usage = '''
-========================= dating example commands =========================
+========================== dating example commands ==========================
 
 # Requirement: PAML
 
-TreeSAK dating -tree tree.treefile -msa markers.phylip -o dating_wd -f
+TreeSAK dating -tree gnm.tree -msa marker.phy -p topo1 -o dating_wd -f
+TreeSAK dating -tree gnm.tree -msa marker.phy -p topo2 -o dating_wd -f -srun
 
-===========================================================================
+=============================================================================
 '''
+
 
 def check_dependencies(program_list):
 
@@ -26,6 +28,7 @@ def check_dependencies(program_list):
     if not_detected_programs != []:
         print('%s not found, program exited!' % ','.join(not_detected_programs))
         exit()
+
 
 def sep_path_basename_ext(file_in):
 
@@ -112,6 +115,7 @@ def dating(args):
     op_prefix           = args['p']
     seq_type            = args['st']
     settings_to_compare = args['s']
+    wrap_with_srun      = args['srun']
     force_overwrite     = args['f']
 
     check_dependencies(['mcmctree'])
@@ -129,10 +133,10 @@ def dating(args):
     tree_f_name, tree_f_path, tree_f_base, tree_f_ext = sep_path_basename_ext(tree_file)
     msa_f_name,  msa_f_path,  msa_f_base,  msa_f_ext  = sep_path_basename_ext(msa_file)
 
-    get_bv_wd       = '%s/get_bv_wd'        % op_dir
-    mcmctree_ctl_bv = '%s/mcmctree.ctl'     % get_bv_wd
-    get_BV_cmd_txt  = '%s/get_BV_cmd.txt'   % get_bv_wd
-    dating_cmds_txt = '%s/dating_cmds.txt'  % op_dir
+    get_bv_wd       = '%s/get_bv_wd'       % op_dir
+    mcmctree_ctl_bv = '%s/mcmctree.ctl'    % get_bv_wd
+    get_BV_cmd_txt  = '%s/get_BV_cmd.txt'  % get_bv_wd
+    dating_cmds_txt = '%s/dating_cmds.txt' % op_dir
 
     # create output folder
     if os.path.isdir(op_dir) is True:
@@ -203,11 +207,8 @@ def dating(args):
         current_para_dict_run1 = para_comb_dict[para_comb]
         current_para_dict_run1['seqfile']  = msa_f_name
         current_para_dict_run1['treefile'] = tree_f_name
-        current_para_dict_run1['mcmcfile'] = '%s_mcmc.txt' % para_comb
-        current_para_dict_run1['outfile']  = '%s_out.txt'  % para_comb
-        if op_prefix != '':
-            current_para_dict_run1['mcmcfile'] = '%s_%s_mcmc_run1.txt' % (op_prefix, para_comb)
-            current_para_dict_run1['outfile']  = '%s_%s_out_run1.txt'  % (op_prefix, para_comb)
+        current_para_dict_run1['mcmcfile'] = '%s_%s_mcmc_run1.txt' % (op_prefix, para_comb)
+        current_para_dict_run1['outfile']  = '%s_%s_out_run1.txt'  % (op_prefix, para_comb)
         current_para_dict_run1['seqtype']  = seq_type
         current_para_dict_run1['usedata']  = '2'
 
@@ -215,11 +216,8 @@ def dating(args):
         current_para_dict_run2 = para_comb_dict[para_comb]
         current_para_dict_run2['seqfile']  = msa_f_name
         current_para_dict_run2['treefile'] = tree_f_name
-        current_para_dict_run2['mcmcfile'] = '%s_mcmc.txt' % para_comb
-        current_para_dict_run2['outfile']  = '%s_out.txt'  % para_comb
-        if op_prefix != '':
-            current_para_dict_run2['mcmcfile'] = '%s_%s_mcmc_run2.txt' % (op_prefix, para_comb)
-            current_para_dict_run2['outfile']  = '%s_%s_out_run2.txt'  % (op_prefix, para_comb)
+        current_para_dict_run2['mcmcfile'] = '%s_%s_mcmc_run2.txt' % (op_prefix, para_comb)
+        current_para_dict_run2['outfile']  = '%s_%s_out_run2.txt'  % (op_prefix, para_comb)
         current_para_dict_run2['seqtype'] = seq_type
         current_para_dict_run2['usedata'] = '2'
 
@@ -231,8 +229,13 @@ def dating(args):
         os.system('cp %s/out.BV %s/in.BV' % (get_bv_wd, current_dating_wd_2))
 
         # write out commands
-        dating_cmds_txt_handle.write('cd %s/%s/%s; mcmctree\n' % (current_pwd, op_dir, current_dating_wd_1.split('/')[-1]))
-        dating_cmds_txt_handle.write('cd %s/%s/%s; mcmctree\n' % (current_pwd, op_dir, current_dating_wd_2.split('/')[-1]))
+        cmd_run_1 = 'cd %s/%s/%s; mcmctree' % (current_pwd, op_dir, current_dating_wd_1.split('/')[-1])
+        cmd_run_2 = 'cd %s/%s/%s; mcmctree' % (current_pwd, op_dir, current_dating_wd_2.split('/')[-1])
+        if wrap_with_srun is True:
+            cmd_run_1 = 'BioSAK srun -c "%s"' % cmd_run_1
+            cmd_run_2 = 'BioSAK srun -c "%s"' % cmd_run_2
+        dating_cmds_txt_handle.write(cmd_run_1 + '\n')
+        dating_cmds_txt_handle.write(cmd_run_2 + '\n')
     dating_cmds_txt_handle.close()
 
     print('Job script for performing dating exported to: %s' % dating_cmds_txt)
@@ -240,13 +243,14 @@ def dating(args):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-tree',    required=True,                          help='tree file')
-    parser.add_argument('-msa',     required=True,                          help='sequence alignments')
-    parser.add_argument('-o',       required=True,                          help='output directory')
-    parser.add_argument('-p',       required=False, default='',             help='output prefix')
-    parser.add_argument('-s',       required=True,                          help='settings to compare')
-    parser.add_argument('-st',      required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
-    parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
-    args = vars(parser.parse_args())
+    dating_parser = argparse.ArgumentParser()
+    dating_parser.add_argument('-tree',    required=True,                          help='tree file')
+    dating_parser.add_argument('-msa',     required=True,                          help='sequence alignments')
+    dating_parser.add_argument('-o',       required=True,                          help='output directory')
+    dating_parser.add_argument('-p',       required=True,                          help='output prefix')
+    dating_parser.add_argument('-s',       required=True,                          help='settings to compare')
+    dating_parser.add_argument('-st',      required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
+    dating_parser.add_argument('-srun',    required=False, action="store_true",    help='wrap commands with BioSAK srun')
+    dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
+    args = vars(dating_parser.parse_args())
     dating(args)
