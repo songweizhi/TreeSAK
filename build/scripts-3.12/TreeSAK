@@ -73,7 +73,8 @@ def print_main_help():
        ModifyTopo             ->  Modify tree topology
        GeneRax                ->  (to be added) Run GeneRax    
        ALE                    ->  Modules for running ALE
-       FunTree                ->  Infer tree for individual COG/KEGG function
+       cogTree                ->  Infer tree for individual COG function
+       koTree                 ->  Infer tree for individual KEGG function
        RootTree               ->  Root tree with outgroup leaves
        RootTreeGTDB214        ->  Root tree by GTDB taxonomy (r214)
        RootTreeGTDB220        ->  Root tree by GTDB taxonomy (r220)
@@ -349,12 +350,10 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'PlotMcmcNode':
         from TreeSAK import PlotMcmcNode
         PlotMcmcNode_parser = subparsers.add_parser('PlotMcmcNode', usage=PlotMcmcNode.PlotMcmcNode_usage)
-        PlotMcmcNode_parser.add_argument('-i',      required=True,                       help='folder holds the *mcmc.txt and *out.txt files')
-        PlotMcmcNode_parser.add_argument('-of',     required=False, default=None,        help='the *out.txt file')
-        PlotMcmcNode_parser.add_argument('-n',      required=True,                       help='Nodes to plot')
-        PlotMcmcNode_parser.add_argument('-l',      required=False, default=None,        help='labels on y axis')
-        PlotMcmcNode_parser.add_argument('-o',      required=True,                       help='Output plot')
-        PlotMcmcNode_parser.add_argument('-tmp',    required=False, action="store_true", help='keep tmp files')
+        PlotMcmcNode_parser.add_argument('-i',  required=True,                  help='folder holds the *mcmc.txt files')
+        PlotMcmcNode_parser.add_argument('-x',  required=False, default='txt',  help='file extension, default txt')
+        PlotMcmcNode_parser.add_argument('-n',  required=True,                  help='nodes to plot')
+        PlotMcmcNode_parser.add_argument('-o',  required=True,                  help='output plot')
         args = vars(parser.parse_args())
         PlotMcmcNode.PlotMcmcNode(args)
 
@@ -827,22 +826,37 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         mcmc2tree.mcmc2tree(args)
 
-    elif sys.argv[1] == 'FunTree':
-        from TreeSAK import FunTree
-        FunTree_parser = subparsers.add_parser('FunTree', usage=FunTree.FunTree_usage)
-        FunTree_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
-        FunTree_parser.add_argument('-fun',       required=True,                          help='interested functions')
-        FunTree_parser.add_argument('-cog',       required=False, default=None,           help='COG annotation results')
-        FunTree_parser.add_argument('-kegg',      required=False, default=None,           help='KEGG annotation results')
-        FunTree_parser.add_argument('-o',         required=True,                          help='output directory')
-        FunTree_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
-        FunTree_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
-        FunTree_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
-        FunTree_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
-        FunTree_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
-        FunTree_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
+    elif sys.argv[1] == 'cogTree':
+        from TreeSAK import cogTree
+        cogTree_parser = subparsers.add_parser('cogTree', usage=cogTree.cogTree_usage)
+        cogTree_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
+        cogTree_parser.add_argument('-fun',       required=True,                          help='interested functions')
+        cogTree_parser.add_argument('-cog',       required=False, default=None,           help='COG annotation results')
+        cogTree_parser.add_argument('-o',         required=True,                          help='output directory')
+        cogTree_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
+        cogTree_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
+        cogTree_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
+        cogTree_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
+        cogTree_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
+        cogTree_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
         args = vars(parser.parse_args())
-        FunTree.FunTree(args)
+        cogTree.cogTree(args)
+
+    elif sys.argv[1] == 'koTree':
+        from TreeSAK import koTree
+        koTree_parser = subparsers.add_parser('koTree', usage=koTree.koTree_usage)
+        koTree_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
+        koTree_parser.add_argument('-fun',       required=True,                          help='interested functions')
+        koTree_parser.add_argument('-kegg',      required=False, default=None,           help='KEGG annotation results')
+        koTree_parser.add_argument('-o',         required=True,                          help='output directory')
+        koTree_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
+        koTree_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
+        koTree_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
+        koTree_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
+        koTree_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
+        koTree_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
+        args = vars(parser.parse_args())
+        koTree.koTree(args)
 
     elif sys.argv[1] == 'iTOL_gene_tree':
         from TreeSAK import iTOL_gene_tree

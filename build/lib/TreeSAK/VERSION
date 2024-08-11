@@ -1,11 +1,14 @@
-1.45.5
+1.46.1
 - fixed bugs
+
+1.46.0
+- new module added: cogTree
 
 1.45.0
 - new module added: iTOL_gene_tree
 
 1.44.0
-- new module added: FunTree
+- new module added: koTree
 
 1.43.0
 - new module added: ALE7

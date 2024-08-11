@@ -9,6 +9,8 @@ import multiprocessing as mp
 supertree_usage = '''
 ====================== supertree example commands ======================
 
+Dependencies: mafft, trimal, bmge and iqtree2
+
 TreeSAK supertree -i best10 -x fa -o best10_astral_tree -bmge -t 12 -f
 
 ========================================================================

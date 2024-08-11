@@ -26,7 +26,7 @@ TreeSAK/Dir.rb
 TreeSAK/ExtractMarkerSeq.py
 TreeSAK/FastRoot.py
 TreeSAK/FastRoot_backup.py
-TreeSAK/FunTree.py
+TreeSAK/FigTree.py
 TreeSAK/GTDB_tree.py
 TreeSAK/KEGG_Luo17.py
 TreeSAK/LcaToLeaves.py
@@ -44,6 +44,7 @@ TreeSAK/PhyloBiAssoc.R
 TreeSAK/PhyloBiAssoc.py
 TreeSAK/PlotMCMC.py
 TreeSAK/PlotMcmcNode.py
+TreeSAK/PlotMcmcNode_old.py
 TreeSAK/RootTree.py
 TreeSAK/RootTreeGTDB214.py
 TreeSAK/RootTreeGTDB220.py
@@ -66,6 +67,7 @@ TreeSAK/ale_parser.py
 TreeSAK/ale_splitter.py
 TreeSAK/alignment_pruner.pl
 TreeSAK/catfasta2phy.py
+TreeSAK/cogTree.py
 TreeSAK/compare_trees.R
 TreeSAK/compare_trees.py
 TreeSAK/dating.py
@@ -82,6 +84,7 @@ TreeSAK/gnm_leaves.py
 TreeSAK/iTOL.py
 TreeSAK/iTOL_gene_tree.py
 TreeSAK/keep_highest_rrtc.py
+TreeSAK/koTree.py
 TreeSAK/label_tree.R
 TreeSAK/label_tree.py
 TreeSAK/mad.py

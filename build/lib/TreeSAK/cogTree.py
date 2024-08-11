@@ -5,12 +5,12 @@ from Bio import SeqIO
 import multiprocessing as mp
 
 
-FunTree_usage = '''
-================================ FunTree example commands ================================
+cogTree_usage = '''
+================================ cogTree example commands ================================
 
-TreeSAK FunTree -i combined.faa -kegg KEGG_wd -o op_dir -bmge -t 12 -f -fun ko.txt
-TreeSAK FunTree -i combined.faa -kegg KEGG_wd -o op_dir -bmge -t 12 -f -fun K01995
-TreeSAK FunTree -i combined.faa -kegg KEGG_wd -o op_dir -bmge -t 12 -f -fun K01995,K01996
+TreeSAK cogTree -i combined.faa -cog arCOG_wd -o op_dir -bmge -t 12 -f -fun arCOG_id.txt
+TreeSAK cogTree -i combined.faa -cog arCOG_wd -o op_dir -bmge -t 12 -f -fun arCOG00724
+TreeSAK cogTree -i combined.faa -cog arCOG_wd -o op_dir -bmge -t 12 -f -fun arCOG00724,arCOG02271 
 
 ==========================================================================================
 '''
@@ -25,11 +25,10 @@ def select_seq(seq_file, seq_id_set, output_file):
     output_file_handle.close()
 
 
-def FunTree(args):
+def cogTree(args):
 
     combined_faa            = args['i']
     cog_annotation_wd       = args['cog']
-    kegg_annotation_wd      = args['kegg']
     interested_fun_txt      = args['fun']
     op_dir                  = args['o']
     trim_with_bmge          = args['bmge']
@@ -82,14 +81,14 @@ def FunTree(args):
     ################################################################################
 
     fun_to_gene_dict = dict()
-    if kegg_annotation_wd is not None:
+    if cog_annotation_wd is not None:
 
-        print('Reading in KEGG annotation results')
-        file_re = '%s/*KEGG_wd/*_ko_assignment_ABCD.txt' % (kegg_annotation_wd)
+        print('Reading in COG annotation results')
+        file_re = '%s/*COG_wd/*_query_to_cog.txt' % (cog_annotation_wd)
         file_list = glob.glob(file_re)
 
         if len(file_list) == 0:
-            print('KEGG annotation file not detected, program exited!')
+            print('COG annotation file not detected, program exited!')
             exit()
 
         for each_file in file_list:
@@ -97,13 +96,13 @@ def FunTree(args):
             for each_line in open(each_file):
                 if line_index > 0:
                     each_line_split = each_line.strip().split('\t')
-                    if len(each_line_split) == 9:
+                    if len(each_line_split) == 4:
                         gene_id = each_line_split[0]
-                        ko_d_id = each_line_split[4][2:]
-                        if ko_d_id in interested_fun_set:
-                            if ko_d_id not in fun_to_gene_dict:
-                                fun_to_gene_dict[ko_d_id] = set()
-                            fun_to_gene_dict[ko_d_id].add(gene_id)
+                        cog_id = each_line_split[4][2:]
+                        if cog_id in interested_fun_set:
+                            if cog_id not in fun_to_gene_dict:
+                                fun_to_gene_dict[cog_id] = set()
+                            fun_to_gene_dict[cog_id].add(gene_id)
                 line_index += 1
 
     cmd_list_mafft = []
@@ -172,26 +171,16 @@ def FunTree(args):
 
 if __name__ == '__main__':
 
-    FunTree_parser = argparse.ArgumentParser()
-    FunTree_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
-    FunTree_parser.add_argument('-fun',       required=True,                          help='interested functions')
-    FunTree_parser.add_argument('-cog',       required=False, default=None,           help='COG annotation results')
-    FunTree_parser.add_argument('-kegg',      required=False, default=None,           help='KEGG annotation results')
-    FunTree_parser.add_argument('-o',         required=True,                          help='output directory')
-    FunTree_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
-    FunTree_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
-    FunTree_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
-    FunTree_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
-    FunTree_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
-    FunTree_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
-    args = vars(FunTree_parser.parse_args())
-    FunTree(args)
-
-'''
-
-cd /scratch/PI/ocessongwz/Sponge_r220/4_OMA_wd/OMA_wd/Output
-TreeSAK FunTree -i /scratch/PI/ocessongwz/Sponge_r220/3_combined_genomes_50_5_dRep97_291.faa -fun K01995,K01996,K01997,K01998,K01999 -kegg /scratch/PI/ocessongwz/Sponge_r220/3_combined_genomes_50_5_dRep97_291_KEGG_wd -o interested_fun_tree_branched_chain_aa_transport_system -bmge -t 12 -f
-
-/scratch/PI/ocessongwz/Sponge_r220/3_combined_genomes_50_5_dRep97_291_arCOG_wd
-
-'''
+    cogTree_parser = argparse.ArgumentParser()
+    cogTree_parser.add_argument('-i',         required=True,                          help='orthologous gene sequence')
+    cogTree_parser.add_argument('-fun',       required=True,                          help='interested functions')
+    cogTree_parser.add_argument('-cog',       required=False, default=None,           help='COG annotation results')
+    cogTree_parser.add_argument('-o',         required=True,                          help='output directory')
+    cogTree_parser.add_argument('-bmge',      required=False, action="store_true",    help='trim with BMGE, default is trimal')
+    cogTree_parser.add_argument('-bmge_m',    required=False, default='BLOSUM30',     help='trim model, default: BLOSUM30')
+    cogTree_parser.add_argument('-bmge_esc',  required=False, default='0.55',         help='entropy score cutoff, default: 0.55')
+    cogTree_parser.add_argument('-iqtree_m',  required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
+    cogTree_parser.add_argument('-f',         required=False, action="store_true",    help='force overwrite')
+    cogTree_parser.add_argument('-t',         required=False, type=int, default=1,    help='num of threads, default: 1')
+    args = vars(cogTree_parser.parse_args())
+    cogTree(args)
