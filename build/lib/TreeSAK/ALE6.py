@@ -15,8 +15,8 @@ TreeSAK ALE6 -1 ALE1_op_dir -3 ALE3_op_dir_30 -s species_tree.rooted.treefile -o
 
 # Needed input files:
 -1: faa files
--3: GeneContent.txt and SpeciesTreeRef.newick
--s: the tree used as input for ALE2
+-3: GeneContent.txt, SpeciesTreeRef.newick and Transfer_propensity.txt
+-s: the tree used as input for ALE2, to rename leafs back
 
 # To be added:
 1. A dereplication step to the produced faa file.
@@ -47,6 +47,15 @@ def get_internal_node_leaves(ale_species_tree_file, internal_node_id):
     return internal_node_leaf_set
 
 
+def rename_leaves(tree_file_in, rename_dict, tree_format, tree_file_out):
+
+    t = Tree(tree_file_in, format=tree_format)
+    for leaf in t:
+        leaf_name_new = rename_dict.get(leaf.name, leaf.name)
+        leaf.name = leaf_name_new
+    t.write(format=tree_format, outfile=tree_file_out)
+
+
 def ALE6(args):
 
     ale1_op_dir                 = args['1']
@@ -58,22 +67,32 @@ def ALE6(args):
     cog_annotation_wd           = args['cog']
     kegg_annotation_wd          = args['kegg']
 
-    GeneContent_txt         = '%s/GeneContent.txt'          % ale3_op_dir
-    SpeciesTreeRef          = '%s/SpeciesTreeRef.newick'    % ale3_op_dir
-    transfer_propensity_txt = '%s/Transfer_propensity.txt'  % ale3_op_dir
+    GeneContent_txt             = '%s/GeneContent.txt'          % ale3_op_dir
+    SpeciesTreeRef              = '%s/SpeciesTreeRef.newick'    % ale3_op_dir
+    transfer_propensity_txt     = '%s/Transfer_propensity.txt'  % ale3_op_dir
 
     ################################################## define op files #################################################
 
-    faa_dir                     = '%s/faa_files'                                    % op_dir
-    cog_dir                     = '%s/annotation_COG'                               % op_dir
-    kegg_dir                    = '%s/annotation_KEGG'                              % op_dir
-    cog_df_txt                  = '%s/annotation_COG.txt'                           % op_dir
-    cog_df_desc_txt             = '%s/annotation_COG_desc.txt'                      % op_dir
-    kegg_df_txt                 = '%s/annotation_KEGG.txt'                          % op_dir
-    kegg_df_desc_txt            = '%s/annotation_KEGG_desc.txt'                     % op_dir
-    fun_transfer_propensity_txt = '%s/function_transfer_propensity_weighted.txt'    % op_dir
+    _, _, tree_base, tree_ext = sep_path_basename_ext(genome_tree_file_rooted)
+
+    faa_dir                                         = '%s/faa_files'                                    % op_dir
+    cog_dir                                         = '%s/annotation_COG'                               % op_dir
+    kegg_dir                                        = '%s/annotation_KEGG'                              % op_dir
+    cog_df_txt                                      = '%s/annotation_COG.txt'                           % op_dir
+    cog_df_desc_txt                                 = '%s/annotation_COG_desc.txt'                      % op_dir
+    kegg_df_txt                                     = '%s/annotation_KEGG.txt'                          % op_dir
+    kegg_df_desc_txt                                = '%s/annotation_KEGG_desc.txt'                     % op_dir
+    fun_transfer_propensity_txt                     = '%s/function_transfer_propensity_weighted.txt'    % op_dir
+    genome_tree_file_rooted_with_ale_internal_node  = '%s/%s_with_ALE_internal_nodes.%s'                % (op_dir, tree_base, tree_ext)
 
     ########################################## get the id of nodes to process ##########################################
+
+    gnm_name_dict_ale_fmt_to_original_fmt = dict()
+    for leaf in Tree(genome_tree_file_rooted, format=1):
+        leaf_name = leaf.name
+        leaf_name_new = leaf_name.replace('_', '')
+        leaf.name = leaf_name_new
+        gnm_name_dict_ale_fmt_to_original_fmt[leaf_name_new] = leaf_name
 
     overall_internal_node_set = set()
     line_num_index = 0
@@ -98,20 +117,18 @@ def ALE6(args):
             for each_node in open(interested_internal_nodes):
                 internal_nodes_to_process.add(each_node.strip())
 
-    ####################################################################################################################
-
-    gnm_name_dict_new_to_old = dict()
-    for leaf in Tree(genome_tree_file_rooted, format=1):
-        leaf_name = leaf.name
-        leaf_name_new = leaf_name.replace('_', '')
-        leaf.name = leaf_name_new
-        gnm_name_dict_new_to_old[leaf_name_new] = leaf_name
+    #################### an addiitonal step (add ALE added internal node names to the rooted tree) #####################
 
     # create output directory
     if force_create_op_dir is True:
         if os.path.isdir(op_dir) is True:
             os.system('rm -r %s' % op_dir)
     os.system('mkdir %s' % op_dir)
+
+    rename_leaves(SpeciesTreeRef, gnm_name_dict_ale_fmt_to_original_fmt, 1, genome_tree_file_rooted_with_ale_internal_node)
+
+    ####################################################################################################################
+
     os.system('mkdir %s' % faa_dir)
 
     if cog_annotation_wd is not None:
@@ -144,7 +161,7 @@ def ALE6(args):
         branch_faa = '%s/%s.faa' % (faa_dir, each_branch)
         branch_content = branch_to_content_dict[each_branch]
         branch_child_set = branch_to_leaf_dict[each_branch]
-        branch_child_set_original_name = {gnm_name_dict_new_to_old[i] for i in branch_child_set}
+        branch_child_set_original_name = {gnm_name_dict_ale_fmt_to_original_fmt[i] for i in branch_child_set}
         branch_faa_handle = open(branch_faa, 'w')
         branch_to_gene_dict[each_branch] = set()
         for each_prot_family in branch_content:
@@ -157,6 +174,8 @@ def ALE6(args):
                     branch_faa_handle.write('%s\n' % each_seq.seq)
                     branch_to_gene_dict[each_branch].add(each_seq.id)
         branch_faa_handle.close()
+
+    ####################################################################################################################
 
     # Read in COG annotation results
     fun_to_gene_dict = dict()

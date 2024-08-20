@@ -82,7 +82,7 @@ def PlotMcmcNode(args):
         mcmc_file_list = glob.glob(mcmc_file_re)
 
     if len(mcmc_file_list) == 0:
-        print('*mcmc.txt file not found, program exited!')
+        print('mcmc file not found, program exited!')
         exit()
 
     if output_plot[-4:] not in ['.PDF', '.pdf']:
@@ -101,7 +101,6 @@ def PlotMcmcNode(args):
     not_found_file_set = set()
     for each_node in open(node_txt):
         each_node_split = each_node.strip().split()
-        print(each_node_split)
         file_name = each_node_split[0]
         if '/' in file_name:
             file_name = file_name.split('/')[-1]

@@ -86,7 +86,6 @@ def cogTree(args):
         print('Reading in COG annotation results')
         file_re = '%s/*COG_wd/*_query_to_cog.txt' % (cog_annotation_wd)
         file_list = glob.glob(file_re)
-
         if len(file_list) == 0:
             print('COG annotation file not detected, program exited!')
             exit()
@@ -98,7 +97,7 @@ def cogTree(args):
                     each_line_split = each_line.strip().split('\t')
                     if len(each_line_split) == 4:
                         gene_id = each_line_split[0]
-                        cog_id = each_line_split[4][2:]
+                        cog_id = each_line_split[1]
                         if cog_id in interested_fun_set:
                             if cog_id not in fun_to_gene_dict:
                                 fun_to_gene_dict[cog_id] = set()
