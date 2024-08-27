@@ -113,29 +113,30 @@ def scale_str_to_size_list(scale_str):
 def iTOL(args):
 
     # read in arguments
-    Labels          = args['Labels']
-    ColorStrip      = args['ColorStrip']
-    ColorRange      = args['ColorRange']
-    SimpleBar       = args['SimpleBar']
-    Heatmap         = args['Heatmap']
-    ExternalShape   = args['ExternalShape']
-    Binary          = args['Binary']
-    BinaryID        = args['BinaryID']
-    Connection      = args['Connection']
-    PieChart        = args['PieChart']
-    Collapse        = args['Collapse']
-    leaf_id_txt     = args['id']
-    LeafGroup       = args['lg']
-    GroupColor      = args['gc']
-    ColumnColor_txt = args['cc']
-    LeafValue       = args['lv']
-    LeafLabel       = args['ll']
-    LeafMatrix      = args['lm']
-    d2r             = args['dr']
-    scale_str       = args['scale']
-    LegendTitle     = args['lt']
-    FileOut         = args['o']
+    Labels                  = args['Labels']
+    ColorStrip              = args['ColorStrip']
+    ColorRange              = args['ColorRange']
+    SimpleBar               = args['SimpleBar']
+    Heatmap                 = args['Heatmap']
+    ExternalShape           = args['ExternalShape']
+    Binary                  = args['Binary']
+    BinaryID                = args['BinaryID']
+    Connection              = args['Connection']
+    PieChart                = args['PieChart']
+    Collapse                = args['Collapse']
+    leaf_id_txt             = args['id']
+    LeafGroup               = args['lg']
+    GroupColor              = args['gc']
+    ColumnColor_txt         = args['cc']
+    LeafValue               = args['lv']
+    LeafLabel               = args['ll']
+    LeafMatrix              = args['lm']
+    d2r                     = args['dr']
+    scale_str               = args['scale']
     show_color_strip_legend = args['legend']
+    LegendTitle             = args['lt']
+    show_strip_labels       = args['show_strip_labels']
+    FileOut                 = args['o']
 
     # General
     STRIP_WIDTH                 = 100
@@ -177,7 +178,6 @@ def iTOL(args):
         for each_leaf in open(LeafGroup):
             each_leaf_split = each_leaf.strip().split('\t')
             Leaf_to_Group_dict[each_leaf_split[0]] = each_leaf_split[1]
-            # get Group_list
             if each_leaf_split[1] not in Group_list:
                 Group_list.append(each_leaf_split[1])
 
@@ -191,8 +191,11 @@ def iTOL(args):
             group_with_provided_color_list = []
             for each_group in open(GroupColor):
                 each_group_split = each_group.strip().split('\t')
-                Group_to_provided_Color_dict[each_group_split[0]] = each_group_split[1]
-                group_with_provided_color_list.append(each_group_split[0])
+                group_id = each_group_split[0]
+                color_code = each_group_split[1]
+                if group_id in Group_list:
+                    Group_to_provided_Color_dict[group_id] = color_code
+                    group_with_provided_color_list.append(group_id)
 
             # assign colors to the rest groups
             group_without_color_list = []
@@ -220,6 +223,7 @@ def iTOL(args):
             FileOut_handle.write('SEPARATOR TAB\n')
             FileOut_handle.write('DATASET_LABEL\t%s\n' % LegendTitle)
             FileOut_handle.write('SHOW_LABELS\t1\n')
+            FileOut_handle.write('SIZE_FACTOR\t3\n')
             FileOut_handle.write('LABEL_ROTATION\t45\n')
             FileOut_handle.write('COLOR_BRANCHES\t0\n')
 
@@ -236,12 +240,18 @@ def iTOL(args):
 
             if show_color_strip_legend is False:
                 FileOut_handle.write('\n# customize labels on the trip\n')
-                FileOut_handle.write('SHOW_STRIP_LABELS\t1\n')
+                if show_strip_labels is True:
+                    FileOut_handle.write('SHOW_STRIP_LABELS\t1\n')
+                else:
+                    FileOut_handle.write('SHOW_STRIP_LABELS\t0\n')
                 FileOut_handle.write('STRIP_LABEL_POSITION\tcenter\n')
                 FileOut_handle.write('STRIP_LABEL_ROTATION\t90\n')
             else:
                 FileOut_handle.write('\n# uncomment to show labels on the trip\n')
-                FileOut_handle.write('# SHOW_STRIP_LABELS\t1\n')
+                if show_strip_labels is True:
+                    FileOut_handle.write('# SHOW_STRIP_LABELS\t1\n')
+                else:
+                    FileOut_handle.write('# SHOW_STRIP_LABELS\t0\n')
                 FileOut_handle.write('# STRIP_LABEL_POSITION\tcenter\n')
                 FileOut_handle.write('# STRIP_LABEL_ROTATION\t90\n')
 
@@ -619,28 +629,29 @@ if __name__ == '__main__':
 
     # initialize the options parser
     iTOL_parser = argparse.ArgumentParser(usage=iTOL_usage)
-    iTOL_parser.add_argument('-Labels',         required=False, action='store_true',    help='Labels')
-    iTOL_parser.add_argument('-ColorStrip',     required=False, action='store_true',    help='ColorStrip')
-    iTOL_parser.add_argument('-ColorRange',     required=False, action='store_true',    help='ColorRange')
-    iTOL_parser.add_argument('-SimpleBar',      required=False, action='store_true',    help='SimpleBar')
-    iTOL_parser.add_argument('-Heatmap',        required=False, action='store_true',    help='Heatmap')
-    iTOL_parser.add_argument('-ExternalShape',  required=False, action='store_true',    help='ExternalShape')
-    iTOL_parser.add_argument('-Binary',         required=False, action='store_true',    help='Binary')
-    iTOL_parser.add_argument('-BinaryID',       required=False, action='store_true',    help='Binary specified IDs as 1')
-    iTOL_parser.add_argument('-Connection',     required=False, action='store_true',    help='Connection')
-    iTOL_parser.add_argument('-PieChart',       required=False, action='store_true',    help='PieChart')
-    iTOL_parser.add_argument('-Collapse',       required=False, action='store_true',    help='Collapse')
-    iTOL_parser.add_argument('-id',             required=False, default=None,           help='File contains leaf id')
-    iTOL_parser.add_argument('-ll',             required=False, default=None,           help='Leaf Label')
-    iTOL_parser.add_argument('-lg',             required=False, default=None,           help='Leaf Group')
-    iTOL_parser.add_argument('-gc',             required=False, default=None,           help='Specify Group/column Color (optional)')
-    iTOL_parser.add_argument('-cc',             required=False, default=None,           help='Specify Column Color (for ExternalShape format) (optional)')
-    iTOL_parser.add_argument('-lv',             required=False, default=None,           help='Leaf Value')
-    iTOL_parser.add_argument('-lm',             required=False, default=None,           help='Leaf Matrix')
-    iTOL_parser.add_argument('-dr',             required=False, default=None,           help='Donor to Recipient')
-    iTOL_parser.add_argument('-scale',          required=False, default=None,           help='Scale Values, in format 0-3-6-9')
-    iTOL_parser.add_argument('-lt',             required=False, default=None,           help='Legend Title')
-    iTOL_parser.add_argument('-legend',         required=False, action='store_true',    help='show legend for ColorStrip')
-    iTOL_parser.add_argument('-o',              required=True,                          help='Output filename')
+    iTOL_parser.add_argument('-Labels',             required=False, action='store_true',    help='Labels')
+    iTOL_parser.add_argument('-ColorStrip',         required=False, action='store_true',    help='ColorStrip')
+    iTOL_parser.add_argument('-ColorRange',         required=False, action='store_true',    help='ColorRange')
+    iTOL_parser.add_argument('-SimpleBar',          required=False, action='store_true',    help='SimpleBar')
+    iTOL_parser.add_argument('-Heatmap',            required=False, action='store_true',    help='Heatmap')
+    iTOL_parser.add_argument('-ExternalShape',      required=False, action='store_true',    help='ExternalShape')
+    iTOL_parser.add_argument('-Binary',             required=False, action='store_true',    help='Binary')
+    iTOL_parser.add_argument('-BinaryID',           required=False, action='store_true',    help='Binary specified IDs as 1')
+    iTOL_parser.add_argument('-Connection',         required=False, action='store_true',    help='Connection')
+    iTOL_parser.add_argument('-PieChart',           required=False, action='store_true',    help='PieChart')
+    iTOL_parser.add_argument('-Collapse',           required=False, action='store_true',    help='Collapse')
+    iTOL_parser.add_argument('-id',                 required=False, default=None,           help='File contains leaf id')
+    iTOL_parser.add_argument('-ll',                 required=False, default=None,           help='Leaf Label')
+    iTOL_parser.add_argument('-lg',                 required=False, default=None,           help='Leaf Group')
+    iTOL_parser.add_argument('-gc',                 required=False, default=None,           help='Specify Group/column Color (optional)')
+    iTOL_parser.add_argument('-cc',                 required=False, default=None,           help='Specify Column Color (for ExternalShape format) (optional)')
+    iTOL_parser.add_argument('-lv',                 required=False, default=None,           help='Leaf Value')
+    iTOL_parser.add_argument('-lm',                 required=False, default=None,           help='Leaf Matrix')
+    iTOL_parser.add_argument('-dr',                 required=False, default=None,           help='Donor to Recipient')
+    iTOL_parser.add_argument('-scale',              required=False, default=None,           help='Scale Values, in format 0-3-6-9')
+    iTOL_parser.add_argument('-lt',                 required=False, default=None,           help='Legend Title')
+    iTOL_parser.add_argument('-legend',             required=False, action='store_true',    help='show legend for ColorStrip')
+    iTOL_parser.add_argument('-show_strip_labels',  required=False, action='store_true',    help='SHOW_STRIP_LABELS')
+    iTOL_parser.add_argument('-o',                  required=True,                          help='Output filename')
     args = vars(iTOL_parser.parse_args())
     iTOL(args)

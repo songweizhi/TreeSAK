@@ -5,23 +5,18 @@ from ete3 import Tree
 
 
 RootTreeGTDB220_usage = '''
-========================================= RootTreeGTDB220 example command =========================================
+========================================== RootTreeGTDB220 example command ==========================================   
 
-TreeSAK RootTreeGTDB220 -tree ar53.unrooted.tree -tax ar53.summary.tsv -db db_dir -d ar -o ar53.rooted.tree
-TreeSAK RootTreeGTDB220 -tree bac120.unrooted.tree -tax bac120.summary.tsv -db db_dir -d ar -o bac120.rooted.tree
+TreeSAK RootTreeGTDB220 -add_root -d ar -tree ar53.tree -tax ar53.summary.tsv -db db_dir -o ar53.rooted.tree
+TreeSAK RootTreeGTDB220 -add_root -d bac -tree bac120.tree -tax bac120.summary.tsv -db db_dir -o bac120.rooted.tree
 
-# prepare GTDB database files
-cd db_dir
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/ar53_r220.tree.tar.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/bac120_r220.tree.tar.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/ar53_metadata_r220.tsv.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/bac120_metadata_r220.tsv.gz
-tar -xzvf ar53_r220.tree.tar.gz
-tar -xzvf bac120_r220.tree.tar.gz
-gunzip ar53_metadata_r220.tsv.gz
-gunzip bac120_metadata_r220.tsv.gz
+# Need to download and decompress the following files to your database folder (provide with -db)
+https://data.ace.uq.edu.au/public/gtdb/data/releases/release220/220.0/ar53_r220.tree.tar.gz
+https://data.ace.uq.edu.au/public/gtdb/data/releases/release220/220.0/bac120_r220.tree.tar.gz
+https://data.ace.uq.edu.au/public/gtdb/data/releases/release220/220.0/ar53_metadata_r220.tsv.gz
+https://data.ace.uq.edu.au/public/gtdb/data/releases/release220/220.0/bac120_metadata_r220.tsv.gz
 
-================================================================================================================
+=====================================================================================================================
 '''
 
 
@@ -70,7 +65,7 @@ def subset_and_rename_tree(tree_file_in, to_keep_leaf_list, rename_dict):
     return subset_tree
 
 
-def root_with_outgroup(input_tree, out_group_list, tree_file_rooted):
+def root_with_outgroup(input_tree, out_group_list, add_root_branch, tree_file_rooted):
 
     """
     Reroot the tree using the given outgroup.
@@ -114,6 +109,13 @@ def root_with_outgroup(input_tree, out_group_list, tree_file_rooted):
         # tree.write_to_path(tree_file_rooted, schema='newick', suppress_rooting=True, unquoted_underscores=True)
         tree_out_string = tree.as_string(schema='newick', suppress_rooting=True, unquoted_underscores=True)
         tree_out_string = tree_out_string.replace("'", "")
+
+        # add the root bar
+        if add_root_branch is True:
+            tree_out_string = '(' + tree_out_string
+            tree_out_string = tree_out_string.replace(');', '):0.02);')
+
+        # write out tree string
         tree_file_rooted_handle = open(tree_file_rooted, 'w')
         tree_file_rooted_handle.write(tree_out_string)
         tree_file_rooted_handle.close()
@@ -125,6 +127,7 @@ def RootTreeGTDB220(args):
     user_gnm_taxon      = args['tax']
     db_dir              = args['db']
     gnm_domain          = args['d']
+    add_root_branch     = args['add_root']
     rooted_tree         = args['o']
 
     # define file name
@@ -168,7 +171,6 @@ def RootTreeGTDB220(args):
                     count_current_gnm = True
 
             if count_current_gnm is True:
-
                 gnm_p, gnm_c, gnm_o, gnm_f, gnm_g = sep_taxon_str(gnm_taxon)
 
                 if gnm_p not in user_gnm_taxon_dict_p:
@@ -276,16 +278,17 @@ def RootTreeGTDB220(args):
         out_group_gnm_set = out_group_gnm_set_2
 
     # root user tree with identified out group genomes
-    root_with_outgroup(input_unrooted_tree, out_group_gnm_set, rooted_tree)
+    root_with_outgroup(input_unrooted_tree, out_group_gnm_set, add_root_branch, rooted_tree)
 
 
 if __name__ == '__main__':
 
     RootTreeGTDB220_parser = argparse.ArgumentParser(usage=RootTreeGTDB220_usage)
-    RootTreeGTDB220_parser.add_argument('-tree', required=True,                 help='input unrooted tree')
-    RootTreeGTDB220_parser.add_argument('-tax',  required=False, default='fna', help='leaf taxon')
-    RootTreeGTDB220_parser.add_argument('-db',   required=True,                 help='GTDB database files')
-    RootTreeGTDB220_parser.add_argument('-d',    required=False, default=None,  help='domain, either ar or bac')
-    RootTreeGTDB220_parser.add_argument('-o',    required=True,                 help='output folder')
+    RootTreeGTDB220_parser.add_argument('-tree',        required=True,                         help='input unrooted tree')
+    RootTreeGTDB220_parser.add_argument('-tax',         required=False, default='fna',         help='leaf taxon')
+    RootTreeGTDB220_parser.add_argument('-db',          required=True,                         help='GTDB database files')
+    RootTreeGTDB220_parser.add_argument('-d',           required=False, default=None,          help='domain, either ar or bac')
+    RootTreeGTDB220_parser.add_argument('-add_root',    required=False, action='store_true',   help='add the root branch')
+    RootTreeGTDB220_parser.add_argument('-o',           required=True,                         help='output folder')
     args = vars(RootTreeGTDB220_parser.parse_args())
     RootTreeGTDB220(args)
