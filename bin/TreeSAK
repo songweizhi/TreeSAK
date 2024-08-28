@@ -762,6 +762,8 @@ if __name__ == '__main__':
         iTOL_parser.add_argument('-Labels',             required=False, action='store_true',    help='Labels')
         iTOL_parser.add_argument('-ColorStrip',         required=False, action='store_true',    help='ColorStrip')
         iTOL_parser.add_argument('-ColorRange',         required=False, action='store_true',    help='ColorRange')
+        iTOL_parser.add_argument('-ColorClade',         required=False, action='store_true',    help='ColorClade')
+        iTOL_parser.add_argument('-ColorLabel',         required=False, action='store_true',    help='ColorLabel')
         iTOL_parser.add_argument('-SimpleBar',          required=False, action='store_true',    help='SimpleBar')
         iTOL_parser.add_argument('-Heatmap',            required=False, action='store_true',    help='Heatmap')
         iTOL_parser.add_argument('-ExternalShape',      required=False, action='store_true',    help='ExternalShape')

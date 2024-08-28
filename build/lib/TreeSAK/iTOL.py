@@ -15,9 +15,10 @@ TreeSAK iTOL -Binary -lm Binary_matrix.txt -lt Enzyme -o Presence_Absence_iTOL.t
 TreeSAK iTOL -BinaryID -id MagID.txt -lt dRep95 -o dRep95_representatives_iTOL.txt
 TreeSAK iTOL -Heatmap -lm MagAbundance.txt -lt Abundance -o Heatmap_abundance.txt
 TreeSAK iTOL -SimpleBar -lv MagSize.txt -scale 0-3-6-9 -lt Size -o SimpleBar_size.txt
-TreeSAK iTOL -ColorStrip -lg MagTaxon.txt -lt Phylum -o ColorStrip_taxon.txt
-TreeSAK iTOL -ColorRange -lg MagTaxon.txt -lt Phylum -o ColorRange_taxon.txt
+TreeSAK iTOL -ColorStrip -lg MagTaxon.txt -lt Phylum -gc phylum_color.txt -o ColorStrip_taxon.txt
+TreeSAK iTOL -ColorRange -lg MagTaxon.txt -lt Phylum -gc phylum_color.txt -o ColorRange_taxon.txt
 TreeSAK iTOL -ColorRange -taxon Taxonomy.txt -rank f -lt Family -o ColorRange_taxon.txt
+TreeSAK iTOL -ColorBranch -lg Mag_genus.txt -gc genus_color.txt-o ColorBranch_genus.txt
 TreeSAK iTOL -ExternalShape -lm identity_matrix.txt -lt Identity -scale 25-50-75-100 -o ExternalShape_identity.txt
 TreeSAK iTOL -PieChart -lv MagCompleteness.txt -lt Completeness -o PieChart_completeness.txt
 TreeSAK iTOL -Collapse -lg MagTaxon.txt -o Collapse_by_taxon.txt
@@ -124,6 +125,7 @@ def iTOL(args):
     Connection              = args['Connection']
     PieChart                = args['PieChart']
     Collapse                = args['Collapse']
+    ColorBranch             = args['ColorBranch']
     leaf_id_txt             = args['id']
     LeafGroup               = args['lg']
     GroupColor              = args['gc']
@@ -141,6 +143,7 @@ def iTOL(args):
     # General
     STRIP_WIDTH                 = 100
     MARGIN                      = 20
+    branch_width                = 2
 
     # SimpleBar
     SimpleBar_COLOR             = 'grey'
@@ -157,7 +160,7 @@ def iTOL(args):
 
     # check the number of specified file type
     True_num = 0
-    for file_type in [Labels, ColorStrip, ColorRange, SimpleBar, Heatmap, ExternalShape, Binary, BinaryID, PieChart, Collapse]:
+    for file_type in [Labels, ColorStrip, ColorRange, SimpleBar, Heatmap, ExternalShape, Binary, BinaryID, PieChart, Collapse, ColorBranch]:
         if file_type is True:
             True_num += 1
 
@@ -502,6 +505,64 @@ def iTOL(args):
 
     ####################################################################################################################
 
+    if ColorBranch is True:
+
+        # get group_to_leaf_dict
+        group_set = set()
+        group_to_leaf_dict = dict()
+        for each_line in open(LeafGroup):
+            each_line_split = each_line.strip().split('\t')
+            leaf_id         = each_line_split[0]
+            leaf_group      = each_line_split[1]
+            group_set.add(leaf_group)
+            if leaf_group not in group_to_leaf_dict:
+                group_to_leaf_dict[leaf_group] = [leaf_id]
+            else:
+                group_to_leaf_dict[leaf_group].append(leaf_id)
+
+        group_list = sorted(list(group_set))
+
+        Group_to_Color_dict = dict()
+
+        # get groups with provided color
+        Group_to_provided_Color_dict = dict()
+        group_with_provided_color_list = []
+        for each_group in open(GroupColor):
+            each_group_split = each_group.strip().split('\t')
+            group_id = each_group_split[0]
+            color_code = each_group_split[1]
+            if group_id in group_list:
+                Group_to_provided_Color_dict[group_id] = color_code
+                group_with_provided_color_list.append(group_id)
+
+        # assign colors to the rest groups
+        group_without_color_list = []
+        for each_group in group_list:
+            if each_group not in group_with_provided_color_list:
+                group_without_color_list.append(each_group)
+        if len(group_without_color_list) > 0:
+            color_list_unprovided = get_color_list(len(group_without_color_list))
+            Group_to_Color_dict_unprovided = dict(zip(group_without_color_list, color_list_unprovided))
+            for each_group in Group_to_Color_dict_unprovided:
+                Group_to_Color_dict[each_group] = Group_to_Color_dict_unprovided[each_group]
+
+        # combine two dict
+        for each_group in Group_to_provided_Color_dict:
+            Group_to_Color_dict[each_group] = Group_to_provided_Color_dict[each_group]
+
+        ColorBranch_FileOut_handle = open(FileOut, 'w')
+        ColorBranch_FileOut_handle.write('TREE_COLORS\n')
+        ColorBranch_FileOut_handle.write('SEPARATOR TAB\n')
+        ColorBranch_FileOut_handle.write('\nDATA\n')
+        for grp in group_to_leaf_dict:
+            group_member = group_to_leaf_dict[grp]
+            group_color = Group_to_Color_dict[grp]
+            concate_str = '|'.join(group_member)
+            ColorBranch_FileOut_handle.write('%s\tbranch\t%s\tnormal\t%s\n' % (concate_str, group_color, branch_width))
+        ColorBranch_FileOut_handle.close()
+
+    ####################################################################################################################
+
     # Prepare Collapse file
     if Collapse is True:
 
@@ -533,9 +594,7 @@ def iTOL(args):
         Collapse_FileOut_handle.close()
         label_FileOut_handle.close()
 
-        print('iTOL files exported to:')
-        print(FileOut)
-        print(corresponding_label_file)
+        print('iTOL files exported to:\n%s\n%s' % (FileOut, corresponding_label_file))
 
     ####################################################################################################################
 
@@ -640,6 +699,7 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-Connection',         required=False, action='store_true',    help='Connection')
     iTOL_parser.add_argument('-PieChart',           required=False, action='store_true',    help='PieChart')
     iTOL_parser.add_argument('-Collapse',           required=False, action='store_true',    help='Collapse')
+    iTOL_parser.add_argument('-ColorBranch',        required=False, action='store_true',    help='ColorBranch')
     iTOL_parser.add_argument('-id',                 required=False, default=None,           help='File contains leaf id')
     iTOL_parser.add_argument('-ll',                 required=False, default=None,           help='Leaf Label')
     iTOL_parser.add_argument('-lg',                 required=False, default=None,           help='Leaf Group')

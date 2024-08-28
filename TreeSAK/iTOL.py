@@ -15,9 +15,11 @@ TreeSAK iTOL -Binary -lm Binary_matrix.txt -lt Enzyme -o Presence_Absence_iTOL.t
 TreeSAK iTOL -BinaryID -id MagID.txt -lt dRep95 -o dRep95_representatives_iTOL.txt
 TreeSAK iTOL -Heatmap -lm MagAbundance.txt -lt Abundance -o Heatmap_abundance.txt
 TreeSAK iTOL -SimpleBar -lv MagSize.txt -scale 0-3-6-9 -lt Size -o SimpleBar_size.txt
-TreeSAK iTOL -ColorStrip -lg MagTaxon.txt -lt Phylum -o ColorStrip_taxon.txt
-TreeSAK iTOL -ColorRange -lg MagTaxon.txt -lt Phylum -o ColorRange_taxon.txt
+TreeSAK iTOL -ColorStrip -lg MagTaxon.txt -lt Phylum -gc phylum_color.txt -o ColorStrip_taxon.txt
+TreeSAK iTOL -ColorRange -lg MagTaxon.txt -lt Phylum -gc phylum_color.txt -o ColorRange_taxon.txt
 TreeSAK iTOL -ColorRange -taxon Taxonomy.txt -rank f -lt Family -o ColorRange_taxon.txt
+TreeSAK iTOL -ColorClade -lg Mag_genus.txt -gc genus_color.txt-o ColorClade_genus.txt
+TreeSAK iTOL -ColorLabel -lg Mag_genus.txt -gc genus_color.txt-o ColorLabel_genus.txt
 TreeSAK iTOL -ExternalShape -lm identity_matrix.txt -lt Identity -scale 25-50-75-100 -o ExternalShape_identity.txt
 TreeSAK iTOL -PieChart -lv MagCompleteness.txt -lt Completeness -o PieChart_completeness.txt
 TreeSAK iTOL -Collapse -lg MagTaxon.txt -o Collapse_by_taxon.txt
@@ -124,6 +126,8 @@ def iTOL(args):
     Connection              = args['Connection']
     PieChart                = args['PieChart']
     Collapse                = args['Collapse']
+    ColorClade              = args['ColorClade']
+    ColorLabel              = args['ColorLabel']
     leaf_id_txt             = args['id']
     LeafGroup               = args['lg']
     GroupColor              = args['gc']
@@ -141,6 +145,7 @@ def iTOL(args):
     # General
     STRIP_WIDTH                 = 100
     MARGIN                      = 20
+    branch_width                = 2
 
     # SimpleBar
     SimpleBar_COLOR             = 'grey'
@@ -157,7 +162,7 @@ def iTOL(args):
 
     # check the number of specified file type
     True_num = 0
-    for file_type in [Labels, ColorStrip, ColorRange, SimpleBar, Heatmap, ExternalShape, Binary, BinaryID, PieChart, Collapse]:
+    for file_type in [Labels, ColorStrip, ColorRange, SimpleBar, Heatmap, ExternalShape, Binary, BinaryID, PieChart, Collapse, ColorClade, ColorLabel]:
         if file_type is True:
             True_num += 1
 
@@ -502,6 +507,67 @@ def iTOL(args):
 
     ####################################################################################################################
 
+    if (ColorClade is True) or (ColorLabel is True):
+
+        # get group_to_leaf_dict
+        group_set = set()
+        group_to_leaf_dict = dict()
+        for each_line in open(LeafGroup):
+            each_line_split = each_line.strip().split('\t')
+            leaf_id         = each_line_split[0]
+            leaf_group      = each_line_split[1]
+            group_set.add(leaf_group)
+            if leaf_group not in group_to_leaf_dict:
+                group_to_leaf_dict[leaf_group] = [leaf_id]
+            else:
+                group_to_leaf_dict[leaf_group].append(leaf_id)
+
+        group_list = sorted(list(group_set))
+
+        Group_to_Color_dict = dict()
+
+        # get groups with provided color
+        Group_to_provided_Color_dict = dict()
+        group_with_provided_color_list = []
+        for each_group in open(GroupColor):
+            each_group_split = each_group.strip().split('\t')
+            group_id = each_group_split[0]
+            color_code = each_group_split[1]
+            if group_id in group_list:
+                Group_to_provided_Color_dict[group_id] = color_code
+                group_with_provided_color_list.append(group_id)
+
+        # assign colors to the rest groups
+        group_without_color_list = []
+        for each_group in group_list:
+            if each_group not in group_with_provided_color_list:
+                group_without_color_list.append(each_group)
+        if len(group_without_color_list) > 0:
+            color_list_unprovided = get_color_list(len(group_without_color_list))
+            Group_to_Color_dict_unprovided = dict(zip(group_without_color_list, color_list_unprovided))
+            for each_group in Group_to_Color_dict_unprovided:
+                Group_to_Color_dict[each_group] = Group_to_Color_dict_unprovided[each_group]
+
+        # combine two dict
+        for each_group in Group_to_provided_Color_dict:
+            Group_to_Color_dict[each_group] = Group_to_provided_Color_dict[each_group]
+
+        ColorClade_Label_FileOut_handle = open(FileOut, 'w')
+        ColorClade_Label_FileOut_handle.write('TREE_COLORS\n')
+        ColorClade_Label_FileOut_handle.write('SEPARATOR TAB\n')
+        ColorClade_Label_FileOut_handle.write('\nDATA\n')
+        for grp in group_to_leaf_dict:
+            group_member = group_to_leaf_dict[grp]
+            group_color = Group_to_Color_dict[grp]
+            concate_str = '|'.join(group_member)
+            if ColorClade is True:
+                ColorClade_Label_FileOut_handle.write('%s\tclade\t%s\tnormal\t%s\n' % (concate_str, group_color, branch_width))
+            if ColorLabel is True:
+                ColorClade_Label_FileOut_handle.write('%s\tlabel\t%s\tnormal\t%s\n' % (concate_str, group_color, branch_width))
+        ColorClade_Label_FileOut_handle.close()
+
+    ####################################################################################################################
+
     # Prepare Collapse file
     if Collapse is True:
 
@@ -533,9 +599,7 @@ def iTOL(args):
         Collapse_FileOut_handle.close()
         label_FileOut_handle.close()
 
-        print('iTOL files exported to:')
-        print(FileOut)
-        print(corresponding_label_file)
+        print('iTOL files exported to:\n%s\n%s' % (FileOut, corresponding_label_file))
 
     ####################################################################################################################
 
@@ -632,6 +696,8 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-Labels',             required=False, action='store_true',    help='Labels')
     iTOL_parser.add_argument('-ColorStrip',         required=False, action='store_true',    help='ColorStrip')
     iTOL_parser.add_argument('-ColorRange',         required=False, action='store_true',    help='ColorRange')
+    iTOL_parser.add_argument('-ColorClade',         required=False, action='store_true',    help='ColorClade')
+    iTOL_parser.add_argument('-ColorLabel',         required=False, action='store_true',    help='ColorLabel')
     iTOL_parser.add_argument('-SimpleBar',          required=False, action='store_true',    help='SimpleBar')
     iTOL_parser.add_argument('-Heatmap',            required=False, action='store_true',    help='Heatmap')
     iTOL_parser.add_argument('-ExternalShape',      required=False, action='store_true',    help='ExternalShape')
@@ -655,3 +721,12 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-o',                  required=True,                          help='Output filename')
     args = vars(iTOL_parser.parse_args())
     iTOL(args)
+
+
+'''
+
+python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -Collapse -lg genus_to_collapse.txt -o genus_to_collapse_iTOL.txt
+python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorClade -lg genus_to_color_clade_and_label.txt -gc color_code_symbiont.txt -o genus_to_color_clade_and_label_ColorClade_iTOL.txt
+python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorLabel -lg genus_to_color_clade_and_label.txt -gc color_code_symbiont.txt -o genus_to_color_clade_and_label_ColorLabel_iTOL.txt
+
+'''

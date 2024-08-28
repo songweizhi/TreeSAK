@@ -770,6 +770,7 @@ if __name__ == '__main__':
         iTOL_parser.add_argument('-Connection',         required=False, action='store_true',    help='Connection')
         iTOL_parser.add_argument('-PieChart',           required=False, action='store_true',    help='PieChart')
         iTOL_parser.add_argument('-Collapse',           required=False, action='store_true',    help='Collapse')
+        iTOL_parser.add_argument('-ColorBranch',        required=False, action='store_true',    help='ColorBranch')
         iTOL_parser.add_argument('-id',                 required=False, default=None,           help='File contains leaf id')
         iTOL_parser.add_argument('-ll',                 required=False, default=None,           help='Leaf Label')
         iTOL_parser.add_argument('-gc',                 required=False, default=None,           help='Specify Group/column Color (optional)')
