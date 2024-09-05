@@ -3,17 +3,15 @@ import glob
 import argparse
 from ete3 import Tree
 import multiprocessing as mp
-from TreeSAK.TreeSAK_config import config_dict
 
 
 compare_trees_usage = '''
-==================== compare_trees example command ====================
+======================== compare_trees example command ========================
 
-module load R/3.5.3
-TreeSAK compare_trees -t1 tree_1.newick -t2 tree_2.newick
-TreeSAK compare_trees -t1 tree_dir -t2 tree_dir -tx newick -dm -t 12
+TreeSAK compare_trees -t1 tree_1.newick -t2 tree_2.newick -o op_dir
+TreeSAK compare_trees -t1 tree_dir -t2 tree_dir -tx newick -dm -t 12 -o op_dir
 
-=======================================================================
+===============================================================================
 '''
 
 
@@ -102,12 +100,13 @@ def compare_trees_worker(arg_list):
     compare_trees_R = arg_list[0]
     tree_file_1     = arg_list[1]
     tree_file_2     = arg_list[2]
-    keep_tmp_file   = arg_list[3]
+    tmp_dir         = arg_list[3]
+    keep_tmp_file   = arg_list[4]
 
     tree1_path, tree1_basename, tree1_extension = sep_path_basename_ext(tree_file_1)
     tree2_path, tree2_basename, tree2_extension = sep_path_basename_ext(tree_file_2)
 
-    op_stats = '%s_vs_%s_mantel_stats.txt' % (tree1_basename, tree2_basename)
+    op_stats = '%s/%s_vs_%s_mantel_stats.txt' % (tmp_dir, tree1_basename, tree2_basename)
 
     t1 = Tree(tree_file_1, format=1)
     t2 = Tree(tree_file_2, format=1)
@@ -133,17 +132,17 @@ def compare_trees_worker(arg_list):
         print('Performing Mantel test based on %s leaves shared by %s (%s) and %s (%s)' % (len(shared_leaves), tree1_basename, len(tree1_leaf_list), tree2_basename, len(tree2_leaf_list)))
 
         # write out shared leaves
-        shared_leaves_txt = '%s_vs_%s_shared_leaves.txt' % (tree1_basename, tree2_basename)
+        shared_leaves_txt = '%s/%s_vs_%s_shared_leaves.txt' % (tmp_dir, tree1_basename, tree2_basename)
         shared_leaves_txt_handle = open(shared_leaves_txt, 'w')
         for each_shared_leaf in shared_leaves:
             shared_leaves_txt_handle.write(each_shared_leaf + '\n')
         shared_leaves_txt_handle.close()
 
         # subset_tree
-        t1_subset     = '%s_vs_%s_%s_subset%s' % (tree1_basename, tree2_basename, tree1_basename, tree1_extension)
-        t2_subset     = '%s_vs_%s_%s_subset%s' % (tree1_basename, tree2_basename, tree2_basename, tree2_extension)
-        subset_cmd_t1 = 'BioSAK subset_tree -tree %s -taxon %s -out %s -q' % (tree_file_1, shared_leaves_txt, t1_subset)
-        subset_cmd_t2 = 'BioSAK subset_tree -tree %s -taxon %s -out %s -q' % (tree_file_2, shared_leaves_txt, t2_subset)
+        t1_subset     = '%s/%s_vs_%s_%s_subset%s'                           % (tmp_dir, tree1_basename, tree2_basename, tree1_basename, tree1_extension)
+        t2_subset     = '%s/%s_vs_%s_%s_subset%s'                           % (tmp_dir, tree1_basename, tree2_basename, tree2_basename, tree2_extension)
+        subset_cmd_t1 = 'BioSAK subset_tree -tree %s -taxon %s -out %s -q'  % (tree_file_1, shared_leaves_txt, t1_subset)
+        subset_cmd_t2 = 'BioSAK subset_tree -tree %s -taxon %s -out %s -q'  % (tree_file_2, shared_leaves_txt, t2_subset)
         os.system(subset_cmd_t1)
         os.system(subset_cmd_t2)
 
@@ -158,13 +157,18 @@ def compare_trees_worker(arg_list):
 
 def compare_trees(args):
 
-    compare_trees_R = config_dict['compare_trees_R']
-    tree_file_1     = args['t1']
-    tree_file_2     = args['t2']
-    tree_file_ext   = args['tx']
-    export_dm       = args['dm']
-    num_threads     = args['t']
-    keep_tmp        = args['tmp']
+    op_dir              = args['o']
+    tree_file_1         = args['t1']
+    tree_file_2         = args['t2']
+    tree_file_ext       = args['tx']
+    export_dm           = args['dm']
+    num_threads         = args['t']
+    keep_tmp            = args['tmp']
+    force_create_op_dir = args['f']
+
+    current_file_path   = '/'.join(os.path.realpath(__file__).split('/')[:-1])
+    compare_trees_R     = '%s/compare_trees.R'  % current_file_path
+    tmp_dir             = '%s/tmp'              % op_dir
 
     query_tree_list = []
     if os.path.isfile(tree_file_1):
@@ -190,11 +194,21 @@ def compare_trees(args):
             tree_2_vs_1 = '%s_vs_%s' % (each_subject_tree, each_query_tree)
 
             if tree_1_vs_2 not in to_be_calculated_set:
-                list_for_compare_trees_worker.append([compare_trees_R, each_query_tree, each_subject_tree, keep_tmp])
+                list_for_compare_trees_worker.append([compare_trees_R, each_query_tree, each_subject_tree, tmp_dir, keep_tmp])
                 to_be_calculated_set.add(tree_1_vs_2)
                 to_be_calculated_set.add(tree_2_vs_1)
 
     print('Total pairs of trees to compare: %s' % len(list_for_compare_trees_worker))
+
+    # create op_dir
+    if os.path.isdir(op_dir) is True:
+        if force_create_op_dir is True:
+            os.system('rm -r %s' % op_dir)
+        else:
+            print('Output folder detected, program exited!')
+            exit()
+    os.system('mkdir %s' % op_dir)
+    os.system('mkdir %s' % tmp_dir)
 
     # compare trees with multiprocessing
     pool = mp.Pool(processes=num_threads)
@@ -203,8 +217,8 @@ def compare_trees(args):
     pool.join()
 
     # get matrix
-    output_matrix_similarity    = 'Matrix_similarity.txt'
-    output_matrix_distance      = 'Matrix_distance.txt'
+    output_matrix_similarity = '%s/Matrix_similarity.txt' % op_dir
+    output_matrix_distance   = '%s/Matrix_distance.txt'   % op_dir
     query_tree_list_basename = []
     for each_q_tree in query_tree_list:
         q_tree_path, q_tree_basename, q_tree_ext = sep_path_basename_ext(each_q_tree)
@@ -215,7 +229,7 @@ def compare_trees(args):
         s_tree_path, s_tree_basename, s_tree_ext = sep_path_basename_ext(each_s_tree)
         subject_tree_list_basename.append(s_tree_basename)
 
-    get_matrix(sorted(query_tree_list_basename), sorted(subject_tree_list_basename), '.', export_dm, output_matrix_similarity, output_matrix_distance)
+    get_matrix(sorted(query_tree_list_basename), sorted(subject_tree_list_basename), tmp_dir, export_dm, output_matrix_similarity, output_matrix_distance)
 
     # final report
     if export_dm is True:
@@ -229,11 +243,13 @@ def compare_trees(args):
 if __name__ == '__main__':
 
     compare_trees_parser = argparse.ArgumentParser(usage=compare_trees_usage)
+    compare_trees_parser.add_argument('-o',   required=True,                       help='output directory')
     compare_trees_parser.add_argument('-t1',  required=True,                       help='tree (folder) 1')
     compare_trees_parser.add_argument('-t2',  required=True,                       help='tree (folder) 2')
     compare_trees_parser.add_argument('-tx',  required=False, default='newick',    help='extention of tree files, default: newick')
     compare_trees_parser.add_argument('-dm',  required=False, action="store_true", help='export distance-alike matrix, obtained by subtract the similarity value from 1')
     compare_trees_parser.add_argument('-t',   required=False, type=int, default=1, help='number of threads')
     compare_trees_parser.add_argument('-tmp', required=False, action="store_true", help='keep tmp files')
+    compare_trees_parser.add_argument('-f',   required=False, action="store_true", help='force overwrite')
     args = vars(compare_trees_parser.parse_args())
     compare_trees(args)

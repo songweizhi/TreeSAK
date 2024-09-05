@@ -1,4 +1,5 @@
 import os
+import glob
 import argparse
 from Bio import SeqIO
 
@@ -11,6 +12,40 @@ TreeSAK OMA2 -i OrthologousGroups.txt -s OrthologousGroupsFasta -o op_dir -f -c 
 
 ===================================================================================
 '''
+
+
+def sep_path_basename_ext(file_in):
+
+    f_path, f_name = os.path.split(file_in)
+    if f_path == '':
+        f_path = '.'
+    f_base, f_ext = os.path.splitext(f_name)
+
+    return f_name, f_path, f_base, f_ext[1:]
+
+
+def get_gnm_og_cov(og_dir, og_ext, og_cov_txt):
+
+    og_file_re   = '%s/*.%s' % (og_dir, og_ext)
+    og_file_list = glob.glob(og_file_re)
+
+    gnm_to_og_dict = dict()
+    for og_file in og_file_list:
+        _, _, og_id, _ = sep_path_basename_ext(og_file)
+        for each_seq in SeqIO.parse(og_file, 'fasta'):
+            seq_id = each_seq.id
+            gnm_id = '_'.join(seq_id.split('_')[:-1])
+            if gnm_id not in gnm_to_og_dict:
+                gnm_to_og_dict[gnm_id] = set()
+            gnm_to_og_dict[gnm_id].add(og_id)
+
+    og_cov_txt_handle = open(og_cov_txt, 'w')
+    for each_gnm in sorted(list(gnm_to_og_dict.keys())):
+        gnm_og_set = gnm_to_og_dict[each_gnm]
+        og_cov = len(gnm_og_set)*100/len(og_file_list)
+        og_cov = float("{0:.2f}".format(og_cov))
+        og_cov_txt_handle.write('%s\t%s\n' % (each_gnm, og_cov))
+    og_cov_txt_handle.close()
 
 
 def get_ortho_to_gene_dict(ortho_groups_txt, og_program):
@@ -63,13 +98,16 @@ def OMA2(args):
         exit()
 
     og_txt_out = ''
+    gnm_og_num_txt = ''
     filtered_seq_dir = ''
     if min_gene_num is not None:
-        og_txt_out       = '%s/OrthologousGroups_num%s.txt'  % (op_dir, min_gene_num)
-        filtered_seq_dir = '%s/OrthologousGroupsFasta_num%s' % (op_dir, min_gene_num)
+        og_txt_out       = '%s/OrthologousGroups_num%s.txt'             % (op_dir, min_gene_num)
+        gnm_og_num_txt   = '%s/OrthologousGroups_num%s_per_genome.txt'  % (op_dir, min_gene_num)
+        filtered_seq_dir = '%s/OrthologousGroupsFasta_num%s'            % (op_dir, min_gene_num)
     if min_gene_cov is not None:
-        og_txt_out       = '%s/OrthologousGroups_cov%s.txt'  % (op_dir, min_gene_cov)
-        filtered_seq_dir = '%s/OrthologousGroupsFasta_cov%s' % (op_dir, min_gene_cov)
+        og_txt_out       = '%s/OrthologousGroups_cov%s.txt'             % (op_dir, min_gene_cov)
+        gnm_og_num_txt   = '%s/OrthologousGroups_cov%s_per_genome.txt'  % (op_dir, min_gene_cov)
+        filtered_seq_dir = '%s/OrthologousGroupsFasta_cov%s'            % (op_dir, min_gene_cov)
 
     # check genome files
     interested_gnm_set = set()
@@ -148,6 +186,10 @@ def OMA2(args):
         filtered_file = '%s/%s.fa' % (filtered_seq_dir, seq_file_name)
         select_seq(source_file, gene_to_extract_dict[each_og], filtered_file)
 
+    # get_gnm_og_cov
+    get_gnm_og_cov(filtered_seq_dir, 'fa', gnm_og_num_txt)
+
+    # report
     if min_gene_num is not None:
         print('The number of OG with genes >= %s is %s' % (min_gene_num, len(qualified_og_set)))
     if min_gene_cov is not None:

@@ -165,12 +165,14 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'compare_trees':
         from TreeSAK import compare_trees
         compare_trees_parser = subparsers.add_parser('compare_trees', usage=compare_trees.compare_trees_usage)
-        compare_trees_parser.add_argument('-t1',            required=True,                       help='tree (folder) 1')
-        compare_trees_parser.add_argument('-t2',            required=True,                       help='tree (folder) 2')
-        compare_trees_parser.add_argument('-tx',            required=False, default='newick',    help='extention of tree files, default: newick')
-        compare_trees_parser.add_argument('-dm',            required=False, action="store_true", help='export distance-alike matrix, obtained by subtract the similarity value from 1')
-        compare_trees_parser.add_argument('-t',             required=False, type=int, default=1, help='number of threads')
-        compare_trees_parser.add_argument('-tmp',           required=False, action="store_true", help='keep tmp files')
+        compare_trees_parser.add_argument('-o',   required=True,                       help='output directory')
+        compare_trees_parser.add_argument('-t1',  required=True,                       help='tree (folder) 1')
+        compare_trees_parser.add_argument('-t2',  required=True,                       help='tree (folder) 2')
+        compare_trees_parser.add_argument('-tx',  required=False, default='newick',    help='extention of tree files, default: newick')
+        compare_trees_parser.add_argument('-dm',  required=False, action="store_true", help='export distance-alike matrix, obtained by subtract the similarity value from 1')
+        compare_trees_parser.add_argument('-t',   required=False, type=int, default=1, help='number of threads')
+        compare_trees_parser.add_argument('-tmp', required=False, action="store_true", help='keep tmp files')
+        compare_trees_parser.add_argument('-f',   required=False, action="store_true", help='force overwrite')
         args = vars(parser.parse_args())
         compare_trees.compare_trees(args)
 
@@ -447,6 +449,7 @@ if __name__ == '__main__':
         MarkerSeq2Tree_parser.add_argument('-bmge',     required=False, action="store_true",    help='perform BMGE trimming on concatenated MSA')
         MarkerSeq2Tree_parser.add_argument('-bmge_m',   required=False, default='BLOSUM30',     help='BMGE trim model, default: BLOSUM30')
         MarkerSeq2Tree_parser.add_argument('-bmge_esc', required=False, default='0.55',         help='BMGE entropy score cutoff, default: 0.55')
+        MarkerSeq2Tree_parser.add_argument('-prune',    required=False, default=None,           help='conservation cutoffs for alignment_pruner.pl')
         MarkerSeq2Tree_parser.add_argument('-f',        required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         MarkerSeq2Tree.MarkerSeq2Tree(args)

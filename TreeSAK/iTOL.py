@@ -118,6 +118,8 @@ def iTOL(args):
     Labels                  = args['Labels']
     ColorStrip              = args['ColorStrip']
     ColorRange              = args['ColorRange']
+    ColorClade              = args['ColorClade']
+    ColorLabel              = args['ColorLabel']
     SimpleBar               = args['SimpleBar']
     Heatmap                 = args['Heatmap']
     ExternalShape           = args['ExternalShape']
@@ -126,8 +128,6 @@ def iTOL(args):
     Connection              = args['Connection']
     PieChart                = args['PieChart']
     Collapse                = args['Collapse']
-    ColorClade              = args['ColorClade']
-    ColorLabel              = args['ColorLabel']
     leaf_id_txt             = args['id']
     LeafGroup               = args['lg']
     GroupColor              = args['gc']
@@ -276,13 +276,13 @@ def iTOL(args):
 
         FileOut_handle.write('\n# provide data here\nDATA\n')
         for leaf in Leaf_to_Group_dict:
-            leaf_group = Leaf_to_Group_dict[leaf]
-            leaf_color = Group_to_Color_dict[leaf_group]
+            node_group = Leaf_to_Group_dict[leaf]
+            leaf_color = Group_to_Color_dict[node_group]
 
             if ColorStrip is True:
-                FileOut_handle.write('%s\t%s\t%s\n' % (leaf, leaf_color, leaf_group))
+                FileOut_handle.write('%s\t%s\t%s\n' % (leaf, leaf_color, node_group))
             if ColorRange is True:
-                FileOut_handle.write('%s\trange\t%s\t%s\n' % (leaf, leaf_color, leaf_group))
+                FileOut_handle.write('%s\trange\t%s\t%s\n' % (leaf, leaf_color, node_group))
         FileOut_handle.close()
 
     ####################################################################################################################
@@ -512,15 +512,17 @@ def iTOL(args):
         # get group_to_leaf_dict
         group_set = set()
         group_to_leaf_dict = dict()
+        node_to_group_dict = dict()
         for each_line in open(LeafGroup):
             each_line_split = each_line.strip().split('\t')
-            leaf_id         = each_line_split[0]
-            leaf_group      = each_line_split[1]
-            group_set.add(leaf_group)
-            if leaf_group not in group_to_leaf_dict:
-                group_to_leaf_dict[leaf_group] = [leaf_id]
+            node_id    = each_line_split[0]
+            node_group = each_line_split[1]
+            group_set.add(node_group)
+            node_to_group_dict[node_id] = node_group
+            if node_group not in group_to_leaf_dict:
+                group_to_leaf_dict[node_group] = [node_id]
             else:
-                group_to_leaf_dict[leaf_group].append(leaf_id)
+                group_to_leaf_dict[node_group].append(node_id)
 
         group_list = sorted(list(group_set))
 
@@ -578,11 +580,11 @@ def iTOL(args):
         for each_line in open(LeafGroup):
             each_line_split = each_line.strip().split('\t')
             leaf_id         = each_line_split[0]
-            leaf_group      = each_line_split[1]
-            if leaf_group not in group_to_leaf_dict:
-                group_to_leaf_dict[leaf_group] = [leaf_id]
+            node_group      = each_line_split[1]
+            if node_group not in group_to_leaf_dict:
+                group_to_leaf_dict[node_group] = [leaf_id]
             else:
-                group_to_leaf_dict[leaf_group].append(leaf_id)
+                group_to_leaf_dict[node_group].append(leaf_id)
 
         Collapse_FileOut_handle = open(FileOut, 'w')
         Collapse_FileOut_handle.write('COLLAPSE\n')
@@ -698,6 +700,7 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-ColorRange',         required=False, action='store_true',    help='ColorRange')
     iTOL_parser.add_argument('-ColorClade',         required=False, action='store_true',    help='ColorClade')
     iTOL_parser.add_argument('-ColorLabel',         required=False, action='store_true',    help='ColorLabel')
+    iTOL_parser.add_argument('-ColorLeafLabel',     required=False, action='store_true',    help='ColorLabel')
     iTOL_parser.add_argument('-SimpleBar',          required=False, action='store_true',    help='SimpleBar')
     iTOL_parser.add_argument('-Heatmap',            required=False, action='store_true',    help='Heatmap')
     iTOL_parser.add_argument('-ExternalShape',      required=False, action='store_true',    help='ExternalShape')
@@ -721,12 +724,3 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-o',                  required=True,                          help='Output filename')
     args = vars(iTOL_parser.parse_args())
     iTOL(args)
-
-
-'''
-
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -Collapse -lg genus_to_collapse.txt -o genus_to_collapse_iTOL.txt
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorClade -lg genus_to_color_clade_and_label.txt -gc color_code_symbiont.txt -o genus_to_color_clade_and_label_ColorClade_iTOL.txt
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorLabel -lg genus_to_color_clade_and_label.txt -gc color_code_symbiont.txt -o genus_to_color_clade_and_label_ColorLabel_iTOL.txt
-
-'''

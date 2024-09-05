@@ -530,7 +530,7 @@ def MarkerRef2Tree(args):
 
         # trim msa
         trim_cmd = 'trimal -in %s -out %s -automated1' % (marker_hits_aln, marker_hits_aln_trimmed)
-        if trim_with_bmge is False:
+        if trim_with_bmge is True:
             trim_cmd = 'java -jar %s -i %s -m %s -t AA -h %s -of %s' % (pwd_bmge_jar, marker_hits_aln, bmge_trim_model, bmge_entropy_score_cutoff, marker_hits_aln_trimmed)
         os.system(trim_cmd)
 

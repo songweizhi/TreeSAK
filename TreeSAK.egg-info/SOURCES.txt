@@ -33,6 +33,7 @@ TreeSAK/LcaToLeaves.py
 TreeSAK/MarkerRef2Tree.py
 TreeSAK/MarkerRef2Tree_backup.py
 TreeSAK/MarkerSeq2Tree.py
+TreeSAK/MarkerSeq2Tree_backup.py
 TreeSAK/ModifyTopo.py
 TreeSAK/Newick_tree_plotter.py
 TreeSAK/OMA.py
@@ -66,6 +67,7 @@ TreeSAK/__init__.py
 TreeSAK/ale_parser.py
 TreeSAK/ale_splitter.py
 TreeSAK/alignment_pruner.pl
+TreeSAK/assessOG.py
 TreeSAK/catfasta2phy.py
 TreeSAK/cogTree.py
 TreeSAK/compare_trees.R
