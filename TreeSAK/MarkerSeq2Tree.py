@@ -139,7 +139,7 @@ def pruneMSA(msa_in, conserved_cutoffs):
     op_file_list = []
     for each_cutoff in cutoff_list:
         cutoff_formatted = str(float(each_cutoff)/100).replace('0.', '.')
-        current_msa_out = '%s/%s.pruner%s.%s' % (msa_path, msa_base, each_cutoff, msa_ext)
+        current_msa_out = '%s/%s.pruner%s%s' % (msa_path, msa_base, each_cutoff, msa_ext)
         perl_cmd            = 'perl %s --file %s --conserved_threshold %s > %s' % (alignment_pruner_pl,   msa_in, cutoff_formatted, current_msa_out)
         perl_cmd_for_report = 'perl %s --file %s --conserved_threshold %s > %s' % ('alignment_pruner.pl', msa_in, cutoff_formatted, current_msa_out)
         op_file_list.append(current_msa_out)
