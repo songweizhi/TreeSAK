@@ -128,6 +128,7 @@ def iTOL(args):
     Connection              = args['Connection']
     PieChart                = args['PieChart']
     Collapse                = args['Collapse']
+    MultiStyleLabel         = args['MultiStyleLabel']
     leaf_id_txt             = args['id']
     LeafGroup               = args['lg']
     GroupColor              = args['gc']
@@ -141,6 +142,8 @@ def iTOL(args):
     LegendTitle             = args['lt']
     show_strip_labels       = args['show_strip_labels']
     FileOut                 = args['o']
+    BinaryShape             = args['BinaryShape']
+    BinaryColor             = args['BinaryColor']
 
     # General
     STRIP_WIDTH                 = 100
@@ -403,9 +406,9 @@ def iTOL(args):
         BinaryID_FileOut_handle.write('DATASET_BINARY\n\nSEPARATOR TAB\nDATASET_LABEL\t%s\nCOLOR\tred\n' % LegendTitle)
         BinaryID_FileOut_handle.write('SHOW_LABELS\t1\nLABEL_ROTATION\t45\nLABEL_SHIFT\t5\n')
         BinaryID_FileOut_handle.write('FIELD_LABELS\t%s\n' % LegendTitle)
-        BinaryID_FileOut_handle.write('FIELD_COLORS\tred\n')
+        BinaryID_FileOut_handle.write('FIELD_COLORS\t%s\n' % BinaryColor)
         BinaryID_FileOut_handle.write('# FIELD_SHAPES: 1: rectangle; 2: circle; 3: star; 4: right pointing triangle; 5: left pointing triangle; 6: check mark\n')
-        BinaryID_FileOut_handle.write('FIELD_SHAPES\t3\n')
+        BinaryID_FileOut_handle.write('FIELD_SHAPES\t%s\n' % BinaryShape)
         BinaryID_FileOut_handle.write('MARGIN\t10\n')
         BinaryID_FileOut_handle.write('\nDATA\n')
         for each_line in open(leaf_id_txt):
@@ -606,6 +609,19 @@ def iTOL(args):
     ####################################################################################################################
 
     # Prepare ExternalShape file
+    if  MultiStyleLabel is True:
+        MultiStyleLabel_FileOut_handle = open(FileOut, 'w')
+        MultiStyleLabel_FileOut_handle.write('MULTI_STYLE\n')
+        MultiStyleLabel_FileOut_handle.write('SEPARATOR TAB\n')
+        MultiStyleLabel_FileOut_handle.write('#each line in the DATA section defines the style for one label part (specified in the first field)\n')
+        MultiStyleLabel_FileOut_handle.write('\n')
+        MultiStyleLabel_FileOut_handle.write('\n')
+        MultiStyleLabel_FileOut_handle.write('DATA\n')
+        MultiStyleLabel_FileOut_handle.close()
+
+    ####################################################################################################################
+
+    # Prepare ExternalShape file
     if ExternalShape is True:
 
         # read in leaf matrix into dict
@@ -693,9 +709,9 @@ def iTOL(args):
 
 if __name__ == '__main__':
 
-    # initialize the options parser
     iTOL_parser = argparse.ArgumentParser(usage=iTOL_usage)
     iTOL_parser.add_argument('-Labels',             required=False, action='store_true',    help='Labels')
+    iTOL_parser.add_argument('-MultiStyleLabel',    required=False, action='store_true',    help='MultiStyleLabel')
     iTOL_parser.add_argument('-ColorStrip',         required=False, action='store_true',    help='ColorStrip')
     iTOL_parser.add_argument('-ColorRange',         required=False, action='store_true',    help='ColorRange')
     iTOL_parser.add_argument('-ColorClade',         required=False, action='store_true',    help='ColorClade')
@@ -706,6 +722,8 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-ExternalShape',      required=False, action='store_true',    help='ExternalShape')
     iTOL_parser.add_argument('-Binary',             required=False, action='store_true',    help='Binary')
     iTOL_parser.add_argument('-BinaryID',           required=False, action='store_true',    help='Binary specified IDs as 1')
+    iTOL_parser.add_argument('-BinaryShape',        required=False, default='2',            help='Binary Shape, choose from 1(rectangle), 2(circle), 3(star), 4, 5 and 6, default is 2')
+    iTOL_parser.add_argument('-BinaryColor',        required=False, default='red',          help='Binary Color, default is red')
     iTOL_parser.add_argument('-Connection',         required=False, action='store_true',    help='Connection')
     iTOL_parser.add_argument('-PieChart',           required=False, action='store_true',    help='PieChart')
     iTOL_parser.add_argument('-Collapse',           required=False, action='store_true',    help='Collapse')

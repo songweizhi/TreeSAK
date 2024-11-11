@@ -772,6 +772,8 @@ if __name__ == '__main__':
         iTOL_parser.add_argument('-ExternalShape',      required=False, action='store_true',    help='ExternalShape')
         iTOL_parser.add_argument('-Binary',             required=False, action='store_true',    help='Binary')
         iTOL_parser.add_argument('-BinaryID',           required=False, action='store_true',    help='Binary specified IDs as 1')
+        iTOL_parser.add_argument('-BinaryShape',        required=False, default='2',            help='Binary Shape, choose from 1(rectangle), 2(circle), 3(star), 4, 5 and 6, default is 2')
+        iTOL_parser.add_argument('-BinaryColor',        required=False, default='red',          help='Binary Color, default is red')
         iTOL_parser.add_argument('-Connection',         required=False, action='store_true',    help='Connection')
         iTOL_parser.add_argument('-PieChart',           required=False, action='store_true',    help='PieChart')
         iTOL_parser.add_argument('-Collapse',           required=False, action='store_true',    help='Collapse')

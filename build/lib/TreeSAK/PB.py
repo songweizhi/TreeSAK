@@ -1,7 +1,6 @@
 import os
 import argparse
 from Bio import AlignIO
-import multiprocessing as mp
 
 
 PB_usage = '''
@@ -103,72 +102,42 @@ def PB(args):
         fa2phy(msa_in, msa_in_plp)
         msa_to_use = msa_in_plp
 
-    cores_per_chain = 0
     chain_name_list = []
     pb_mpi_cmd_list = []
-    jobs_to_run_in_parallel = 0
     if num_of_chains == 1:
-        jobs_to_run_in_parallel = 1
-        pb_mpi_cmd = 'mpirun -np %s pb_mpi -d %s %s -s %s/%s' % (num_of_threads, msa_to_use, setting_to_use, op_dir, op_prefix)
+        pb_mpi_cmd = 'export OMPI_MCA_btl=^openib; mpirun -np %s pb_mpi -d %s %s -s %s/%s' % (num_of_threads, msa_to_use, setting_to_use, op_dir, op_prefix)
         chain_name_list.append('%s/%s' % (op_dir, op_prefix))
         pb_mpi_cmd_list.append(pb_mpi_cmd)
-        cores_per_chain = num_of_threads
-
-    elif num_of_threads <= num_of_chains:
-        jobs_to_run_in_parallel = num_of_threads
-        for chain_index in range(1, (num_of_chains + 1)):
-            current_wd = '%s/%s_chain%s' % (op_dir, op_prefix, chain_index)
-            os.mkdir(current_wd)
-            pb_mpi_cmd = 'mpirun -np %s pb_mpi -d %s %s -s %s/%s_chain%s' % (1, msa_to_use, setting_to_use, current_wd, op_prefix, chain_index)
-            chain_name_list.append('%s/%s_chain%s' % (current_wd, op_prefix, chain_index))
-            pb_mpi_cmd_list.append(pb_mpi_cmd)
-            cores_per_chain = 1
-
     else:
-        jobs_to_run_in_parallel = num_of_chains
-        cores_per_run = num_of_threads // num_of_chains
         for chain_index in range(1, (num_of_chains + 1)):
             current_wd = '%s/%s_chain%s' % (op_dir, op_prefix, chain_index)
             os.mkdir(current_wd)
-            pb_mpi_cmd = 'mpirun -np %s pb_mpi -d %s %s -s %s/%s_chain%s' % (cores_per_run, msa_to_use, setting_to_use, current_wd, op_prefix, chain_index)
+            pb_mpi_cmd = 'export OMPI_MCA_btl=^openib; mpirun -np %s pb_mpi -d %s %s -s %s/%s_chain%s' % (num_of_threads, msa_to_use, setting_to_use, current_wd, op_prefix, chain_index)
             chain_name_list.append('%s/%s_chain%s' % (current_wd, op_prefix, chain_index))
             pb_mpi_cmd_list.append(pb_mpi_cmd)
-            cores_per_chain = cores_per_run
 
     # write out commands
     cmd_txt_handle = open(cmd_txt, 'w')
+    cmd_txt_handle.write('# To run pb_mpi\n')
     for cmd in pb_mpi_cmd_list:
         cmd_txt_handle.write(cmd + '\n')
 
     cmd_txt_handle.write('\n# To restart a terminated run (e.g., due to walltime limitation)\n')
     for each_chain in chain_name_list:
-        cmd_txt_handle.write('mpirun -np %s pb_mpi %s\n' % (cores_per_chain, each_chain))
+        cmd_txt_handle.write('export OMPI_MCA_btl=^openib; mpirun -np %s pb_mpi %s\n' % (num_of_threads, each_chain))
     cmd_txt_handle.close()
-
-    # run chains with mp
-    print('Running pb_mpi with multiprocessing')
-    pool = mp.Pool(processes=jobs_to_run_in_parallel)
-    pool.map(os.system, pb_mpi_cmd_list)
-    pool.close()
-    pool.join()
 
     # assess the results
     if num_of_chains > 1:
-
-        readpb_cmd = 'bpcomp -x 1000 10 %s' % (' '.join(chain_name_list))
-        bpcomp_cmd = 'tracecomp -x 1000 %s' % (' '.join(chain_name_list))
-
-        # write out commands
+        readpb_cmd = 'export OMPI_MCA_btl=^openib; bpcomp -x 1000 10 %s' % (' '.join(chain_name_list))
+        bpcomp_cmd = 'export OMPI_MCA_btl=^openib; tracecomp -x 1000 %s' % (' '.join(chain_name_list))
         cmd_txt_handle = open(cmd_txt, 'a')
+        cmd_txt_handle.write('\n# You may want to use the following commands to assess the results:\n')
         cmd_txt_handle.write(readpb_cmd + '\n')
         cmd_txt_handle.write(bpcomp_cmd + '\n')
         cmd_txt_handle.close()
 
-        # report
-        print('You may want to use the following commands to assess the results:')
-        print(readpb_cmd)
-        print(bpcomp_cmd)
-
+    print('Commands exported to %s' % cmd_txt)
     print('Done!')
 
 
@@ -179,8 +148,8 @@ if __name__ == '__main__':
     PB_parser.add_argument('-o',       required=True,                          help='output directory')
     PB_parser.add_argument('-p',       required=True,                          help='output prefix')
     PB_parser.add_argument('-fa2plp',  required=False, action="store_true",    help='convert MSA format from fasta to phylip')
-    PB_parser.add_argument('-n',       required=False, type=int, default=4,    help='number of chains to run in parallel, default: 4')
-    PB_parser.add_argument('-t',       required=False, type=int, default=12,   help='num of cores, default: 12')
+    PB_parser.add_argument('-n',       required=False, type=int, default=4,    help='number of chains, default: 4')
+    PB_parser.add_argument('-t',       required=False, type=int, default=48,   help='num of cores per mpirun, default: 48')
     PB_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
     args = vars(PB_parser.parse_args())
     PB(args)

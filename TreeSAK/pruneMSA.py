@@ -3,18 +3,18 @@ import argparse
 
 
 pruneMSA_usage = '''
-================= pruneMSA example commands =================
+==================== pruneMSA example commands ====================
 
 # Dependencies: perl and alignment_pruner.pl
 
-TreeSAK pruneMSA -i input_msa.fa -c 10
-TreeSAK pruneMSA -i input_msa.fa -c 10,20,30,40 
+TreeSAK pruneMSA -i input_msa.fasta -c 10
+TreeSAK pruneMSA -i input_msa.fasta -c 5,10,20,30,40
 
 Note:
-1. This is a wrapper for alignment_pruner.pl
+1. This is a wrapper for alignment_pruner.pl (--chi2_prune mode) 
 2. For details: https://doi.org/10.1038/s41467-020-17408-w
 
-=============================================================
+===================================================================
 '''
 
 
@@ -41,12 +41,12 @@ def pruneMSA(args):
 
     op_file_list = []
     for each_cutoff in cutoff_list:
-        cutoff_formatted = str(float(each_cutoff)/100).replace('0.', '.')
-        current_msa_out = '%s/%s.pruner%s.%s' % (msa_path, msa_base, each_cutoff, msa_ext)
-        perl_cmd            = 'perl %s --file %s --conserved_threshold %s > %s' % (alignment_pruner_pl,   msa_in, cutoff_formatted, current_msa_out)
-        perl_cmd_for_report = 'perl %s --file %s --conserved_threshold %s > %s' % ('alignment_pruner.pl', msa_in, cutoff_formatted, current_msa_out)
+        cutoff_formatted = str(float(each_cutoff)/100)
+        current_msa_out     = '%s/%s_chi2p%s.%s'                        % (msa_path, msa_base, each_cutoff, msa_ext)
+        perl_cmd            = 'perl %s --file %s --chi2_prune f%s > %s' % (alignment_pruner_pl,   msa_in, cutoff_formatted, current_msa_out)
+        perl_cmd_to_print   = 'perl %s --file %s --chi2_prune f%s > %s' % ('alignment_pruner.pl', msa_in, cutoff_formatted, current_msa_out)
         op_file_list.append(current_msa_out)
-        print(perl_cmd_for_report)
+        print(perl_cmd_to_print)
         os.system(perl_cmd)
 
     # report
