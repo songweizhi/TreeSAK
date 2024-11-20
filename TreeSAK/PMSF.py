@@ -9,6 +9,7 @@ PMSF_usage = '''
 # Dependency: iqtree2
 
 TreeSAK PMSF -i in.aln -o get_PMSF_tree_wd -t 12
+TreeSAK PMSF -i in.aln -o get_PMSF_tree_wd -t 12 -topo topo.tree
 
 # This is a wrapper for:
 iqtree2 -T 12 -B 1000 --alrt 1000 --quiet --seqtype AA -s in.aln --prefix guide_tree -m LG+F+G 
@@ -34,6 +35,7 @@ def PMSF(args):
     tree_prefix             = args['p']
     force_overwrite         = args['f']
     num_of_threads          = args['t']
+    topo_constraint_txt     = args['topo']
 
     guide_tree_wd  = '%s/guide_tree'           % op_dir
     pwd_guide_tree = '%s/guide_tree.treefile'  % guide_tree_wd
@@ -65,6 +67,9 @@ def PMSF(args):
 
     guidetree_cmd = '%s -s %s --prefix %s/guide_tree --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet' % (iqtree_exe, msa_in, guide_tree_wd, iqtree_model_guide_tree, num_of_threads)
     iqtree_cmd    = '%s -s %s --prefix %s/%s --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet -ft %s'  % (iqtree_exe, msa_in, op_dir, tree_prefix, iqtree_model, num_of_threads, pwd_guide_tree)
+    if topo_constraint_txt is not None:
+        guidetree_cmd = '%s -s %s --prefix %s/guide_tree --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet -g %s' % (iqtree_exe, msa_in, guide_tree_wd, iqtree_model_guide_tree, num_of_threads, topo_constraint_txt)
+        iqtree_cmd    = '%s -s %s --prefix %s/%s --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet -ft %s -g %s'  % (iqtree_exe, msa_in, op_dir, tree_prefix, iqtree_model, num_of_threads, pwd_guide_tree, topo_constraint_txt)
 
     # write out commands
     pwd_cmd_txt_handle = open(pwd_cmd_txt, 'w')
@@ -88,14 +93,14 @@ def PMSF(args):
 if __name__ == '__main__':
 
     # initialize the options parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-i',   required=True,                          help='input MSA file')
-    parser.add_argument('-gm',  required=False, default='LG+F+G',       help='iqtree model for guide tree, default: LG+F+G')
-    parser.add_argument('-m',   required=False, default='LG+C60+F+G',   help='iqtree model, default: LG+C60+F+G')
-    parser.add_argument('-o',   required=True,                          help='output plot')
-    parser.add_argument('-p',   required=False, default='PMSF',         help='tree prefix, default: PMSF')
-    parser.add_argument('-t',   required=False, type=int, default=1,    help='num of threads')
-    parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
-    args = vars(parser.parse_args())
+    PMSF_parser = argparse.ArgumentParser()
+    PMSF_parser.add_argument('-i',       required=True,                          help='input MSA file')
+    PMSF_parser.add_argument('-gm',      required=False, default='LG+F+G',       help='iqtree model for guide tree, default: LG+F+G')
+    PMSF_parser.add_argument('-m',       required=False, default='LG+C60+F+G',   help='iqtree model, default: LG+C60+F+G')
+    PMSF_parser.add_argument('-o',       required=True,                          help='output plot')
+    PMSF_parser.add_argument('-p',       required=False, default='PMSF',         help='tree prefix, default: PMSF')
+    PMSF_parser.add_argument('-topo',    required=False, default=None,           help='topological constraint tree, pass to -g, default is None')
+    PMSF_parser.add_argument('-t',       required=False, type=int, default=1,    help='num of threads')
+    PMSF_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
+    args = vars(PMSF_parser.parse_args())
     PMSF(args)
-

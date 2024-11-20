@@ -231,8 +231,9 @@ def iTOL(args):
             FileOut_handle.write('SEPARATOR TAB\n')
             FileOut_handle.write('DATASET_LABEL\t%s\n' % LegendTitle)
             FileOut_handle.write('SHOW_LABELS\t1\n')
-            FileOut_handle.write('SIZE_FACTOR\t3\n')
+            FileOut_handle.write('LABEL_SHIFT\t30\n')
             FileOut_handle.write('LABEL_ROTATION\t45\n')
+            FileOut_handle.write('SIZE_FACTOR\t2\n')
             FileOut_handle.write('COLOR_BRANCHES\t0\n')
 
         if ColorRange is True:

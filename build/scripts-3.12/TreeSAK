@@ -375,13 +375,14 @@ if __name__ == '__main__':
     elif sys.argv[1] in ['PMSF', 'pmsf']:
         from TreeSAK import PMSF
         PMSF_parser = subparsers.add_parser('PMSF', usage=PMSF.PMSF_usage)
-        PMSF_parser.add_argument('-i',   required=True,                          help='input MSA file')
-        PMSF_parser.add_argument('-gm',  required=False, default='LG+F+G',       help='iqtree model for guide tree, default: LG+F+G')
-        PMSF_parser.add_argument('-m',   required=False, default='LG+C60+F+G',   help='iqtree model, default: LG+C60+F+G')
-        PMSF_parser.add_argument('-o',   required=True,                          help='output plot')
-        PMSF_parser.add_argument('-p',   required=False, default='PMSF',         help='tree prefix, default: PMSF')
-        PMSF_parser.add_argument('-t',   required=False, type=int, default=1,    help='num of threads')
-        PMSF_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
+        PMSF_parser.add_argument('-i',      required=True,                          help='input MSA file')
+        PMSF_parser.add_argument('-gm',     required=False, default='LG+F+G',       help='iqtree model for guide tree, default: LG+F+G')
+        PMSF_parser.add_argument('-m',      required=False, default='LG+C60+F+G',   help='iqtree model, default: LG+C60+F+G')
+        PMSF_parser.add_argument('-o',      required=True,                          help='output plot')
+        PMSF_parser.add_argument('-p',      required=False, default='PMSF',         help='tree prefix, default: PMSF')
+        PMSF_parser.add_argument('-topo',   required=False, default=None,           help='topological constraint tree, pass to -g, default is None')
+        PMSF_parser.add_argument('-t',      required=False, type=int, default=1,    help='num of threads')
+        PMSF_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         PMSF.PMSF(args)
 
@@ -598,6 +599,7 @@ if __name__ == '__main__':
         RootTree_parser.add_argument('-i',          required=True,                          help='input tree')
         RootTree_parser.add_argument('-og',         required=True,                          help='out group leaves')
         RootTree_parser.add_argument('-o',          required=True,                          help='output tree')
+        RootTree_parser.add_argument('-add_root',   required=False, action='store_true',    help='add the root branch')
         RootTree_parser.add_argument('-fmt',        required=False, default=1, type=int,    help='tree format, default: 1')
         args = vars(parser.parse_args())
         RootTree.RootTree(args)
@@ -763,6 +765,7 @@ if __name__ == '__main__':
         from TreeSAK import iTOL
         iTOL_parser = subparsers.add_parser('iTOL', description='Decorate tree with iTOL', usage=iTOL.iTOL_usage)
         iTOL_parser.add_argument('-Labels',             required=False, action='store_true',    help='Labels')
+        iTOL_parser.add_argument('-MultiStyleLabel',    required=False, action='store_true',    help='MultiStyleLabel')
         iTOL_parser.add_argument('-ColorStrip',         required=False, action='store_true',    help='ColorStrip')
         iTOL_parser.add_argument('-ColorRange',         required=False, action='store_true',    help='ColorRange')
         iTOL_parser.add_argument('-ColorClade',         required=False, action='store_true',    help='ColorClade')
