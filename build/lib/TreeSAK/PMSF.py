@@ -9,6 +9,7 @@ PMSF_usage = '''
 # Dependency: iqtree2
 
 TreeSAK PMSF -i in.aln -o get_PMSF_tree_wd -t 12
+TreeSAK PMSF -i in.aln -o get_PMSF_tree_wd -t 12 -topo topo.tree
 
 # This is a wrapper for:
 iqtree2 -T 12 -B 1000 --alrt 1000 --quiet --seqtype AA -s in.aln --prefix guide_tree -m LG+F+G 

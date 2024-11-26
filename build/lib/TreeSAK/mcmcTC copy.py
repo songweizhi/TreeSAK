@@ -3,23 +3,20 @@ from ete3 import Tree
 
 
 mcmcTC_usage = '''
-=================================== mcmcTC example commands ===================================
+===================== mcmcTC example commands =====================
 
 TreeSAK mcmcTC -i in.tree -o out.tree -tc time_constraints.txt
 
 # Format of constraint file (tab separated columns)
-IMG2264867070_yang,GCF900696045_1_yang	lca	3.46-4.38	Archaeal root
-GCF000015225_1_yang,GCF000007225_1_yang	lca	-2.32	Oxygen Age Constraint, Thermoproteales
-GCF000213215_1_yang,GCA000024305_1_yang	lca	-2.32	Oxygen Age Constraint, Sulfolobales
-GCF000152265_2_yang,GCF000195915_1_yang	lca	-2.32	Oxygen Age Constraint, Thermoplasma
-GCF000376445_1_yang,GCF000172995_2_yang	lca	-1.579	Chitin Age Constraint, Halobacteriales
-GCF000195935_2_yang,GCF000151105_2_yang	lca	-1.579	Chitin Age Constraint, Thermococcales
-GCA000802205_2_yang,GCF000303155_1_yang	lca_p	0.75-1.49	HGT from Viridiplantae to Thaumarchaeota
+IMG2264867070_yang,GCF900696045_1_yang	3.46-4.38	Archaeal root
+GCF000015225_1_yang,GCF000007225_1_yang	-2.32	Oxygen Age Constraint, Thermoproteales
+GCF000213215_1_yang,GCA000024305_1_yang	-2.32	Oxygen Age Constraint, Sulfolobales
+GCF000152265_2_yang,GCF000195915_1_yang	-2.32	Oxygen Age Constraint, Thermoplasma
+GCF000376445_1_yang,GCF000172995_2_yang	-1.579	Chitin Age Constraint, Halobacteriales
+GCF000195935_2_yang,GCF000151105_2_yang	-1.579	Chitin Age Constraint, Thermococcales
+GCA000802205_2_yang,GCA000200715_1	0.75-1.49	HGT from Viridiplantae to Thaumarchaeota
 
-# lca: last common ancestor
-# lca_p: parent of last common ancestor
-
-===============================================================================================
+===================================================================
 '''
 
 
@@ -31,13 +28,11 @@ def mcmcTC(args):
 
     constraint_set = set()
     constraint_dict = dict()
-    constraint_type_dict = dict()
     not_recognizable_time_constraint_set = set()
     for each_constraint in open(time_constraint_txt):
         each_constraint_split = each_constraint.strip().split('\t')
-        leaf_ids        = each_constraint_split[0]
-        constraint_type = each_constraint_split[1]
-        provided_age    = each_constraint_split[2]
+        leaf_ids = each_constraint_split[0]
+        provided_age = each_constraint_split[1]
 
         str_to_add = ''
         if provided_age.startswith('-'):
@@ -50,9 +45,8 @@ def mcmcTC(args):
         else:
             not_recognizable_time_constraint_set.add(provided_age)
 
-        constraint_set.add(str_to_add)
         constraint_dict[leaf_ids] = str_to_add
-        constraint_type_dict[leaf_ids] = constraint_type
+        constraint_set.add(str_to_add)
 
     if len(not_recognizable_time_constraint_set) > 0:
         print('Format of the following time constraints are not recognizable, program exited')
@@ -67,14 +61,8 @@ def mcmcTC(args):
         node_age = constraint_dict[each_node]
         node_split = each_node.split(',')
         current_lca = tree_in.get_common_ancestor(node_split)
-        constraint_type = constraint_type_dict[each_node]
-        if constraint_type == 'lca':
-            current_lca.add_features(custom_label=node_age)
-            current_lca.name = node_age
-        elif constraint_type == 'lca_p':
-            current_lca_p = current_lca.up
-            current_lca_p.add_features(custom_label=node_age)
-            current_lca_p.name = node_age
+        current_lca.add_features(custom_label=node_age)
+        current_lca.name = node_age
 
     tree_out_str = tree_in.write(format=1)
 

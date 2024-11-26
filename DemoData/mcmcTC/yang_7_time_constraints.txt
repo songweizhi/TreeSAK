@@ -1,0 +1,7 @@
+IMG2264867070_yang,GCF900696045_1_yang	lca	3.46-4.38	Archaeal root
+GCF000015225_1_yang,GCF000007225_1_yang	lca	-2.32	Oxygen Age Constraint, Thermoproteales
+GCF000213215_1_yang,GCA000024305_1_yang	lca	-2.32	Oxygen Age Constraint, Sulfolobales
+GCF000152265_2_yang,GCF000195915_1_yang	lca	-2.32	Oxygen Age Constraint, Thermoplasma
+GCF000376445_1_yang,GCF000172995_2_yang	lca	-1.579	Chitin Age Constraint, Halobacteriales
+GCF000195935_2_yang,GCF000151105_2_yang	lca	-1.579	Chitin Age Constraint, Thermococcales
+GCA000802205_2_yang,GCF000303155_1_yang	lca_p	0.75-1.49	HGT from Viridiplantae to Thaumarchaeota
