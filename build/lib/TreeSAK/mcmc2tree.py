@@ -1,3 +1,4 @@
+import os
 import argparse
 from ete3 import Tree
 
@@ -15,6 +16,9 @@ def mcmc2tree(args):
 
     mamctree_out = args['i']
     tree_file    = args['o']
+
+    if os.path.isfile(mamctree_out) is False:
+        print('%s not found, program exited!' % mamctree_out)
 
     # get tree string from mcmctree_out
     tree_str = ''

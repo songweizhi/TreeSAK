@@ -3,7 +3,7 @@ from ete3 import Tree
 
 
 mcmcTC_usage = '''
-===================== mcmcTC example commands =====================
+======================================= mcmcTC example commands =======================================
 
 TreeSAK mcmcTC -i in.tree -o out.tree -tc time_constraints.txt
 
@@ -19,7 +19,7 @@ GCA000802205_2_yang,GCF000303155_1_yang	lca_p	0.75-1.49	HGT from Viridiplantae t
 # lca: last common ancestor
 # lca_p: parent of last common ancestor
 
-===================================================================
+=======================================================================================================
 '''
 
 

@@ -5,26 +5,28 @@ from distutils.spawn import find_executable
 
 
 dating_usage = '''
-========================== dating example commands ==========================
+============================ dating example commands ============================
 
 # Requirement: PAML
 
-TreeSAK dating -tree gnm.tree -msa marker.phy -p topo1 -o dating_wd -f
-TreeSAK dating -tree gnm.tree -msa marker.phy -p topo2 -o dating_wd -f -srun
+TreeSAK dating -i gnm.tree -m msa.phy -p topo1 -o dating_wd -f -s parameter.txt
+TreeSAK dating -i gnm.tree -m msa.phy -p topo2 -o dating_wd -f -s parameter.txt -srun
 
-=============================================================================
+# parameter.txt file format (tab separated)
+clock	2,3
+nsample	50000
+
+=================================================================================
 '''
 
 
 def check_dependencies(program_list):
 
-    # check whether executables exist
     not_detected_programs = []
     for needed_program in program_list:
         if find_executable(needed_program) is None:
             not_detected_programs.append(needed_program)
 
-    # report
     if not_detected_programs != []:
         print('%s not found, program exited!' % ','.join(not_detected_programs))
         exit()
@@ -109,8 +111,8 @@ def get_parameter_combinations(para_to_test_dict):
 
 def dating(args):
 
-    tree_file           = args['tree']
-    msa_file            = args['msa']
+    tree_file           = args['i']
+    msa_file            = args['m']
     op_dir              = args['o']
     op_prefix           = args['p']
     seq_type            = args['st']
@@ -183,6 +185,8 @@ def dating(args):
     print('Preparing files for dating estimation')
 
     para_comb_dict = get_parameter_combinations(para_to_test_dict)
+    print('para_comb_dict')
+    print(para_comb_dict)
 
     dating_cmds_txt_handle = open(dating_cmds_txt, 'w')
     for para_comb in sorted(list(para_comb_dict.keys())):
@@ -204,22 +208,22 @@ def dating(args):
         mcmctree_ctl_2 = '%s/mcmctree.ctl' % current_dating_wd_2
 
         # run 1
-        current_para_dict_run1 = para_comb_dict[para_comb]
+        current_para_dict_run1 = para_comb_dict[para_comb].copy()
         current_para_dict_run1['seqfile']  = msa_f_name
         current_para_dict_run1['treefile'] = tree_f_name
-        current_para_dict_run1['mcmcfile'] = '%s_%s_mcmc_run1.txt' % (op_prefix, para_comb)
-        current_para_dict_run1['outfile']  = '%s_%s_out_run1.txt'  % (op_prefix, para_comb)
+        current_para_dict_run1['mcmcfile'] = '%s_%s_run1_mcmc.txt' % (op_prefix, para_comb)
+        current_para_dict_run1['outfile']  = '%s_%s_run1_out.txt'  % (op_prefix, para_comb)
         current_para_dict_run1['seqtype']  = seq_type
         current_para_dict_run1['usedata']  = '2'
 
         # run 2
-        current_para_dict_run2 = para_comb_dict[para_comb]
+        current_para_dict_run2 = para_comb_dict[para_comb].copy()
         current_para_dict_run2['seqfile']  = msa_f_name
         current_para_dict_run2['treefile'] = tree_f_name
-        current_para_dict_run2['mcmcfile'] = '%s_%s_mcmc_run2.txt' % (op_prefix, para_comb)
-        current_para_dict_run2['outfile']  = '%s_%s_out_run2.txt'  % (op_prefix, para_comb)
-        current_para_dict_run2['seqtype'] = seq_type
-        current_para_dict_run2['usedata'] = '2'
+        current_para_dict_run2['mcmcfile'] = '%s_%s_run2_mcmc.txt' % (op_prefix, para_comb)
+        current_para_dict_run2['outfile']  = '%s_%s_run2_out.txt'  % (op_prefix, para_comb)
+        current_para_dict_run2['seqtype']  = seq_type
+        current_para_dict_run2['usedata']  = '2'
 
         prep_mcmctree_ctl(current_para_dict_run1, mcmctree_ctl_1)
         prep_mcmctree_ctl(current_para_dict_run2, mcmctree_ctl_2)
@@ -244,8 +248,8 @@ def dating(args):
 if __name__ == '__main__':
 
     dating_parser = argparse.ArgumentParser()
-    dating_parser.add_argument('-tree',    required=True,                          help='tree file')
-    dating_parser.add_argument('-msa',     required=True,                          help='sequence alignments')
+    dating_parser.add_argument('-i',       required=True,                          help='input tree file')
+    dating_parser.add_argument('-m',       required=True,                          help='sequence alignments')
     dating_parser.add_argument('-o',       required=True,                          help='output directory')
     dating_parser.add_argument('-p',       required=True,                          help='output prefix')
     dating_parser.add_argument('-s',       required=True,                          help='settings to compare')
@@ -254,3 +258,4 @@ if __name__ == '__main__':
     dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
     args = vars(dating_parser.parse_args())
     dating(args)
+
