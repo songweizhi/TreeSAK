@@ -10,7 +10,6 @@ dating_usage = '''
 # Requirement: PAML
 
 TreeSAK dating -i gnm.tree -m msa.phy -p topo1 -o dating_wd -f -s parameter.txt
-TreeSAK dating -i gnm.tree -m msa.phy -p topo2 -o dating_wd -f -s parameter.txt -srun
 
 # parameter.txt file format (tab separated)
 clock	2,3
@@ -211,8 +210,8 @@ def dating(args):
         current_para_dict_run1 = para_comb_dict[para_comb].copy()
         current_para_dict_run1['seqfile']  = msa_f_name
         current_para_dict_run1['treefile'] = tree_f_name
-        current_para_dict_run1['mcmcfile'] = '%s_%s_mcmc_run1.txt' % (op_prefix, para_comb)
-        current_para_dict_run1['outfile']  = '%s_%s_out_run1.txt'  % (op_prefix, para_comb)
+        current_para_dict_run1['mcmcfile'] = '%s_%s_run1_mcmc.txt' % (op_prefix, para_comb)
+        current_para_dict_run1['outfile']  = '%s_%s_run1_out.txt'  % (op_prefix, para_comb)
         current_para_dict_run1['seqtype']  = seq_type
         current_para_dict_run1['usedata']  = '2'
 
@@ -220,8 +219,8 @@ def dating(args):
         current_para_dict_run2 = para_comb_dict[para_comb].copy()
         current_para_dict_run2['seqfile']  = msa_f_name
         current_para_dict_run2['treefile'] = tree_f_name
-        current_para_dict_run2['mcmcfile'] = '%s_%s_mcmc_run2.txt' % (op_prefix, para_comb)
-        current_para_dict_run2['outfile']  = '%s_%s_out_run2.txt'  % (op_prefix, para_comb)
+        current_para_dict_run2['mcmcfile'] = '%s_%s_run2_mcmc.txt' % (op_prefix, para_comb)
+        current_para_dict_run2['outfile']  = '%s_%s_run2_out.txt'  % (op_prefix, para_comb)
         current_para_dict_run2['seqtype']  = seq_type
         current_para_dict_run2['usedata']  = '2'
 
@@ -258,3 +257,4 @@ if __name__ == '__main__':
     dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
     args = vars(dating_parser.parse_args())
     dating(args)
+
