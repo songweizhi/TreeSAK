@@ -3,12 +3,12 @@ from ete3 import Tree
 
 
 subset_usage = '''
-====================== subset example commands ======================
+=================== subset example commands ===================
 
-TreeSAK subset_tree -fmt 1 -i in.tree -k leaves.txt -o subset.tree
-TreeSAK subset_tree -fmt 1 -i in.tree -r leaves.txt -o subset.tree
+TreeSAK subset -fmt 1 -i in.tree -k leaves.txt -o subset.tree
+TreeSAK subset -fmt 1 -i in.tree -r leaves.txt -o subset.tree
 
-=====================================================================
+===============================================================
 '''
 
 

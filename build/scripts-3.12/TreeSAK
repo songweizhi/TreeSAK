@@ -47,6 +47,7 @@ def print_main_help():
        pruneMSA               ->  Prune MSA with alignment_pruner.pl
        recodeAA               ->  Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories
        fa2phy                 ->  Convert MSA format (fasta to phylip)
+       phy2fa                 ->  Convert MSA format (phylip to fasta)
        SliceMSA               ->  Slice MSA by column
        ConcateMSA             ->  Concatenate MSAs
        ConvertMSA             ->  Convert MSA format
@@ -80,6 +81,7 @@ def print_main_help():
        RootTreeGTDB220        ->  Root tree by GTDB taxonomy (r220)
        LcaToLeaves            ->  Get two leaves that define an internal node
        replace_clade          ->  Replace tree clade
+       GeneTree               ->  Infer gene tree
        
     Model-related
        PMSF                   ->  run iqtree with PMSF
@@ -353,7 +355,7 @@ if __name__ == '__main__':
         from TreeSAK import PlotMcmcNode
         PlotMcmcNode_parser = subparsers.add_parser('PlotMcmcNode', usage=PlotMcmcNode.PlotMcmcNode_usage)
         PlotMcmcNode_parser.add_argument('-i',  required=True,                  help='folder holds the *mcmc.txt files')
-        PlotMcmcNode_parser.add_argument('-x',  required=False, default='txt',  help='file extension, default txt')
+        PlotMcmcNode_parser.add_argument('-x',  required=False, default='txt',  help='file extension, default is txt')
         PlotMcmcNode_parser.add_argument('-n',  required=True,                  help='nodes to plot')
         PlotMcmcNode_parser.add_argument('-o',  required=True,                  help='output plot')
         args = vars(parser.parse_args())
@@ -880,6 +882,19 @@ if __name__ == '__main__':
         iTOL_gene_tree_parser.add_argument('-na',   required=False, action='store_true',    help='include leaves with na values')
         args = vars(parser.parse_args())
         iTOL_gene_tree.iTOL_gene_tree(args)
+
+    elif sys.argv[1] == 'GeneTree':
+        from TreeSAK import GeneTree
+        GeneTree_parser = subparsers.add_parser('GeneTree', usage=GeneTree.GeneTree_usage)
+        GeneTree_parser.add_argument('-i',          required=False, default=None,           help='sequence file')
+        GeneTree_parser.add_argument('-o',          required=True,                          help='output dir, i.e., OMA working directory')
+        GeneTree_parser.add_argument('-t',          required=False, type=int, default=3,    help='number of threads specified in job script, default: 3')
+        GeneTree_parser.add_argument('-f',          required=False, action="store_true",    help='force overwrite')
+        GeneTree_parser.add_argument('-bmge',       required=False, action="store_true",    help='trim MSA with BMGE, default no trimming')
+        GeneTree_parser.add_argument('-bmge_m',     required=False, default='BLOSUM30',     help='BMGE trim model, default: BLOSUM30')
+        GeneTree_parser.add_argument('-bmge_esc',   required=False, default='0.55',         help='BMGE entropy score cutoff, default: 0.55')
+        args = vars(parser.parse_args())
+        GeneTree.GeneTree(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])

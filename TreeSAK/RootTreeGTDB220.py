@@ -130,6 +130,11 @@ def RootTreeGTDB220(args):
     add_root_branch     = args['add_root']
     rooted_tree         = args['o']
 
+    leaf_list = []
+    for leaf in Tree(input_unrooted_tree, format=1):
+        leaf_name = leaf.name
+        leaf_list.append(leaf_name)
+
     # define file name
     gtdb_ref_tree_ar    = '%s/ar53_r220.tree'           % db_dir
     gtdb_ref_tree_bac   = '%s/bac120_r220.tree'         % db_dir
@@ -162,33 +167,34 @@ def RootTreeGTDB220(args):
             gnm_id = each_gnm_split[0]
             gnm_taxon = each_gnm_split[1]
 
-            count_current_gnm = False
-            if gnm_domain == 'bac':
-                if 'd__Bacteria' in gnm_taxon:
-                    count_current_gnm = True
-            elif gnm_domain == 'ar':
-                if 'd__Archaea' in gnm_taxon:
-                    count_current_gnm = True
+            if gnm_id in leaf_list:
+                count_current_gnm = False
+                if gnm_domain == 'bac':
+                    if 'd__Bacteria' in gnm_taxon:
+                        count_current_gnm = True
+                elif gnm_domain == 'ar':
+                    if 'd__Archaea' in gnm_taxon:
+                        count_current_gnm = True
 
-            if count_current_gnm is True:
-                gnm_p, gnm_c, gnm_o, gnm_f, gnm_g = sep_taxon_str(gnm_taxon)
+                if count_current_gnm is True:
+                    gnm_p, gnm_c, gnm_o, gnm_f, gnm_g = sep_taxon_str(gnm_taxon)
 
-                if gnm_p not in user_gnm_taxon_dict_p:
-                    user_gnm_taxon_dict_p[gnm_p] = set()
-                if gnm_c not in user_gnm_taxon_dict_c:
-                    user_gnm_taxon_dict_c[gnm_c] = set()
-                if gnm_o not in user_gnm_taxon_dict_o:
-                    user_gnm_taxon_dict_o[gnm_o] = set()
-                if gnm_f not in user_gnm_taxon_dict_f:
-                    user_gnm_taxon_dict_f[gnm_f] = set()
-                if gnm_g not in user_gnm_taxon_dict_g:
-                    user_gnm_taxon_dict_g[gnm_g] = set()
+                    if gnm_p not in user_gnm_taxon_dict_p:
+                        user_gnm_taxon_dict_p[gnm_p] = set()
+                    if gnm_c not in user_gnm_taxon_dict_c:
+                        user_gnm_taxon_dict_c[gnm_c] = set()
+                    if gnm_o not in user_gnm_taxon_dict_o:
+                        user_gnm_taxon_dict_o[gnm_o] = set()
+                    if gnm_f not in user_gnm_taxon_dict_f:
+                        user_gnm_taxon_dict_f[gnm_f] = set()
+                    if gnm_g not in user_gnm_taxon_dict_g:
+                        user_gnm_taxon_dict_g[gnm_g] = set()
 
-                user_gnm_taxon_dict_p[gnm_p].add(gnm_id)
-                user_gnm_taxon_dict_c[gnm_c].add(gnm_id)
-                user_gnm_taxon_dict_o[gnm_o].add(gnm_id)
-                user_gnm_taxon_dict_f[gnm_f].add(gnm_id)
-                user_gnm_taxon_dict_g[gnm_g].add(gnm_id)
+                    user_gnm_taxon_dict_p[gnm_p].add(gnm_id)
+                    user_gnm_taxon_dict_c[gnm_c].add(gnm_id)
+                    user_gnm_taxon_dict_o[gnm_o].add(gnm_id)
+                    user_gnm_taxon_dict_f[gnm_f].add(gnm_id)
+                    user_gnm_taxon_dict_g[gnm_g].add(gnm_id)
 
     # determine rooting rank, start from phylum
     rooting_rank = ''

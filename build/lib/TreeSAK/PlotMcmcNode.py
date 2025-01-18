@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
     PlotMcmcNode_parser = argparse.ArgumentParser()
     PlotMcmcNode_parser.add_argument('-i',  required=True,                  help='folder holds the *mcmc.txt files')
-    PlotMcmcNode_parser.add_argument('-x',  required=False, default='txt',  help='file extension, default txt')
+    PlotMcmcNode_parser.add_argument('-x',  required=False, default='txt',  help='file extension, default is txt')
     PlotMcmcNode_parser.add_argument('-n',  required=True,                  help='nodes to plot')
     PlotMcmcNode_parser.add_argument('-o',  required=True,                  help='output plot')
     args = vars(PlotMcmcNode_parser.parse_args())

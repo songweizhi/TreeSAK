@@ -1,5 +1,8 @@
-1.46.37
+1.47.3
 - fixed bugs
+
+1.47.0
+- new module added: GeneTree
 
 1.46.0
 - new module added: cogTree

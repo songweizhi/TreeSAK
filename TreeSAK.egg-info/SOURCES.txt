@@ -28,6 +28,7 @@ TreeSAK/FastRoot.py
 TreeSAK/FastRoot_backup.py
 TreeSAK/FigTree.py
 TreeSAK/GTDB_tree.py
+TreeSAK/GeneTree.py
 TreeSAK/KEGG_Luo17.py
 TreeSAK/LcaToLeaves.py
 TreeSAK/MarkerRef2Tree.py
@@ -95,6 +96,7 @@ TreeSAK/mcmcTC copy.py
 TreeSAK/mcmcTC.py
 TreeSAK/merge_pdf.py
 TreeSAK/pRTC.py
+TreeSAK/phy2fa.py
 TreeSAK/plot_distruibution_th.py
 TreeSAK/prep_mcmctree_ctl.py
 TreeSAK/print_leaves.py

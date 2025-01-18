@@ -15,6 +15,10 @@ TreeSAK dating -i gnm.tree -m msa.phy -p topo1 -o dating_wd -f -s parameter.txt
 clock	2,3
 nsample	50000
 
+# assess dating results
+ESS of at least 200 is commonly recommended, although ESS higher than 100 is 
+also often seen in literature.
+
 =================================================================================
 '''
 

@@ -161,7 +161,7 @@ def iTOL(args):
     SimpleBar_SCALE_FontSize    = 2
 
     # Heatmap
-    Heatmap_STRIP_WIDTH         = 60
+    Heatmap_STRIP_WIDTH         = 30
 
     # check the number of specified file type
     True_num = 0
