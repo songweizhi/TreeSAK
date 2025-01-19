@@ -890,9 +890,7 @@ if __name__ == '__main__':
         GeneTree_parser.add_argument('-o',          required=True,                          help='output dir, i.e., OMA working directory')
         GeneTree_parser.add_argument('-t',          required=False, type=int, default=1,    help='number of threads, default is 1')
         GeneTree_parser.add_argument('-f',          required=False, action="store_true",    help='force overwrite')
-        GeneTree_parser.add_argument('-bmge',       required=False, action="store_true",    help='trim MSA with BMGE, default no trimming')
-        GeneTree_parser.add_argument('-bmge_m',     required=False, default='BLOSUM30',     help='BMGE trim model, default: BLOSUM30')
-        GeneTree_parser.add_argument('-bmge_esc',   required=False, default='0.55',         help='BMGE entropy score cutoff, default: 0.55')
+        GeneTree_parser.add_argument('-max_gap',    required=False, default='40',           help='maximum percentage of gap, default is 40')
         args = vars(parser.parse_args())
         GeneTree.GeneTree(args)
 

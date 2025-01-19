@@ -1,12 +1,13 @@
 import os
 import argparse
+from Bio import SeqIO
 from distutils.spawn import find_executable
 
 
 GeneTree_usage = '''
 ================ GeneTree example commands ================
 
-TreeSAK GeneTree -i amoA.faa -o amoA_tree -t 36 -f -bmge
+TreeSAK GeneTree -i amoA.faa -o amoA_tree -t 36 -f
 
 ===========================================================
 '''
@@ -35,15 +36,28 @@ def sep_path_basename_ext(file_in):
     return f_path, f_base, f_ext
 
 
+def filter_by_gap(file_in, max_gap_pct, file_out):
+    file_out_handle = open(file_out, 'w')
+    for each_seq in SeqIO.parse(file_in, 'fasta'):
+        seq_str = str(each_seq.seq)
+        gap_num = seq_str.count('-')
+        gap_pct = gap_num*100 / len(seq_str)
+        if gap_pct <= float(max_gap_pct):
+            file_out_handle.write('>%s\n%s\n' % (each_seq.id, seq_str))
+    file_out_handle.close()
+
+
 def GeneTree(args):
 
     seq_file                    = args['i']
     num_threads                 = args['t']
     op_dir                      = args['o']
     force_create_op_dir         = args['f']
-    trim_with_bmge              = args['bmge']
-    bmge_trim_model             = args['bmge_m']
-    bmge_entropy_score_cutoff   = args['bmge_esc']
+    gap_cutoff                  = args['max_gap']
+
+    trim_with_bmge              = True
+    bmge_trim_model             = 'BLOSUM30'
+    bmge_entropy_score_cutoff   = '0.55'
 
     # check dependencies
     check_dependencies(['java', 'mafft-einsi'])
@@ -73,20 +87,17 @@ def GeneTree(args):
     ######################################## define output file name ########################################
 
     sep_file_path, sep_file_base, sep_file_ext = sep_path_basename_ext(seq_file)
-    get_gene_tree_cmds_txt  = '%s/cmds.txt'     % op_dir
-    msa_file                = '%s/%s.aln'       % (op_dir, sep_file_base)
-    msa_file_bmge           = '%s/%s.bmge.aln'  % (op_dir, sep_file_base)
-
-    msa_for_iqtree = msa_file
-    if trim_with_bmge is True:
-        msa_for_iqtree = msa_file_bmge
+    get_gene_tree_cmds_txt  = '%s/cmds.txt'             % op_dir
+    msa_file                = '%s/%s.aln'               % (op_dir, sep_file_base)
+    msa_file_bmge           = '%s/%s.bmge.aln'          % (op_dir, sep_file_base)
+    msa_file_bmge_low_gap   = '%s/%s.bmge.maxgap%s.aln' % (op_dir, sep_file_base, gap_cutoff)
 
     #########################################################################################################
 
     # prepare commands
-    mafft_cmd   = 'mafft-einsi --thread %s --quiet %s > %s'                 % (num_threads, seq_file, msa_file)
-    trim_cmd    = 'java -jar %s -i %s -m %s -t AA -h %s -of %s'             % (pwd_bmge_jar, msa_file, bmge_trim_model, bmge_entropy_score_cutoff, msa_file_bmge)
-    iqtree_cmd  = '%s -m LG+G+I -bb 1000 --wbtl -nt %s -s %s -pre %s/%s'    % (iqtree_exe, num_threads, msa_for_iqtree, op_dir, sep_file_base)
+    mafft_cmd  = 'mafft-einsi --thread %s --quiet %s > %s'              % (num_threads, seq_file, msa_file)
+    trim_cmd   = 'java -jar %s -i %s -m %s -t AA -h %s -of %s'          % (pwd_bmge_jar, msa_file, bmge_trim_model, bmge_entropy_score_cutoff, msa_file_bmge)
+    iqtree_cmd = '%s -m LG+G+I -bb 1000 --wbtl -nt %s -s %s -pre %s/%s' % (iqtree_exe, num_threads, msa_file_bmge_low_gap, op_dir, sep_file_base)
 
     # write out commands
     with open(get_gene_tree_cmds_txt, 'w') as f:
@@ -103,6 +114,9 @@ def GeneTree(args):
     print(trim_cmd)
     os.system(trim_cmd)
 
+    # remove high gap sequences
+    filter_by_gap(msa_file_bmge, gap_cutoff, msa_file_bmge_low_gap)
+
     # run iqtree
     print(iqtree_cmd)
     os.system(iqtree_cmd)
@@ -115,10 +129,8 @@ if __name__ == '__main__':
     GeneTree_parser = argparse.ArgumentParser()
     GeneTree_parser.add_argument('-i',          required=False, default=None,           help='sequence file')
     GeneTree_parser.add_argument('-o',          required=True,                          help='output dir, i.e., OMA working directory')
-    GeneTree_parser.add_argument('-t',          required=False, type=int, default=3,    help='number of threads specified in job script, default: 3')
+    GeneTree_parser.add_argument('-t',          required=False, type=int, default=1,    help='number of threads, default is 1')
     GeneTree_parser.add_argument('-f',          required=False, action="store_true",    help='force overwrite')
-    GeneTree_parser.add_argument('-bmge',       required=False, action="store_true",    help='trim MSA with BMGE, default no trimming')
-    GeneTree_parser.add_argument('-bmge_m',     required=False, default='BLOSUM30',     help='BMGE trim model, default: BLOSUM30')
-    GeneTree_parser.add_argument('-bmge_esc',   required=False, default='0.55',         help='BMGE entropy score cutoff, default: 0.55')
+    GeneTree_parser.add_argument('-max_gap',    required=False, default='40',           help='maximum percentage of gap, default is 40')
     args = vars(GeneTree_parser.parse_args())
     GeneTree(args)
