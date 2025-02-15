@@ -113,8 +113,6 @@ if __name__ == '__main__':
     # initialize the options parser
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help="--", dest='subparser_name')
-
-    # disable warning message
     warnings.filterwarnings('ignore')
 
     # parse options
@@ -188,7 +186,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         rename_leaves.rename_leaves(args)
 
-    elif sys.argv[1] in ['FLN', 'fln']:
+    elif sys.argv[1] == 'FLN':
         from TreeSAK import format_leaf_name
         format_leaf_name_parser = subparsers.add_parser('FLN', usage=format_leaf_name.format_leaf_name_usage)
         format_leaf_name_parser.add_argument('-i',                  required=True,                          help='input tree')
@@ -309,7 +307,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         dating_ss.dating_ss(args)
 
-    elif sys.argv[1] in ['Dating', 'dating']:
+    elif sys.argv[1] == 'dating':
         from TreeSAK import dating
         dating_parser = subparsers.add_parser('dating', usage=dating.dating_usage)
         dating_parser.add_argument('-i',       required=True,                          help='tree file')
@@ -354,9 +352,7 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'PlotMcmcNode':
         from TreeSAK import PlotMcmcNode
         PlotMcmcNode_parser = subparsers.add_parser('PlotMcmcNode', usage=PlotMcmcNode.PlotMcmcNode_usage)
-        PlotMcmcNode_parser.add_argument('-i',  required=True,                  help='folder holds the *mcmc.txt files')
-        PlotMcmcNode_parser.add_argument('-x',  required=False, default='txt',  help='file extension, default is txt')
-        PlotMcmcNode_parser.add_argument('-n',  required=True,                  help='nodes to plot')
+        PlotMcmcNode_parser.add_argument('-i',  required=True,                  help='input txt file')
         PlotMcmcNode_parser.add_argument('-o',  required=True,                  help='output plot')
         args = vars(parser.parse_args())
         PlotMcmcNode.PlotMcmcNode(args)
@@ -374,7 +370,7 @@ if __name__ == '__main__':
         args['plot_grouped_HPD95_R'] = config_dict['plot_grouped_HPD95_R']
         VisHPD95.VisHPD95(args)
 
-    elif sys.argv[1] in ['PMSF', 'pmsf']:
+    elif sys.argv[1] == 'PMSF':
         from TreeSAK import PMSF
         PMSF_parser = subparsers.add_parser('PMSF', usage=PMSF.PMSF_usage)
         PMSF_parser.add_argument('-i',      required=True,                          help='input MSA file')
@@ -481,7 +477,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ExtractMarkerSeq.ExtractMarkerSeq(args)
 
-    elif sys.argv[1] in ['OMA', 'oma', 'Oma']:
+    elif sys.argv[1] == 'OMA':
         from TreeSAK import OMA
         OMA_parser = subparsers.add_parser('OMA', usage=OMA.OMA_usage)
         OMA_parser.add_argument('-i',   required=True,                       help='genome folder')
@@ -494,7 +490,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         OMA.OMA(args)
 
-    elif sys.argv[1] in ['OMA2', 'oma2', 'Oma2']:
+    elif sys.argv[1] == 'OMA2':
         from TreeSAK import OMA2
         OMA2_parser = subparsers.add_parser('OMA2', usage=OMA2.OMA2_usage)
         OMA2_parser.add_argument('-i',  required=True,                          help='OrthologousGroups.txt')
@@ -512,7 +508,7 @@ if __name__ == '__main__':
         print(ALE.ALE_usage)
         exit()
 
-    elif sys.argv[1] in ['ALE1', 'ale1', 'Ale1']:
+    elif sys.argv[1] == 'ALE1':
         from TreeSAK import ALE1
         ALE1_parser = subparsers.add_parser('ALE1', usage=ALE1.ALE1_usage)
         ALE1_parser.add_argument('-i',          required=False, default=None,          help='orthologous groups, either from orthofinder or oma')
@@ -530,7 +526,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE1.ALE1(args)
 
-    elif sys.argv[1] in ['ALE2', 'ale2', 'Ale2']:
+    elif sys.argv[1] == 'ALE2':
         from TreeSAK import ALE2
         ALE2_parser = subparsers.add_parser('ALE2', usage=ALE2.ALE2_usage)
         ALE2_parser.add_argument('-1',      required=True,                         help='ALE1 output directory')
@@ -543,7 +539,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE2.ALE2(args)
 
-    elif sys.argv[1] in ['ALE3', 'ale3', 'Ale3']:
+    elif sys.argv[1] == 'ALE3':
         from TreeSAK import ALE3
         ALE3_parser = subparsers.add_parser('ALE3', usage=ALE3.ALE3_usage)
         ALE3_parser.add_argument('-2',   required=True,                             help='Folder with uml_rec files')
@@ -554,7 +550,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE3.ALE3(args)
 
-    elif sys.argv[1] in ['ALE4', 'ale4', 'Ale4']:
+    elif sys.argv[1] == 'ALE4':
         from TreeSAK import ALE4
         ALE4_parser = subparsers.add_parser('ALE4', usage=ALE4.ALE4_usage)
         ALE4_parser.add_argument('-1',              required=True,                              help='ALE1 output directory')
@@ -571,7 +567,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE4.ALE4(args)
 
-    elif sys.argv[1] in ['ALE6', 'ale6', 'Ale6']:
+    elif sys.argv[1] == 'ALE6':
         from TreeSAK import ALE6
         ALE6_parser = subparsers.add_parser('ALE6', usage=ALE6.ALE6_usage)
         ALE6_parser.add_argument('-1',              required=True,                          help='ALE1 output directory')
@@ -585,7 +581,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE6.ALE6(args)
 
-    elif sys.argv[1] in ['ALE7', 'ale7', 'Ale7']:
+    elif sys.argv[1] == 'ALE7':
         from TreeSAK import ALE7
         ALE7_parser = subparsers.add_parser('ALE7', usage=ALE7.ALE7_usage)
         ALE7_parser.add_argument('-6',      required=True,  help='ALE6 output directory')
@@ -606,7 +602,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         RootTree.RootTree(args)
 
-    elif sys.argv[1] in ['BMGE', 'bmge']:
+    elif sys.argv[1] == 'BMGE':
         from TreeSAK import BMGE
         BMGE_parser = subparsers.add_parser('BMGE', usage=BMGE.BMGE_usage)
         BMGE_parser.add_argument('-p',              required=True,                         help='output prefix')
@@ -616,7 +612,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         BMGE.BMGE(args)
 
-    elif sys.argv[1] in ['pRTC', 'prtc', 'PRTC']:
+    elif sys.argv[1] == 'pRTC':
         from TreeSAK import pRTC
         pRTC_parser = subparsers.add_parser('pRTC', usage=pRTC.pRTC_usage)
         pRTC_parser.add_argument('-i',              required=True,                   help='the file "out" generated by MCMCTree')
@@ -724,7 +720,7 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         PB.PB(args)
 
-    elif sys.argv[1] in ['AssessPB', 'assessPB', 'assesspb']:
+    elif sys.argv[1] == 'AssessPB':
         from TreeSAK import AssessPB
         AssessPB_parser = subparsers.add_parser('AssessPB', usage=AssessPB.AssessPB_usage)
         AssessPB_parser.add_argument('-c1',         required=False, default=None,           help='chain 1')

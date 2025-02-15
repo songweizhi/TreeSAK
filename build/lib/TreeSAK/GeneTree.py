@@ -5,11 +5,11 @@ from distutils.spawn import find_executable
 
 
 GeneTree_usage = '''
-================ GeneTree example commands ================
+============= GeneTree example commands =============
 
 TreeSAK GeneTree -i amoA.faa -o amoA_tree -t 36 -f
 
-===========================================================
+=====================================================
 '''
 
 

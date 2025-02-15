@@ -5,7 +5,7 @@ ALE_usage = '''
 # ALE modules
 TreeSAK ALE1         -> Step 1: get gene tree
 TreeSAK ALE2         -> Step 2: run ALE
-TreeSAK ALE3         -> Step 3: parse ALE outputs (including ancestral genome reconstruction, gene family transfer propensity and verticality)
+TreeSAK ALE3         -> Step 3: parse ALE outputs (ancestral genome reconstruction, transfer propensity/verticality and gain/loss)
 TreeSAK ALE4         -> Filter ALE identified HGTs
 TreeSAK ALE5         -> Get RTC file based on ALE detected HGTs
 TreeSAK SingleAleHGT -> Perform HGT analysis using ALE for single protein family

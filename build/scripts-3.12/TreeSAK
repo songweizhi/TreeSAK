@@ -354,9 +354,7 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'PlotMcmcNode':
         from TreeSAK import PlotMcmcNode
         PlotMcmcNode_parser = subparsers.add_parser('PlotMcmcNode', usage=PlotMcmcNode.PlotMcmcNode_usage)
-        PlotMcmcNode_parser.add_argument('-i',  required=True,                  help='folder holds the *mcmc.txt files')
-        PlotMcmcNode_parser.add_argument('-x',  required=False, default='txt',  help='file extension, default is txt')
-        PlotMcmcNode_parser.add_argument('-n',  required=True,                  help='nodes to plot')
+        PlotMcmcNode_parser.add_argument('-i',  required=True,                  help='input txt file')
         PlotMcmcNode_parser.add_argument('-o',  required=True,                  help='output plot')
         args = vars(parser.parse_args())
         PlotMcmcNode.PlotMcmcNode(args)
