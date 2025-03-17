@@ -367,7 +367,6 @@ if __name__ == '__main__':
         VisHPD95_parser.add_argument('-y',      required=False, default=5,type=int, help='plot height, default: 5')
         VisHPD95_parser.add_argument('-o',      required=True,                      help='Output plot')
         args = vars(parser.parse_args())
-        args['plot_grouped_HPD95_R'] = config_dict['plot_grouped_HPD95_R']
         VisHPD95.VisHPD95(args)
 
     elif sys.argv[1] == 'PMSF':
@@ -883,12 +882,32 @@ if __name__ == '__main__':
         from TreeSAK import GeneTree
         GeneTree_parser = subparsers.add_parser('GeneTree', usage=GeneTree.GeneTree_usage)
         GeneTree_parser.add_argument('-i',          required=False, default=None,           help='sequence file')
-        GeneTree_parser.add_argument('-o',          required=True,                          help='output dir, i.e., OMA working directory')
+        GeneTree_parser.add_argument('-o',          required=True,                          help='output dir')
         GeneTree_parser.add_argument('-t',          required=False, type=int, default=1,    help='number of threads, default is 1')
+        GeneTree_parser.add_argument('-trimal',     required=False, action="store_true",    help='trim with trimal, default is BMGE')
         GeneTree_parser.add_argument('-f',          required=False, action="store_true",    help='force overwrite')
         GeneTree_parser.add_argument('-max_gap',    required=False, default='40',           help='maximum percentage of gap, default is 40')
         args = vars(parser.parse_args())
         GeneTree.GeneTree(args)
+
+    elif sys.argv[1] == 'parse_reltime':
+        from TreeSAK import parse_reltime
+        parse_reltime_parser = subparsers.add_parser('parse_reltime', usage=parse_reltime.parse_reltime_usage)
+        parse_reltime_parser.add_argument('-i', required=True, help='reltime output file')
+        parse_reltime_parser.add_argument('-n', required=True, help='interested node txt')
+        parse_reltime_parser.add_argument('-o', required=True, help='output txt file')
+        args = vars(parser.parse_args())
+        parse_reltime.parse_reltime(args)
+
+    elif sys.argv[1] == 'mcmctree_vs_reltime':
+        from TreeSAK import mcmctree_vs_reltime
+        mcmctree_vs_reltime_parser = subparsers.add_parser('mcmctree_vs_reltime', usage=mcmctree_vs_reltime.mcmctree_vs_reltime_usage)
+        mcmctree_vs_reltime_parser.add_argument('-m', required=True, help='.out file from MCMCTree')
+        mcmctree_vs_reltime_parser.add_argument('-r', required=True, help='output from elTime')
+        mcmctree_vs_reltime_parser.add_argument('-n', required=True, help='interested nodes txt file')
+        mcmctree_vs_reltime_parser.add_argument('-o', required=True, help='output pdf')
+        args = vars(parser.parse_args())
+        mcmctree_vs_reltime.mcmctree_vs_reltime(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])

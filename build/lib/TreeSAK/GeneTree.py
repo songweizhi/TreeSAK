@@ -54,13 +54,15 @@ def GeneTree(args):
     op_dir                      = args['o']
     force_create_op_dir         = args['f']
     gap_cutoff                  = args['max_gap']
-
-    trim_with_bmge              = True
+    trim_with_trimal            = args['trimal']
     bmge_trim_model             = 'BLOSUM30'
     bmge_entropy_score_cutoff   = '0.55'
 
     # check dependencies
-    check_dependencies(['java', 'mafft-einsi'])
+    if trim_with_trimal is False:
+        check_dependencies(['mafft-einsi', 'java'])
+    else:
+        check_dependencies(['mafft-einsi', 'trimal'])
 
     # specify path to BMGE.jar
     current_file_path = '/'.join(os.path.realpath(__file__).split('/')[:-1])
@@ -87,24 +89,27 @@ def GeneTree(args):
     ######################################## define output file name ########################################
 
     sep_file_path, sep_file_base, sep_file_ext = sep_path_basename_ext(seq_file)
-    get_gene_tree_cmds_txt  = '%s/cmds.txt'             % op_dir
-    msa_file                = '%s/%s.aln'               % (op_dir, sep_file_base)
-    msa_file_bmge           = '%s/%s.bmge.aln'          % (op_dir, sep_file_base)
-    msa_file_bmge_low_gap   = '%s/%s.bmge.maxgap%s.aln' % (op_dir, sep_file_base, gap_cutoff)
+    get_gene_tree_cmds_txt          = '%s/cmds.txt'                 % op_dir
+    msa_file                        = '%s/%s.aln'                   % (op_dir, sep_file_base)
+
+    msa_file_trimmed                = '%s/%s.bmge.aln'              % (op_dir, sep_file_base)
+    msa_file_trimmed_low_gap        = '%s/%s.bmge.maxgap%s.aln'     % (op_dir, sep_file_base, gap_cutoff)
+    if trim_with_trimal is True:
+        msa_file_trimmed            = '%s/%s.trimal.aln'            % (op_dir, sep_file_base)
+        msa_file_trimmed_low_gap    = '%s/%s.trimal.maxgap%s.aln'   % (op_dir, sep_file_base, gap_cutoff)
 
     #########################################################################################################
 
     # prepare commands
-    mafft_cmd  = 'mafft-einsi --thread %s --quiet %s > %s'              % (num_threads, seq_file, msa_file)
-    trim_cmd   = 'java -jar %s -i %s -m %s -t AA -h %s -of %s'          % (pwd_bmge_jar, msa_file, bmge_trim_model, bmge_entropy_score_cutoff, msa_file_bmge)
-    iqtree_cmd = '%s -m LG+G+I -bb 1000 --wbtl -nt %s -s %s -pre %s/%s' % (iqtree_exe, num_threads, msa_file_bmge_low_gap, op_dir, sep_file_base)
+    mafft_cmd       = 'mafft-einsi --thread %s --quiet %s > %s'              % (num_threads, seq_file, msa_file)
+    trim_cmd        = 'java -jar %s -i %s -m %s -t AA -h %s -of %s'          % (pwd_bmge_jar, msa_file, bmge_trim_model, bmge_entropy_score_cutoff, msa_file_trimmed)
+    if trim_with_trimal is True:
+        trim_cmd    = 'trimal -in %s -out %s -automated1'                    % (msa_file, msa_file_trimmed)
+    iqtree_cmd      = '%s -m LG+G+I -bb 1000 --wbtl -nt %s -s %s -pre %s/%s' % (iqtree_exe, num_threads, msa_file_trimmed_low_gap, op_dir, sep_file_base)
 
     # write out commands
     with open(get_gene_tree_cmds_txt, 'w') as f:
-        if trim_with_bmge is True:
-            f.write('%s\n%s\n%s\n' % (mafft_cmd, trim_cmd, iqtree_cmd))
-        else:
-            f.write('%s\n%s\n' % (mafft_cmd, iqtree_cmd))
+        f.write('%s\n%s\n%s\n' % (mafft_cmd, trim_cmd, iqtree_cmd))
 
     # run mafft
     print(mafft_cmd)
@@ -115,7 +120,7 @@ def GeneTree(args):
     os.system(trim_cmd)
 
     # remove high gap sequences
-    filter_by_gap(msa_file_bmge, gap_cutoff, msa_file_bmge_low_gap)
+    filter_by_gap(msa_file_trimmed, gap_cutoff, msa_file_trimmed_low_gap)
 
     # run iqtree
     print(iqtree_cmd)
@@ -128,8 +133,9 @@ if __name__ == '__main__':
 
     GeneTree_parser = argparse.ArgumentParser()
     GeneTree_parser.add_argument('-i',          required=False, default=None,           help='sequence file')
-    GeneTree_parser.add_argument('-o',          required=True,                          help='output dir, i.e., OMA working directory')
+    GeneTree_parser.add_argument('-o',          required=True,                          help='output dir')
     GeneTree_parser.add_argument('-t',          required=False, type=int, default=1,    help='number of threads, default is 1')
+    GeneTree_parser.add_argument('-trimal',     required=False, action="store_true",    help='trim with trimal, default is BMGE')
     GeneTree_parser.add_argument('-f',          required=False, action="store_true",    help='force overwrite')
     GeneTree_parser.add_argument('-max_gap',    required=False, default='40',           help='maximum percentage of gap, default is 40')
     args = vars(GeneTree_parser.parse_args())

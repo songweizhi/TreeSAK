@@ -2,8 +2,19 @@ import os
 import glob
 import argparse
 from ete3 import Tree
-from TreeSAK.TreeSAK_config import config_dict
 
+
+VisHPD95_usage = '''
+============================ VisHPD95 example command ============================
+
+TreeSAK VisHPD95 -i mcmc_out -o HPD95.pdf -n nodes.txt -label label.txt
+TreeSAK VisHPD95 -i mcmc_out -o HPD95.pdf -n nodes.txt -label label.txt -x 9 -y 6
+
+# Example data
+https://github.com/songweizhi/TreeSAK/tree/master/example_data/VisHPD95
+
+==================================================================================
+'''
 
 def mcmctree_out_to_tree_str(mamctree_out):
 
@@ -101,19 +112,6 @@ def read_in_posterior_mean(mcmctree_out):
         current_line += 1
 
     return node_to_mean_hpd95_dict
-
-
-VisHPD95_usage = '''
-============================ VisHPD95 example command ============================
-
-TreeSAK VisHPD95 -i mcmc_out -o HPD95.pdf -n nodes.txt -label label.txt
-TreeSAK VisHPD95 -i mcmc_out -o HPD95.pdf -n nodes.txt -label label.txt -x 9 -y 6
-
-# Example data
-https://github.com/songweizhi/TreeSAK/tree/master/DemoData/VisHPD95
-
-==================================================================================
-'''
 
 
 def VisHPD95(args):

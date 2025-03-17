@@ -385,8 +385,10 @@ def iTOL(args):
                 Binary_FileOut_handle.write('SHOW_LABELS\t1\nLABEL_ROTATION\t45\nLABEL_SHIFT\t5\n')
                 Binary_FileOut_handle.write('FIELD_LABELS\t%s\n' % '\t'.join(col_name_list))
                 Binary_FileOut_handle.write('FIELD_COLORS\t%s\n' % '\t'.join(col_color_list))
-                Binary_FileOut_handle.write('FIELD_SHAPES\t%s\n' % '\t'.join(['2'] * len(col_name_list)))
                 Binary_FileOut_handle.write('MARGIN\t10\n')
+                Binary_FileOut_handle.write('HORIZONTAL_GRID\t0\n')
+                Binary_FileOut_handle.write('VERTICAL_GRID\t0\n')
+                Binary_FileOut_handle.write('FIELD_SHAPES\t%s\n' % '\t'.join(['2'] * len(col_name_list)))
                 Binary_FileOut_handle.write('#1: rectangle\n')
                 Binary_FileOut_handle.write('#2: circle\n')
                 Binary_FileOut_handle.write('#3: star\n')
@@ -411,6 +413,8 @@ def iTOL(args):
         BinaryID_FileOut_handle.write('# FIELD_SHAPES: 1: rectangle; 2: circle; 3: star; 4: right pointing triangle; 5: left pointing triangle; 6: check mark\n')
         BinaryID_FileOut_handle.write('FIELD_SHAPES\t%s\n' % BinaryShape)
         BinaryID_FileOut_handle.write('MARGIN\t10\n')
+        BinaryID_FileOut_handle.write('HORIZONTAL_GRID\t0\n')
+        BinaryID_FileOut_handle.write('VERTICAL_GRID\t0\n')
         BinaryID_FileOut_handle.write('\nDATA\n')
         for each_line in open(leaf_id_txt):
             leaf_id = each_line.strip().split()[0]

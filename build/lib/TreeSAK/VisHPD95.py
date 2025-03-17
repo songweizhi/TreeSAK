@@ -110,7 +110,7 @@ TreeSAK VisHPD95 -i mcmc_out -o HPD95.pdf -n nodes.txt -label label.txt
 TreeSAK VisHPD95 -i mcmc_out -o HPD95.pdf -n nodes.txt -label label.txt -x 9 -y 6
 
 # Example data
-https://github.com/songweizhi/TreeSAK/tree/master/example_data/VisHPD95
+https://github.com/songweizhi/TreeSAK/tree/master/DemoData/VisHPD95
 
 ==================================================================================
 '''
@@ -124,7 +124,10 @@ def VisHPD95(args):
     plot_out    = args['o']
     plot_width  = args['x']
     plot_height = args['y']
-    VisHPD95_R  = args['VisHPD95_R']
+
+    pwd_current_file  = os.path.realpath(__file__)
+    current_file_path = '/'.join(pwd_current_file.split('/')[:-1])
+    VisHPD95_R  = '%s/VisHPD95.R' % current_file_path
 
     dm_out      = '%s.txt' % plot_out
 
@@ -179,7 +182,6 @@ def VisHPD95(args):
 
 if __name__ == '__main__':
 
-    # arguments for rename_seq_parser
     VisHPD95_parser = argparse.ArgumentParser()
     VisHPD95_parser.add_argument('-i',      required=True,                      help='mcmc.txt file or folder')
     VisHPD95_parser.add_argument('-n',      required=True,                      help='Nodes to plot')
@@ -188,7 +190,6 @@ if __name__ == '__main__':
     VisHPD95_parser.add_argument('-y',      required=False, default=5,type=int, help='plot height, default: 5')
     VisHPD95_parser.add_argument('-o',      required=True,                      help='Output plot')
     args = vars(VisHPD95_parser.parse_args())
-    args['VisHPD95_R'] = config_dict['VisHPD95_R']
     VisHPD95(args)
 
 '''

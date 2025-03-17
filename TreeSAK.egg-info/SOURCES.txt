@@ -94,8 +94,12 @@ TreeSAK/mad.py
 TreeSAK/mcmc2tree.py
 TreeSAK/mcmcTC copy.py
 TreeSAK/mcmcTC.py
+TreeSAK/mcmctree_vs_reltime.R
+TreeSAK/mcmctree_vs_reltime.py
 TreeSAK/merge_pdf.py
 TreeSAK/pRTC.py
+TreeSAK/parse_mcmctree.py
+TreeSAK/parse_reltime.py
 TreeSAK/phy2fa.py
 TreeSAK/plot_distruibution_th.py
 TreeSAK/prep_mcmctree_ctl.py
@@ -112,6 +116,8 @@ TreeSAK/subset.py
 TreeSAK/subset_tree_stupid_old_way.py
 TreeSAK/supertree.py
 TreeSAK/tmp_1.py
+TreeSAK/tmp_2.py
+TreeSAK/tmp_3.py
 TreeSAK/weighted_rand.rb
 TreeSAK.egg-info/PKG-INFO
 TreeSAK.egg-info/SOURCES.txt

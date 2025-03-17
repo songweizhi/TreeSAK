@@ -13,6 +13,9 @@ CompareMCMC_usage = '''
 
 TreeSAK CompareMCMC -mx IR_mcmc.txt -my AR_mcmc.txt -lx IR -ly AR -o convergence_plot.png -max 40 -fs 12
 
+cd /Users/songweizhi/Desktop
+TreeSAK CompareMCMC -mx /Users/songweizhi/Desktop/Sponge_r220/6_dating/MCMCTree/dating_outputs/topo2p10_clock3_nsample250000_run1_mcmc.txt -my /Users/songweizhi/Desktop/Sponge_r220/6_dating/MCMCTree/dating_outputs/topo2p10_clock3_nsample250000_run2_mcmc.txt -lx IR -ly AR -o convergence_plot.png -max 40 -fs 12
+
 ==========================================================================================================
 '''
 

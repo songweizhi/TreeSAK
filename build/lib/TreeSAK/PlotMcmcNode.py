@@ -10,11 +10,12 @@ PlotMcmcNode_usage = '''
 
 TreeSAK PlotMcmcNode -i McmcTree_op_files -n topo123_nodes.txt -o topo123_age.pdf
 
-# file format (-n, tab separated, no header)
-# column 1: file name, no extension
+# txt file format (-i, tab separated, no header)
+# column 1: mcmc file
 # column 2: node id
-# column 3: file name on the figure
-# column 4: node name on the figure
+# column 3: mcmc file description
+# column 4: node description
+
 path/to/topo1_clock3_mcmc.txt	t_n171	Topo1	Symbiosis_event_1
 path/to/topo1_clock3_mcmc.txt	t_n151	Topo1	Symbiosis_event_2
 path/to/topo1_clock3_mcmc.txt	t_n131	Topo1	Symbiosis_event_3
@@ -52,7 +53,7 @@ def plot_distribution(df_txt, output_plot):
     if plot_height < 360:
         plot_height = 360
 
-    fig = px.violin(df, x="Value", y="Setting", color="Node", points=False, orientation="h", width=plot_width, height=plot_height)
+    fig = px.violin(df, x="Value", y="Setting", color="Node", points=False, orientation="h", width=plot_width, height=plot_height).update_layout(xaxis_title="Age", yaxis_title="Settings")
     if len(node_id_list) == 1:
         fig.update_traces(side="positive", fillcolor='lightblue', width=1.6, opacity=0.75)
     else:
