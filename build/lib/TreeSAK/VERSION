@@ -1,8 +1,8 @@
+1.49.2
+- fixed bugs
+
 1.49.0
 - new module added: mcmctree_vs_reltime
-
-1.48.2
-- fixed bugs
 
 1.48.0
 - new module added: parse_reltime

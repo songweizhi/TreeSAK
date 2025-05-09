@@ -762,6 +762,7 @@ if __name__ == '__main__':
         from TreeSAK import iTOL
         iTOL_parser = subparsers.add_parser('iTOL', description='Decorate tree with iTOL', usage=iTOL.iTOL_usage)
         iTOL_parser.add_argument('-Labels',             required=False, action='store_true',    help='Labels')
+        iTOL_parser.add_argument('-ColoredLabel',       required=False, action='store_true',    help='ColoredLabel')
         iTOL_parser.add_argument('-MultiStyleLabel',    required=False, action='store_true',    help='MultiStyleLabel')
         iTOL_parser.add_argument('-ColorStrip',         required=False, action='store_true',    help='ColorStrip')
         iTOL_parser.add_argument('-ColorRange',         required=False, action='store_true',    help='ColorRange')

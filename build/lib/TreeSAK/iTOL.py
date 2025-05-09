@@ -5,11 +5,17 @@ import argparse
 import seaborn as sns
 
 
+'''
+TreeSAK iTOL -ColorLabel -lg Mag_genus.txt -gc genus_color.txt-o ColorLabel_genus.txt
+'''
+
 iTOL_usage = '''
 ==================================== iTOL example commands ====================================
 
 # Example commands
 TreeSAK iTOL -Labels -ll new_Mag_name.txt -o Mag_name_iTOL_Labels.txt
+TreeSAK iTOL -ColoredLabel -lg leaf_group.txt -gc group_color.txt -o iTOL_ColoredLabel.txt
+TreeSAK iTOL -ColoredLabel -lg leaf_group.txt -gc group_color.txt -o iTOL_ColoredLabel.txt -ll new_Mag_name.txt
 TreeSAK iTOL -Binary -lm Binary_matrix.txt -lt Enzyme -o Presence_Absence_iTOL.txt -cc "#F1BB83"
 TreeSAK iTOL -Binary -lm Binary_matrix.txt -lt Enzyme -o Presence_Absence_iTOL.txt -cc col_color.txt
 TreeSAK iTOL -BinaryID -id MagID.txt -lt dRep95 -o dRep95_representatives_iTOL.txt
@@ -19,7 +25,6 @@ TreeSAK iTOL -ColorStrip -lg MagTaxon.txt -lt Phylum -gc phylum_color.txt -o Col
 TreeSAK iTOL -ColorRange -lg MagTaxon.txt -lt Phylum -gc phylum_color.txt -o ColorRange_taxon.txt
 TreeSAK iTOL -ColorRange -taxon Taxonomy.txt -rank f -lt Family -o ColorRange_taxon.txt
 TreeSAK iTOL -ColorClade -lg Mag_genus.txt -gc genus_color.txt-o ColorClade_genus.txt
-TreeSAK iTOL -ColorLabel -lg Mag_genus.txt -gc genus_color.txt-o ColorLabel_genus.txt
 TreeSAK iTOL -ExternalShape -lm identity_matrix.txt -lt Identity -scale 25-50-75-100 -o ExternalShape_identity.txt
 TreeSAK iTOL -PieChart -lv MagCompleteness.txt -lt Completeness -o PieChart_completeness.txt
 TreeSAK iTOL -Collapse -lg MagTaxon.txt -o Collapse_by_taxon.txt
@@ -116,6 +121,7 @@ def iTOL(args):
 
     # read in arguments
     Labels                  = args['Labels']
+    ColoredLabel            = args['ColoredLabel']
     ColorStrip              = args['ColorStrip']
     ColorRange              = args['ColorRange']
     ColorClade              = args['ColorClade']
@@ -165,7 +171,7 @@ def iTOL(args):
 
     # check the number of specified file type
     True_num = 0
-    for file_type in [Labels, ColorStrip, ColorRange, SimpleBar, Heatmap, ExternalShape, Binary, BinaryID, PieChart, Collapse, ColorClade, ColorLabel]:
+    for file_type in [Labels, ColorStrip, ColorRange, SimpleBar, Heatmap, ExternalShape, Binary, BinaryID, PieChart, Collapse, ColorClade, ColorLabel, ColoredLabel]:
         if file_type is True:
             True_num += 1
 
@@ -175,6 +181,41 @@ def iTOL(args):
     if True_num > 1:
         print('Please specify one file type ONLY, choose from -ColorStrip, -ColorRange, -SimpleBar, -Heatmap, -ExternalShape, -Binary, -BinaryID or -Collapse')
         exit()
+
+    ####################################################################################################################
+
+    if ColoredLabel is True:
+
+        leaf_set = set()
+        leaf_label_dict = dict()
+        if LeafLabel is not None:
+            for each in open(LeafLabel):
+                each_split = each.strip().split('\t')
+                leaf_label_dict[each_split[0]] = each_split[1]
+                leaf_set.add(each_split[0])
+
+        leaf_group_dict = dict()
+        for each in open(LeafGroup):
+            each_split = each.strip().split('\t')
+            leaf_group_dict[each_split[0]] = each_split[1]
+            leaf_set.add(each_split[0])
+
+        group_color_dict = dict()
+        for each in open(GroupColor):
+            each_split = each.strip().split('\t')
+            group_color_dict[each_split[0]] = each_split[1]
+
+        FileOut_handle = open(FileOut, 'w')
+        FileOut_handle.write('DATASET_TEXT\n')
+        FileOut_handle.write('SEPARATOR TAB\n')
+        FileOut_handle.write('DATASET_LABEL\t%s\n' % 'ColoredLabel')
+        FileOut_handle.write('\nDATA\n')
+        for leaf in leaf_set:
+            leaf_label = leaf_label_dict.get(leaf, leaf)
+            leaf_group = leaf_group_dict.get(leaf, 'na')
+            leaf_color = group_color_dict.get(leaf_group, '#000000')
+            FileOut_handle.write('%s\t%s\t-1\t%s\tnormal\t1\t0\n' % (leaf, leaf_label, leaf_color))
+        FileOut_handle.close()
 
     ####################################################################################################################
 
@@ -716,6 +757,7 @@ if __name__ == '__main__':
 
     iTOL_parser = argparse.ArgumentParser(usage=iTOL_usage)
     iTOL_parser.add_argument('-Labels',             required=False, action='store_true',    help='Labels')
+    iTOL_parser.add_argument('-ColoredLabel',       required=False, action='store_true',    help='ColoredLabel')
     iTOL_parser.add_argument('-MultiStyleLabel',    required=False, action='store_true',    help='MultiStyleLabel')
     iTOL_parser.add_argument('-ColorStrip',         required=False, action='store_true',    help='ColorStrip')
     iTOL_parser.add_argument('-ColorRange',         required=False, action='store_true',    help='ColorRange')
