@@ -1,5 +1,11 @@
-1.49.2
+1.51.4
 - fixed bugs
+
+1.51.0
+- new module added: iTOL_msa_stats
+
+1.50.0
+- new module added: RootTreeGTDB226
 
 1.49.0
 - new module added: mcmctree_vs_reltime

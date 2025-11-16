@@ -313,11 +313,11 @@ def iTOL(args):
             FileOut_handle.write('LEGEND_COLORS\t%s\n' % '\t'.join(color_list))
             FileOut_handle.write('LEGEND_LABELS\t%s\n' % '\t'.join(group_list))
         else:
-            FileOut_handle.write('\n# uncomment if you want to show the legend\n')
-            FileOut_handle.write('# LEGEND_TITLE\t%s\n' % LegendTitle)
-            FileOut_handle.write('# LEGEND_SHAPES\t%s\n' % '\t'.join(['1' for i in Group_to_Color_dict]))
-            FileOut_handle.write('# LEGEND_COLORS\t%s\n' % '\t'.join(color_list))
-            FileOut_handle.write('# LEGEND_LABELS\t%s\n' % '\t'.join(group_list))
+            FileOut_handle.write('\n# comment this section if you want to hide the legend\n')
+            FileOut_handle.write('LEGEND_TITLE\t%s\n' % LegendTitle)
+            FileOut_handle.write('LEGEND_SHAPES\t%s\n' % '\t'.join(['1' for i in Group_to_Color_dict]))
+            FileOut_handle.write('LEGEND_COLORS\t%s\n' % '\t'.join(color_list))
+            FileOut_handle.write('LEGEND_LABELS\t%s\n' % '\t'.join(group_list))
 
         FileOut_handle.write('\n# provide data here\nDATA\n')
         for leaf in Leaf_to_Group_dict:

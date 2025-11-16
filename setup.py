@@ -9,7 +9,7 @@ def version():
 
 __long_description__ = ''' TreeSAK v%s ''' % version()
 
-setup(name="TreeSAK",
+setup(name="treesak",
       version=version(),
       long_description=__long_description__,
       license="GPL3+",

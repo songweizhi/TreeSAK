@@ -30,12 +30,12 @@ def GTDB_tree(args):
     msa_ar53_gz         = '%s/align/gtdbtk.ar53.user_msa.fasta.gz'                                  % output_dir
     msa_ar53            = '%s/align/gtdbtk.ar53.user_msa.fasta'                                     % output_dir
 
-    cmd_identify        = 'gtdbtk identify --genome_dir %s -x %s --out_dir %s --cpus %s'            % (input_gnm_dir, file_extension, output_dir, num_threads)
-    cmd_align           = 'gtdbtk align --identify_dir %s --out_dir %s --cpus %s'                   % (output_dir, output_dir, num_threads)
-    cmd_gunzip_bac120   = 'gunzip %s'                                                               % msa_bac120_gz
-    cmd_gunzip_ar53     = 'gunzip %s'                                                               % msa_ar53_gz
-    cmd_infer_bac120    = 'gtdbtk infer --msa_file %s --out_dir %s --cpus %s --prefix %s_bac120'    % (msa_bac120, output_dir, num_threads, output_prefix)
-    cmd_infer_ar53      = 'gtdbtk infer --msa_file %s --out_dir %s --cpus %s --prefix %s_ar53'      % (msa_ar53, output_dir, num_threads, output_prefix)
+    cmd_identify        = 'gtdbtk identify --genome_dir %s -x %s --out_dir %s --cpus %s --write_single_copy_genes'  % (input_gnm_dir, file_extension, output_dir, num_threads)
+    cmd_align           = 'gtdbtk align --identify_dir %s --out_dir %s --cpus %s'                                   % (output_dir, output_dir, num_threads)
+    cmd_gunzip_bac120   = 'gunzip %s'                                                                               % msa_bac120_gz
+    cmd_gunzip_ar53     = 'gunzip %s'                                                                               % msa_ar53_gz
+    cmd_infer_bac120    = 'gtdbtk infer --msa_file %s --out_dir %s --cpus %s --prefix %s_bac120'                    % (msa_bac120, output_dir, num_threads, output_prefix)
+    cmd_infer_ar53      = 'gtdbtk infer --msa_file %s --out_dir %s --cpus %s --prefix %s_ar53'                      % (msa_ar53, output_dir, num_threads, output_prefix)
 
     print(cmd_identify)
     os.system(cmd_identify)

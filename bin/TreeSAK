@@ -59,6 +59,7 @@ def print_main_help():
     Tree-related
        iTOL                   ->  Prepare iTOL files
        iTOL_gene_tree         ->  Genome metadata to gene metadata
+       iTOL_msa_stats         ->  iTOL_msa_stats
        PB                     ->  Infer tree with PhyloBayes-MPI 
        supertree              ->  Infer species tree from multiple gene trees 
        AssessPB               ->  Compare PhyloBayes chains
@@ -79,6 +80,7 @@ def print_main_help():
        RootTree               ->  Root tree with outgroup leaves
        RootTreeGTDB214        ->  Root tree by GTDB taxonomy (r214)
        RootTreeGTDB220        ->  Root tree by GTDB taxonomy (r220)
+       RootTreeGTDB226        ->  Root tree by GTDB taxonomy (r226)
        LcaToLeaves            ->  Get two leaves that define an internal node
        replace_clade          ->  Replace tree clade
        GeneTree               ->  Infer gene tree
@@ -706,6 +708,18 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         RootTreeGTDB220.RootTreeGTDB220(args)
 
+    elif sys.argv[1] == 'RootTreeGTDB226':
+        from TreeSAK import RootTreeGTDB226
+        RootTreeGTDB226_parser = subparsers.add_parser('RootTreeGTDB226', usage=RootTreeGTDB226.RootTreeGTDB226_usage)
+        RootTreeGTDB226_parser.add_argument('-tree',        required=True,                          help='input unrooted tree')
+        RootTreeGTDB226_parser.add_argument('-tax',         required=False, default='fna',          help='leaf taxon')
+        RootTreeGTDB226_parser.add_argument('-db',          required=True,                          help='GTDB database files')
+        RootTreeGTDB226_parser.add_argument('-d',           required=False, default=None,           help='domain, either ar or bac')
+        RootTreeGTDB226_parser.add_argument('-add_root',    required=False, action='store_true',    help='add the root branch')
+        RootTreeGTDB226_parser.add_argument('-o',           required=True,                          help='output folder')
+        args = vars(parser.parse_args())
+        RootTreeGTDB226.RootTreeGTDB226(args)
+
     elif sys.argv[1] in ['PB', 'Pb', 'pb']:
         from TreeSAK import PB
         PB_parser = subparsers.add_parser('PB', usage=PB.PB_usage)
@@ -909,6 +923,13 @@ if __name__ == '__main__':
         mcmctree_vs_reltime_parser.add_argument('-o', required=True, help='output pdf')
         args = vars(parser.parse_args())
         mcmctree_vs_reltime.mcmctree_vs_reltime(args)
+
+    elif sys.argv[1] == 'iTOL_msa_stats':
+        from TreeSAK import iTOL_msa_stats
+        iTOL_msa_stats_parser = subparsers.add_parser('iTOL_msa_stats', usage=iTOL_msa_stats.iTOL_msa_stats_usage)
+        iTOL_msa_stats_parser.add_argument('-i', required=True, help='MSA file')
+        args = vars(parser.parse_args())
+        iTOL_msa_stats.iTOL_msa_stats(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])

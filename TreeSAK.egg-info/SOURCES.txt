@@ -50,6 +50,7 @@ TreeSAK/PlotMcmcNode_old.py
 TreeSAK/RootTree.py
 TreeSAK/RootTreeGTDB214.py
 TreeSAK/RootTreeGTDB220.py
+TreeSAK/RootTreeGTDB226.py
 TreeSAK/SequentialDating.py
 TreeSAK/SingleAleHGT.py
 TreeSAK/SingleLinePhy.py
@@ -86,6 +87,7 @@ TreeSAK/global_functions.py
 TreeSAK/gnm_leaves.py
 TreeSAK/iTOL.py
 TreeSAK/iTOL_gene_tree.py
+TreeSAK/itol_msa_stats.py
 TreeSAK/keep_highest_rrtc.py
 TreeSAK/koTree.py
 TreeSAK/label_tree.R
@@ -119,9 +121,9 @@ TreeSAK/tmp_1.py
 TreeSAK/tmp_2.py
 TreeSAK/tmp_3.py
 TreeSAK/weighted_rand.rb
-TreeSAK.egg-info/PKG-INFO
-TreeSAK.egg-info/SOURCES.txt
-TreeSAK.egg-info/dependency_links.txt
-TreeSAK.egg-info/requires.txt
-TreeSAK.egg-info/top_level.txt
 bin/TreeSAK
+treesak.egg-info/PKG-INFO
+treesak.egg-info/SOURCES.txt
+treesak.egg-info/dependency_links.txt
+treesak.egg-info/requires.txt
+treesak.egg-info/top_level.txt
