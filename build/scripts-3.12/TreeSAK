@@ -41,11 +41,12 @@ def print_main_help():
        AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
        OMA                    ->  Prepare input files for running OMA 
        OMA2                   ->  Filter OMA predicted OGs
-
+       ar53                   ->  Filter rename GTDB markers
+       
     Multiple Sequence Alignment
        BMGE                   ->  Run BMGE
        pruneMSA               ->  Prune MSA with alignment_pruner.pl
-       recodeAA               ->  Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories
+       recode                 ->  Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories
        fa2phy                 ->  Convert MSA format (fasta to phylip)
        phy2fa                 ->  Convert MSA format (phylip to fasta)
        SliceMSA               ->  Slice MSA by column
@@ -377,6 +378,7 @@ if __name__ == '__main__':
         PMSF_parser.add_argument('-i',      required=True,                          help='input MSA file')
         PMSF_parser.add_argument('-gm',     required=False, default='LG+F+G',       help='iqtree model for guide tree, default: LG+F+G')
         PMSF_parser.add_argument('-m',      required=False, default='LG+C60+F+G',   help='iqtree model, default: LG+C60+F+G')
+        PMSF_parser.add_argument('-mdef',   required=False, default=None,           help='model definition NEXUS file')
         PMSF_parser.add_argument('-o',      required=True,                          help='output plot')
         PMSF_parser.add_argument('-p',      required=False, default='PMSF',         help='tree prefix, default: PMSF')
         PMSF_parser.add_argument('-topo',   required=False, default=None,           help='topological constraint tree, pass to -g, default is None')
@@ -420,8 +422,9 @@ if __name__ == '__main__':
         SplitScore1_parser.add_argument('-o',   required=True,                          help='output directory')
         SplitScore1_parser.add_argument('-u',   required=False, default=None,           help='interested genomes, no file extension')
         SplitScore1_parser.add_argument('-m',   required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
-        SplitScore1_parser.add_argument('-c',   required=False, type=int, default=85,   help='coverage cutoff, default: 85')
+        SplitScore1_parser.add_argument('-c',   required=False, type=int, default=75,   help='coverage cutoff, default: 75')
         SplitScore1_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
+        SplitScore1_parser.add_argument('-seq_named_by_gnm', required=False, action="store_true", help='specify if sequence named by genome id')
         SplitScore1_parser.add_argument('-jst', required=False, type=int, default=1,    help='num of threads for iqtree2, default: 1')
         args = vars(parser.parse_args())
         SplitScore1.SplitScore1(args)
@@ -429,13 +432,14 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'SplitScore2':
         from TreeSAK import SplitScore2
         SplitScore2_parser = subparsers.add_parser('SplitScore2', usage=SplitScore2.SplitScore2_usage)
-        SplitScore2_parser.add_argument('-i', required=True,                        help='outputs of iqtree from step 1, only needs the contree and ufboot files')
-        SplitScore2_parser.add_argument('-g', required=True,                        help='genome group')
-        SplitScore2_parser.add_argument('-k', required=True,                        help='genome taxon, GTDB format')
-        SplitScore2_parser.add_argument('-f', required=False, action="store_true",  help='force overwrite')
-        SplitScore2_parser.add_argument('-t', required=False, type=int, default=1,  help='num of threads, default: 1')
-        SplitScore2_parser.add_argument('-c', required=False, default='25,50,75',   help='marker ranking cutoffs, default: 25,50,75')
-        SplitScore2_parser.add_argument('-o', required=True,                        help='output directory')
+        SplitScore2_parser.add_argument('-i',                   required=True,                        help='outputs of iqtree from step 1, only needs the contree and ufboot files')
+        SplitScore2_parser.add_argument('-g',                   required=True,                        help='genome group')
+        SplitScore2_parser.add_argument('-k',                   required=True,                        help='genome taxon, GTDB format')
+        SplitScore2_parser.add_argument('-f',                   required=False, action="store_true",  help='force overwrite')
+        SplitScore2_parser.add_argument('-t',                   required=False, type=int, default=1,  help='num of threads, default: 1')
+        SplitScore2_parser.add_argument('-c',                   required=False, default='25,50,75',   help='marker ranking cutoffs, default: 25,50,75')
+        SplitScore2_parser.add_argument('-seq_named_by_gnm',    required=False, action="store_true",  help='named_by_gnm, specify if sequence named by gnm')
+        SplitScore2_parser.add_argument('-o',                   required=True,                        help='output directory')
         args = vars(parser.parse_args())
         SplitScore2.SplitScore2(args)
 
@@ -930,6 +934,17 @@ if __name__ == '__main__':
         iTOL_msa_stats_parser.add_argument('-i', required=True, help='MSA file')
         args = vars(parser.parse_args())
         iTOL_msa_stats.iTOL_msa_stats(args)
+
+    elif sys.argv[1] == 'ar53':
+        from TreeSAK import ar53
+        ar53_parser = subparsers.add_parser('ar53', usage=ar53.ar53_usage)
+        ar53_parser.add_argument('-i', required=True,                       help='sequence folder')
+        ar53_parser.add_argument('-x', required=True,                       help='file extension')
+        ar53_parser.add_argument('-g', required=False, default=None,        help='interested genomes, no file extension, one id per line')
+        ar53_parser.add_argument('-o', required=True,                       help='output folder')
+        ar53_parser.add_argument('-f', required=False, action="store_true", help='force overwrite')
+        args = vars(parser.parse_args())
+        ar53.ar53(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])

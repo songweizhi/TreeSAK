@@ -10,10 +10,7 @@ SplitScore1_usage = '''
 
 TreeSAK SplitScore1 -i marker_seq -x fa -o SplitScore1_op_dir -jst 9 -f
 
-# Format of gene id
-APA_bin56_00001
-APA_bin56_00002
-APA_bin56_00003
+# As described in the Undinarchaeota paper (Nina Dombrowski 2020, NC)
 
 ==============================================================================
 '''
@@ -37,6 +34,9 @@ def SplitScore1(args):
     force_overwrite     = args['f']
     num_of_js_threads   = args['jst']
     op_dir              = args['o']
+    seq_named_by_gnm    = args['seq_named_by_gnm']
+    bmge_trim_model             = 'BLOSUM30'
+    bmge_entropy_score_cutoff   = '0.55'
 
     ################################################################################
 
@@ -50,6 +50,10 @@ def SplitScore1(args):
             exit()
 
     ################################################################################
+
+    # specify path to BMGE.jar
+    current_file_path = '/'.join(os.path.realpath(__file__).split('/')[:-1])
+    pwd_bmge_jar      = '%s/BMGE.jar' % current_file_path
 
     fa_file_re   = '%s/*.%s' % (oma_op_fasta, fasta_file_ext)
     fa_file_list = glob.glob(fa_file_re)
@@ -73,6 +77,8 @@ def SplitScore1(args):
         gnm_set = set()
         for each_gene in gene_set:
             gnm_id = '_'.join(each_gene.split('_')[:-1])
+            if seq_named_by_gnm is True:
+                gnm_id = each_gene
             gnm_set.add(gnm_id)
             if interested_gnm_txt is None:
                 gnm_to_process.add(gnm_id)
@@ -87,11 +93,9 @@ def SplitScore1(args):
     ################################################################################
 
     # define file name
-    qualified_og_dir    = '%s/qualified_OGs'        % op_dir
-    cmd_1_mafft_txt     = '%s/cmd_1_mafft.txt'      % op_dir
-    cmd_2_trimal_txt    = '%s/cmd_2_trimal.txt'     % op_dir
-    cmd_3_iqtree_txt    = '%s/cmd_3_iqtree.txt'     % op_dir
-    ignored_marker_txt  = '%s/ignored_markers.txt'  % op_dir
+    qualified_og_dir        = '%s/qualified_OGs'                % op_dir
+    cmds_in_one_line_txt    = '%s/cmds_mafft_bmge_iqtree.txt'   % op_dir
+    ignored_marker_txt      = '%s/ignored_markers.txt'          % op_dir
 
     # create output folder
     if os.path.isdir(op_dir) is True:
@@ -105,9 +109,7 @@ def SplitScore1(args):
 
     ################################################################################
 
-    cmd_1_mafft_txt_handle = open(cmd_1_mafft_txt, 'w')
-    cmd_2_trimal_txt_handle = open(cmd_2_trimal_txt, 'w')
-    cmd_3_iqtree_txt_handle = open(cmd_3_iqtree_txt, 'w')
+    cmds_in_one_line_txt_handle = open(cmds_in_one_line_txt, 'w')
     ignored_og_dict = dict()
     for each_og in sorted(list(og_to_gene_dict.keys())):
         seq_file_in          = '%s/%s.%s'       % (oma_op_fasta, each_og, fasta_file_ext)
@@ -120,6 +122,8 @@ def SplitScore1(args):
         for each_seq in SeqIO.parse(seq_file_in, 'fasta'):
             seq_id = each_seq.id
             gnm_id = '_'.join(seq_id.split('_')[:-1])
+            if seq_named_by_gnm is True:
+                gnm_id = seq_id
             if gnm_id in gnm_to_process:
                 current_gnm_set.add(gnm_id)
                 seq_file_out_handle.write('>%s\n' % each_seq.id)
@@ -135,16 +139,12 @@ def SplitScore1(args):
             os.system('rm %s' % file_out_seq)
         else:
             # align, trim and iqtree
-            mafft_cmd     = 'mafft-einsi --thread %s --quiet %s.%s > %s'                                % (num_of_js_threads, each_og, fasta_file_ext, file_out_aln)
-            trimal_cmd    = 'trimal -in %s -out %s -automated1'                                         % (file_out_aln, file_out_aln_trimmed)
-            iqtree_cmd    = 'iqtree2 -s %s --seqtype AA -m %s -B 1000 --wbtl --bnni --prefix %s -T %s --quiet' % (file_out_aln_trimmed, iqtree_model, each_og, num_of_js_threads)
+            mafft_cmd  = 'mafft-einsi --thread %s --quiet %s.%s > %s'                                % (num_of_js_threads, each_og, fasta_file_ext, file_out_aln)
+            bmge_cmd   = 'java -jar %s -i %s -m %s -t AA -h %s -of %s'                               % (pwd_bmge_jar, file_out_aln, bmge_trim_model, bmge_entropy_score_cutoff, file_out_aln_trimmed)
+            iqtree_cmd = 'iqtree2 -s %s --seqtype AA -m %s -B 1000 --wbtl --bnni --prefix %s -T %s --quiet' % (file_out_aln_trimmed, iqtree_model, each_og, num_of_js_threads)
             # Undinarchaeota illuminate DPANN phylogeny and the impact of gene transfer on archaeal evolution, settings: -m LG+G -bb 1000 -wbtl -bnni
-            cmd_1_mafft_txt_handle.write(mafft_cmd + '\n')
-            cmd_2_trimal_txt_handle.write(trimal_cmd + '\n')
-            cmd_3_iqtree_txt_handle.write(iqtree_cmd + '\n')
-    cmd_1_mafft_txt_handle.close()
-    cmd_2_trimal_txt_handle.close()
-    cmd_3_iqtree_txt_handle.close()
+            cmds_in_one_line_txt_handle.write('%s; %s; %s\n' % (mafft_cmd, bmge_cmd, iqtree_cmd))
+    cmds_in_one_line_txt_handle.close()
 
     # report ignored markers
     if len(ignored_og_dict) > 0:
@@ -156,23 +156,22 @@ def SplitScore1(args):
         ignored_marker_txt_handle.close()
 
     # report
-    print('You will need to execute the commands exported to the following three files before moving to SplitScore2')
-    print(cmd_1_mafft_txt)
-    print(cmd_2_trimal_txt)
-    print(cmd_3_iqtree_txt)
+    print('You will need to execute the commands exported to the following file before moving to SplitScore2')
+    print(cmds_in_one_line_txt)
     print('Done!')
 
 
 if __name__ == '__main__':
 
     SplitScore1_parser = argparse.ArgumentParser()
-    SplitScore1_parser.add_argument('-i',   required=True,                          help='orthologous gene sequence')
-    SplitScore1_parser.add_argument('-x',   required=True,                          help='fasta file extension')
-    SplitScore1_parser.add_argument('-o',   required=True,                          help='output directory')
-    SplitScore1_parser.add_argument('-u',   required=False, default=None,           help='interested genomes, no file extension')
-    SplitScore1_parser.add_argument('-m',   required=False, default='LG+G+I',       help='iqtree_model, default: LG+G+I')
-    SplitScore1_parser.add_argument('-c',   required=False, type=int, default=85,   help='coverage cutoff, default: 85')
-    SplitScore1_parser.add_argument('-f',   required=False, action="store_true",    help='force overwrite')
-    SplitScore1_parser.add_argument('-jst', required=False, type=int, default=1,    help='num of threads for iqtree2, default: 1')
+    SplitScore1_parser.add_argument('-i',                   required=True,                          help='orthologous gene sequence')
+    SplitScore1_parser.add_argument('-x',                   required=True,                          help='fasta file extension')
+    SplitScore1_parser.add_argument('-o',                   required=True,                          help='output directory')
+    SplitScore1_parser.add_argument('-u',                   required=False, default=None,           help='interested genomes, no file extension')
+    SplitScore1_parser.add_argument('-m',                   required=False, default='LG+G',         help='iqtree_model, default: LG+G')
+    SplitScore1_parser.add_argument('-c',                   required=False, type=int, default=75,   help='coverage cutoff, default: 75')
+    SplitScore1_parser.add_argument('-f',                   required=False, action="store_true",    help='force overwrite')
+    SplitScore1_parser.add_argument('-seq_named_by_gnm',    required=False, action="store_true",    help='named_by_gnm, specify if sequence named by gnm')
+    SplitScore1_parser.add_argument('-jst',                 required=False, type=int, default=1,    help='num of threads for iqtree2, default: 1')
     args = vars(SplitScore1_parser.parse_args())
     SplitScore1(args)

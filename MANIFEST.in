@@ -13,3 +13,4 @@ include TreeSAK/MetaCHIP_phylo.hmm
 include TreeSAK/ko00001.keg
 include TreeSAK/MetaCyc_reactions_with_ec.txt
 include TreeSAK/BMGE.jar
+include TreeSAK/C60SR4.nex

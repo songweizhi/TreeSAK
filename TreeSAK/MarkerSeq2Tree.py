@@ -13,6 +13,9 @@ Dependencies: mafft, trimal, bmge, perl and iqtree2
 
 TreeSAK MarkerSeq2Tree -i best_25 -x fa -o op_dir -t 12 -f -bmge -prune 10,20,30
 
+# Note
+"chi2_prune" is performed if you specify "-prune".
+
 =================================================================================
 '''
 
@@ -138,10 +141,10 @@ def pruneMSA(msa_in, conserved_cutoffs):
 
     op_file_list = []
     for each_cutoff in cutoff_list:
-        cutoff_formatted = str(float(each_cutoff)/100).replace('0.', '.')
-        current_msa_out = '%s/%s.pruner%s%s' % (msa_path, msa_base, each_cutoff, msa_ext)
-        perl_cmd            = 'perl %s --file %s --conserved_threshold %s > %s' % (alignment_pruner_pl,   msa_in, cutoff_formatted, current_msa_out)
-        perl_cmd_for_report = 'perl %s --file %s --conserved_threshold %s > %s' % ('alignment_pruner.pl', msa_in, cutoff_formatted, current_msa_out)
+        cutoff_formatted    = str(float(each_cutoff)/100)
+        current_msa_out     = '%s/%s_chi2p%s%s'                         % (msa_path, msa_base, each_cutoff, msa_ext)
+        perl_cmd            = 'perl %s --file %s --chi2_prune f%s > %s' % (alignment_pruner_pl,   msa_in, cutoff_formatted, current_msa_out)
+        perl_cmd_for_report = 'perl %s --file %s --chi2_prune f%s > %s' % ('alignment_pruner.pl', msa_in, cutoff_formatted, current_msa_out)
         op_file_list.append(current_msa_out)
         print(perl_cmd_for_report)
         os.system(perl_cmd)

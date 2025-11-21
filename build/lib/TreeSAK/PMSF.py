@@ -10,6 +10,7 @@ PMSF_usage = '''
 
 TreeSAK PMSF -i in.aln -o get_PMSF_tree_wd -t 12
 TreeSAK PMSF -i in.aln -o get_PMSF_tree_wd -t 12 -topo topo.tree
+TreeSAK PMSF -i in.aln -o get_PMSF_tree_wd -t 12 -m C60SR4 -mdef C60SR4.nex
 
 # This is a wrapper for:
 iqtree2 -T 12 -B 1000 --alrt 1000 --quiet --seqtype AA -s in.aln --prefix guide_tree -m LG+F+G 
@@ -31,6 +32,7 @@ def PMSF(args):
     msa_in                  = args['i']
     iqtree_model_guide_tree = args['gm']
     iqtree_model            = args['m']
+    mdef_nex                = args['mdef']
     op_dir                  = args['o']
     tree_prefix             = args['p']
     force_overwrite         = args['f']
@@ -71,6 +73,12 @@ def PMSF(args):
         guidetree_cmd = '%s -s %s --prefix %s/guide_tree --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet -g %s' % (iqtree_exe, msa_in, guide_tree_wd, iqtree_model_guide_tree, num_of_threads, topo_constraint_txt)
         iqtree_cmd    = '%s -s %s --prefix %s/%s --seqtype AA -m %s -T %s -B 1000 --alrt 1000 --quiet -ft %s -g %s'  % (iqtree_exe, msa_in, op_dir, tree_prefix, iqtree_model, num_of_threads, pwd_guide_tree, topo_constraint_txt)
 
+    if mdef_nex is not None:
+        iqtree_cmd = '%s --mdef %s' % (iqtree_cmd, mdef_nex)
+
+    if iqtree_model == 'C60SR4':
+        iqtree_cmd = iqtree_cmd.replace('--seqtype AA ', '')
+
     # write out commands
     pwd_cmd_txt_handle = open(pwd_cmd_txt, 'w')
     pwd_cmd_txt_handle.write(guidetree_cmd + '\n')
@@ -97,6 +105,7 @@ if __name__ == '__main__':
     PMSF_parser.add_argument('-i',       required=True,                          help='input MSA file')
     PMSF_parser.add_argument('-gm',      required=False, default='LG+F+G',       help='iqtree model for guide tree, default: LG+F+G')
     PMSF_parser.add_argument('-m',       required=False, default='LG+C60+F+G',   help='iqtree model, default: LG+C60+F+G')
+    PMSF_parser.add_argument('-mdef',    required=False, default=None,           help='model definition NEXUS file')
     PMSF_parser.add_argument('-o',       required=True,                          help='output plot')
     PMSF_parser.add_argument('-p',       required=False, default='PMSF',         help='tree prefix, default: PMSF')
     PMSF_parser.add_argument('-topo',    required=False, default=None,           help='topological constraint tree, pass to -g, default is None')

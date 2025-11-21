@@ -19,6 +19,7 @@ TreeSAK/AssessMarkerPA.py
 TreeSAK/AssessPB.py
 TreeSAK/BMGE.jar
 TreeSAK/BMGE.py
+TreeSAK/C60SR4.nex
 TreeSAK/CompareMCMC.py
 TreeSAK/ConcateMSA.py
 TreeSAK/ConvertMSA.py
@@ -69,6 +70,7 @@ TreeSAK/__init__.py
 TreeSAK/ale_parser.py
 TreeSAK/ale_splitter.py
 TreeSAK/alignment_pruner.pl
+TreeSAK/ar53.py
 TreeSAK/assessOG.py
 TreeSAK/catfasta2phy.py
 TreeSAK/cogTree.py
