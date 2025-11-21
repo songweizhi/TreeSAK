@@ -393,6 +393,7 @@ def run_count_sister_taxa(gtdb_classification_txt, hog_list, contree_dir, ufboot
     mag_cluster_dict = {}
     for each_gnm in open(gnm_cluster_txt):
         each_gnm_split = each_gnm.strip().split('\t')
+        print(each_gnm_split)
         mag_cluster_dict[each_gnm_split[0]] = each_gnm_split[1]
 
     argument_lol = []
@@ -421,8 +422,8 @@ def run_count_sister_taxa(gtdb_classification_txt, hog_list, contree_dir, ufboot
     # combine renamed_gnm_to_cluster files
     os.system('cat %s/*.txt > %s'                                           % (renamed_gnm_to_cluster_dir, renamed_gnm_to_cluster_tmp_txt))
     os.system('cat %s | sort | uniq > %s'                                   % (renamed_gnm_to_cluster_tmp_txt, renamed_gnm_to_cluster_txt))
-    BioSAK_iTOL_cmd = 'BioSAK iTOL -ColorRange -lg %s -lt Cluster -o %s'    % (renamed_gnm_to_cluster_txt, renamed_gnm_to_cluster_iTOL_txt)
-    os.system(BioSAK_iTOL_cmd)
+    TreeSAK_iTOL_cmd = 'TreeSAK iTOL -ColorRange -lg %s -lt Cluster -o %s'  % (renamed_gnm_to_cluster_txt, renamed_gnm_to_cluster_iTOL_txt)
+    os.system(TreeSAK_iTOL_cmd)
 
 
 def get_taxa_count_stats(step_1_op_dir, hog_list_sorted, get_taxa_count_stats_wd, force_overwrite, TaxaCountStats_Rscript):

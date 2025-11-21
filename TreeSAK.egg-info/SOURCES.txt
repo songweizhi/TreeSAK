@@ -122,6 +122,7 @@ TreeSAK/supertree.py
 TreeSAK/tmp_1.py
 TreeSAK/tmp_2.py
 TreeSAK/tmp_3.py
+TreeSAK/tmp_4.py
 TreeSAK/weighted_rand.rb
 bin/TreeSAK
 treesak.egg-info/PKG-INFO
