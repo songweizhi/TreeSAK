@@ -49,9 +49,9 @@ TreeSAK/PlotMCMC.py
 TreeSAK/PlotMcmcNode.py
 TreeSAK/PlotMcmcNode_old.py
 TreeSAK/RootTree.py
+TreeSAK/RootTreeGTDB.py
 TreeSAK/RootTreeGTDB214.py
 TreeSAK/RootTreeGTDB220.py
-TreeSAK/RootTreeGTDB226.py
 TreeSAK/SequentialDating.py
 TreeSAK/SingleAleHGT.py
 TreeSAK/SingleLinePhy.py
@@ -70,7 +70,6 @@ TreeSAK/__init__.py
 TreeSAK/ale_parser.py
 TreeSAK/ale_splitter.py
 TreeSAK/alignment_pruner.pl
-TreeSAK/ar53.py
 TreeSAK/assessOG.py
 TreeSAK/catfasta2phy.py
 TreeSAK/cogTree.py
@@ -81,6 +80,7 @@ TreeSAK/dating_ss.py
 TreeSAK/deltall.py
 TreeSAK/do_rrtc.rb
 TreeSAK/fa2phy.py
+TreeSAK/filter_rename_ar53.py
 TreeSAK/format_leaf_name.py
 TreeSAK/gap_stats.py
 TreeSAK/get_SCG_tree.py
@@ -92,6 +92,7 @@ TreeSAK/iTOL_gene_tree.py
 TreeSAK/itol_msa_stats.py
 TreeSAK/keep_highest_rrtc.py
 TreeSAK/koTree.py
+TreeSAK/label_gene_tree_by_gnm.py
 TreeSAK/label_tree.R
 TreeSAK/label_tree.py
 TreeSAK/mad.py

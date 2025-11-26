@@ -1,8 +1,8 @@
-1.52.8
+1.52.12
 - fixed bugs
 
 1.52.0
-- new module added: ar53
+- new module added: filter_rename_ar53
 
 1.51.0
 - new module added: iTOL_msa_stats

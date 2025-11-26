@@ -41,7 +41,7 @@ def print_main_help():
        AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
        OMA                    ->  Prepare input files for running OMA 
        OMA2                   ->  Filter OMA predicted OGs
-       ar53                   ->  Filter rename GTDB markers
+       filter_rename_ar53     ->  Filter rename GTDB markers
        
     Multiple Sequence Alignment
        BMGE                   ->  Run BMGE
@@ -79,9 +79,7 @@ def print_main_help():
        cogTree                ->  Infer tree for individual COG function
        koTree                 ->  Infer tree for individual KEGG function
        RootTree               ->  Root tree with outgroup leaves
-       RootTreeGTDB214        ->  Root tree by GTDB taxonomy (r214)
-       RootTreeGTDB220        ->  Root tree by GTDB taxonomy (r220)
-       RootTreeGTDB226        ->  Root tree by GTDB taxonomy (r226)
+       RootTreeGTDB           ->  Root tree by GTDB taxonomy
        LcaToLeaves            ->  Get two leaves that define an internal node
        replace_clade          ->  Replace tree clade
        GeneTree               ->  Infer gene tree
@@ -689,40 +687,20 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         replace_clade.replace_clade(args)
 
-    elif sys.argv[1] == 'RootTreeGTDB214':
-        from TreeSAK import RootTreeGTDB214
-        RootTreeGTDB214_parser = subparsers.add_parser('RootTreeGTDB214', usage=RootTreeGTDB214.RootTreeGTDB214_usage)
-        RootTreeGTDB214_parser.add_argument('-tree',    required=True,                  help='input unrooted tree')
-        RootTreeGTDB214_parser.add_argument('-tax',     required=False, default='fna',  help='leaf taxon')
-        RootTreeGTDB214_parser.add_argument('-db',      required=True,                  help='GTDB database files')
-        RootTreeGTDB214_parser.add_argument('-d',       required=False, default=None,   help='domain, either ar or bac')
-        RootTreeGTDB214_parser.add_argument('-o',       required=True,                  help='output folder')
+    elif sys.argv[1] == 'RootTreeGTDB':
+        from TreeSAK import RootTreeGTDB
+        RootTreeGTDB_parser = subparsers.add_parser('RootTreeGTDB', usage=RootTreeGTDB.RootTreeGTDB_usage)
+        RootTreeGTDB_parser.add_argument('-tree',     required=True,                       help='input unrooted tree file or folder')
+        RootTreeGTDB_parser.add_argument('-x',        required=False, default='treefile',  help='tree file extension, default is: treefile')
+        RootTreeGTDB_parser.add_argument('-tax',      required=False, default='fna',       help='leaf taxon')
+        RootTreeGTDB_parser.add_argument('-db',       required=True,                       help='GTDB database files')
+        RootTreeGTDB_parser.add_argument('-d',        required=False, default=None,        help='domain, either ar or bac')
+        RootTreeGTDB_parser.add_argument('-add_root', required=False, action='store_true', help='add the root branch')
+        RootTreeGTDB_parser.add_argument('-o',        required=True,                       help='output folder')
+        RootTreeGTDB_parser.add_argument('-f',        required=False, action="store_true", help='force overwrite')
+        RootTreeGTDB_parser.add_argument('-r',        required=True,                       help='GTDB release, e.g., r220, r226')
         args = vars(parser.parse_args())
-        RootTreeGTDB214.RootTreeGTDB214(args)
-
-    elif sys.argv[1] == 'RootTreeGTDB220':
-        from TreeSAK import RootTreeGTDB220
-        RootTreeGTDB220_parser = subparsers.add_parser('RootTreeGTDB220', usage=RootTreeGTDB220.RootTreeGTDB220_usage)
-        RootTreeGTDB220_parser.add_argument('-tree',        required=True,                          help='input unrooted tree')
-        RootTreeGTDB220_parser.add_argument('-tax',         required=False, default='fna',          help='leaf taxon')
-        RootTreeGTDB220_parser.add_argument('-db',          required=True,                          help='GTDB database files')
-        RootTreeGTDB220_parser.add_argument('-d',           required=False, default=None,           help='domain, either ar or bac')
-        RootTreeGTDB220_parser.add_argument('-add_root',    required=False, action='store_true',    help='add the root branch')
-        RootTreeGTDB220_parser.add_argument('-o',           required=True,                          help='output folder')
-        args = vars(parser.parse_args())
-        RootTreeGTDB220.RootTreeGTDB220(args)
-
-    elif sys.argv[1] == 'RootTreeGTDB226':
-        from TreeSAK import RootTreeGTDB226
-        RootTreeGTDB226_parser = subparsers.add_parser('RootTreeGTDB226', usage=RootTreeGTDB226.RootTreeGTDB226_usage)
-        RootTreeGTDB226_parser.add_argument('-tree',        required=True,                          help='input unrooted tree')
-        RootTreeGTDB226_parser.add_argument('-tax',         required=False, default='fna',          help='leaf taxon')
-        RootTreeGTDB226_parser.add_argument('-db',          required=True,                          help='GTDB database files')
-        RootTreeGTDB226_parser.add_argument('-d',           required=False, default=None,           help='domain, either ar or bac')
-        RootTreeGTDB226_parser.add_argument('-add_root',    required=False, action='store_true',    help='add the root branch')
-        RootTreeGTDB226_parser.add_argument('-o',           required=True,                          help='output folder')
-        args = vars(parser.parse_args())
-        RootTreeGTDB226.RootTreeGTDB226(args)
+        RootTreeGTDB.RootTreeGTDB(args)
 
     elif sys.argv[1] in ['PB', 'Pb', 'pb']:
         from TreeSAK import PB
@@ -935,16 +913,17 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         iTOL_msa_stats.iTOL_msa_stats(args)
 
-    elif sys.argv[1] == 'ar53':
-        from TreeSAK import ar53
-        ar53_parser = subparsers.add_parser('ar53', usage=ar53.ar53_usage)
-        ar53_parser.add_argument('-i', required=True,                       help='sequence folder')
-        ar53_parser.add_argument('-x', required=True,                       help='file extension')
-        ar53_parser.add_argument('-g', required=False, default=None,        help='interested genomes, no file extension, one id per line')
-        ar53_parser.add_argument('-o', required=True,                       help='output folder')
-        ar53_parser.add_argument('-f', required=False, action="store_true", help='force overwrite')
+    elif sys.argv[1] == 'filter_rename_ar53':
+        from TreeSAK import filter_rename_ar53
+        filter_rename_ar53_parser = subparsers.add_parser('filter_rename_ar53', usage=filter_rename_ar53.filter_rename_ar53_usage)
+        filter_rename_ar53_parser.add_argument('-i', required=True,                       help='sequence folder')
+        filter_rename_ar53_parser.add_argument('-x', required=True,                       help='file extension')
+        filter_rename_ar53_parser.add_argument('-g', required=False, default=None,        help='interested genome, no ext, one id per line')
+        filter_rename_ar53_parser.add_argument('-m', required=False, default=None,        help='interested marker, no ext, one id per line')
+        filter_rename_ar53_parser.add_argument('-o', required=True,                       help='output folder')
+        filter_rename_ar53_parser.add_argument('-f', required=False, action="store_true", help='force overwrite')
         args = vars(parser.parse_args())
-        ar53.ar53(args)
+        filter_rename_ar53.filter_rename_ar53(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])

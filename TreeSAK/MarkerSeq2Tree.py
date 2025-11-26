@@ -142,9 +142,10 @@ def pruneMSA(msa_in, conserved_cutoffs):
     op_file_list = []
     for each_cutoff in cutoff_list:
         cutoff_formatted    = str(float(each_cutoff)/100)
-        current_msa_out     = '%s/%s_chi2p%s%s'                         % (msa_path, msa_base, each_cutoff, msa_ext)
-        perl_cmd            = 'perl %s --file %s --chi2_prune f%s > %s' % (alignment_pruner_pl,   msa_in, cutoff_formatted, current_msa_out)
-        perl_cmd_for_report = 'perl %s --file %s --chi2_prune f%s > %s' % ('alignment_pruner.pl', msa_in, cutoff_formatted, current_msa_out)
+        current_msa_out     = '%s_chi2p%s%s'                            % (msa_path, msa_base, each_cutoff, msa_ext)
+        pwd_current_msa_out = '%s/%s_chi2p%s%s'                         % (msa_path, msa_base, each_cutoff, msa_ext)
+        perl_cmd            = 'perl %s --file %s --chi2_prune f%s > %s' % (alignment_pruner_pl,   msa_in, cutoff_formatted, pwd_current_msa_out)
+        perl_cmd_for_report = 'perl %s --file %s --chi2_prune f%s > %s' % ('alignment_pruner.pl', msa_in, cutoff_formatted, pwd_current_msa_out)
         op_file_list.append(current_msa_out)
         print(perl_cmd_for_report)
         os.system(perl_cmd)
@@ -152,6 +153,8 @@ def pruneMSA(msa_in, conserved_cutoffs):
     # report
     print('Pruned MSA exported to:')
     print('\n'.join(op_file_list))
+
+    return op_file_list
 
 
 def MarkerSeq2Tree(args):
@@ -264,11 +267,14 @@ def MarkerSeq2Tree(args):
         cmds_3_iqtree_txt_handle.write(get_c60_tree_cmd + '\n')
 
     # run alignment_pruner.pl
+    msa_file_list = [concatenated_phy_fasta]
     if alignment_pruner_cutoffs is not None:
-        pruneMSA(concatenated_phy_fasta, alignment_pruner_cutoffs)
+        pruner_op_file_list = pruneMSA(concatenated_phy_fasta, alignment_pruner_cutoffs)
+        for each_msa in pruner_op_file_list:
+            msa_file_list.append(each_msa)
 
     # run cmds
-    print('Running iqtree')
+    # print('Running iqtree')
     # os.system(get_guide_tree_cmd)
     # os.system(get_c60_tree_cmd)
 

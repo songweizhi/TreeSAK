@@ -1,15 +1,16 @@
-import os.path
+import glob
 import random
+import os.path
 import dendropy
 import argparse
 from ete3 import Tree
 
 
-RootTreeGTDB226_usage = '''
-========================================== RootTreeGTDB226 example command ==========================================   
+RootTreeGTDB_usage = '''
+========================================== RootTreeGTDB example command ==========================================   
 
-TreeSAK RootTreeGTDB226 -add_root -d ar -tree ar53.tree -tax ar53.summary.tsv -db db_dir -o ar53.rooted.tree
-TreeSAK RootTreeGTDB226 -add_root -d bac -tree bac120.tree -tax bac120.summary.tsv -db db_dir -o bac120.rooted.tree
+TreeSAK RootTreeGTDB -r r226 -add_root -db db_dir -d ar -tree ar53.tree -tax ar53.summary.tsv -o ar53.rooted.tree
+TreeSAK RootTreeGTDB -r r226 -add_root -db db_dir -d bac -tree bac120.tree -tax bac120.summary.tsv -o bac120.rooted.tree
 
 # Need to download and decompress the following files to your database folder (provide with -db)
 https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/ar53_r226.tree.tar.gz
@@ -17,8 +18,18 @@ https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/bac120_r22
 https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/ar53_metadata_r226.tsv.gz
 https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/bac120_metadata_r226.tsv.gz
 
-=====================================================================================================================
+==================================================================================================================
 '''
+
+def sep_path_basename_ext(file_in):
+
+    f_path, f_name = os.path.split(file_in)
+    if f_path == '':
+        f_path = '.'
+    f_base, f_ext = os.path.splitext(f_name)
+    f_ext = f_ext[1:]
+
+    return f_name, f_path, f_base, f_ext
 
 
 def get_smallest_outgroup(tree_object):
@@ -122,14 +133,7 @@ def root_with_outgroup(input_tree, out_group_list, add_root_branch, tree_file_ro
         tree_file_rooted_handle.close()
 
 
-def RootTreeGTDB226(args):
-
-    input_unrooted_tree = args['tree']
-    user_gnm_taxon      = args['tax']
-    db_dir              = args['db']
-    gnm_domain          = args['d']
-    add_root_branch     = args['add_root']
-    rooted_tree         = args['o']
+def RootTreeGTDB_single_tree(input_unrooted_tree, user_gnm_taxon, db_dir, gnm_domain, add_root_branch, rooted_tree, gtdb_release):
 
     missing_file_list = []
     if os.path.isfile(input_unrooted_tree) is False:
@@ -149,10 +153,21 @@ def RootTreeGTDB226(args):
         leaf_list.append(leaf_name)
 
     # define file name
-    gtdb_ref_tree_ar    = '%s/ar53_r226.tree'           % db_dir
-    gtdb_ref_tree_bac   = '%s/bac120_r226.tree'         % db_dir
-    gtdb_gnm_meta_ar    = '%s/ar53_metadata_r226.tsv'   % db_dir
-    gtdb_gnm_meta_bac   = '%s/bac120_metadata_r226.tsv' % db_dir
+    if gtdb_release in ['r214', 'R214']:
+        gtdb_ref_tree_ar    = '%s/ar53_r214.tree'           % db_dir
+        gtdb_ref_tree_bac   = '%s/bac120_r214.tree'         % db_dir
+        gtdb_gnm_meta_ar    = '%s/ar53_metadata_r214.tsv'   % db_dir
+        gtdb_gnm_meta_bac   = '%s/bac120_metadata_r214.tsv' % db_dir
+    elif gtdb_release in ['r220', 'R220']:
+        gtdb_ref_tree_ar    = '%s/ar53_r220.tree'           % db_dir
+        gtdb_ref_tree_bac   = '%s/bac120_r220.tree'         % db_dir
+        gtdb_gnm_meta_ar    = '%s/ar53_metadata_r220.tsv'   % db_dir
+        gtdb_gnm_meta_bac   = '%s/bac120_metadata_r220.tsv' % db_dir
+    elif gtdb_release in ['r226', 'R226']:
+        gtdb_ref_tree_ar    = '%s/ar53_r226.tree'           % db_dir
+        gtdb_ref_tree_bac   = '%s/bac120_r226.tree'         % db_dir
+        gtdb_gnm_meta_ar    = '%s/ar53_metadata_r226.tsv'   % db_dir
+        gtdb_gnm_meta_bac   = '%s/bac120_metadata_r226.tsv' % db_dir
 
     if gnm_domain == 'bac':
         gtdb_ref_tree = gtdb_ref_tree_bac
@@ -300,14 +315,58 @@ def RootTreeGTDB226(args):
     root_with_outgroup(input_unrooted_tree, out_group_gnm_set, add_root_branch, rooted_tree)
 
 
+def RootTreeGTDB(args):
+
+    input_tree_file_dir  = args['tree']
+    tree_file_ext        = args['x']
+    user_gnm_taxon       = args['tax']
+    db_dir               = args['db']
+    gnm_domain           = args['d']
+    add_root_branch      = args['add_root']
+    rooted_tree_file_dir = args['o']
+    force_overwrite      = args['f']
+    gtdb_release         = args['r']
+
+    if os.path.isfile(input_tree_file_dir):
+        RootTreeGTDB_single_tree(input_tree_file_dir, user_gnm_taxon, db_dir, gnm_domain, add_root_branch, rooted_tree_file_dir, gtdb_release)
+    elif os.path.isdir(rooted_tree_file_dir):
+
+        tree_file_re = '%s/*.%s' % (input_tree_file_dir, tree_file_ext)
+        tree_file_list = glob.glob(tree_file_re)
+        if len(tree_file_list) == 0:
+            print('No file found in %s, please make sure file extension is correct, program exited!' % input_tree_file_dir)
+            exit()
+
+        # create output folder
+        if os.path.isdir(rooted_tree_file_dir) is True:
+            if force_overwrite is True:
+                os.system('rm -r %s' % rooted_tree_file_dir)
+            else:
+                print('%s exist, program exited!' % rooted_tree_file_dir)
+                exit()
+        os.mkdir(rooted_tree_file_dir)
+
+        # root trees in batch
+        for each_tree_file in tree_file_list:
+            tree_f_name, _, _, _ = sep_path_basename_ext(each_tree_file)
+            pwd_tree_out = '%s/%s' % (rooted_tree_file_dir, tree_f_name)
+            RootTreeGTDB_single_tree(each_tree_file, user_gnm_taxon, db_dir, gnm_domain, add_root_branch, pwd_tree_out, gtdb_release)
+    else:
+        print('input tree file/folder not found, program exited!')
+        exit()
+
+
 if __name__ == '__main__':
 
-    RootTreeGTDB226_parser = argparse.ArgumentParser(usage=RootTreeGTDB226_usage)
-    RootTreeGTDB226_parser.add_argument('-tree',        required=True,                         help='input unrooted tree')
-    RootTreeGTDB226_parser.add_argument('-tax',         required=False, default='fna',         help='leaf taxon')
-    RootTreeGTDB226_parser.add_argument('-db',          required=True,                         help='GTDB database files')
-    RootTreeGTDB226_parser.add_argument('-d',           required=False, default=None,          help='domain, either ar or bac')
-    RootTreeGTDB226_parser.add_argument('-add_root',    required=False, action='store_true',   help='add the root branch')
-    RootTreeGTDB226_parser.add_argument('-o',           required=True,                         help='output folder')
-    args = vars(RootTreeGTDB226_parser.parse_args())
-    RootTreeGTDB226(args)
+    RootTreeGTDB_parser = argparse.ArgumentParser(usage=RootTreeGTDB_usage)
+    RootTreeGTDB_parser.add_argument('-tree',     required=True,                       help='input unrooted tree file or folder')
+    RootTreeGTDB_parser.add_argument('-x',        required=False, default='treefile',  help='tree file extension, default is: treefile')
+    RootTreeGTDB_parser.add_argument('-tax',      required=False, default='fna',       help='leaf taxon')
+    RootTreeGTDB_parser.add_argument('-db',       required=True,                       help='GTDB database files')
+    RootTreeGTDB_parser.add_argument('-d',        required=False, default=None,        help='domain, either ar or bac')
+    RootTreeGTDB_parser.add_argument('-add_root', required=False, action='store_true', help='add the root branch')
+    RootTreeGTDB_parser.add_argument('-o',        required=True,                       help='output folder')
+    RootTreeGTDB_parser.add_argument('-f',        required=False, action="store_true", help='force overwrite')
+    RootTreeGTDB_parser.add_argument('-r',        required=True,                       help='GTDB release, e.g., r220, r226')
+    args = vars(RootTreeGTDB_parser.parse_args())
+    RootTreeGTDB(args)
