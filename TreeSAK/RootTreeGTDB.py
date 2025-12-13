@@ -327,10 +327,9 @@ def RootTreeGTDB(args):
     force_overwrite      = args['f']
     gtdb_release         = args['r']
 
-    if os.path.isfile(input_tree_file_dir):
+    if os.path.isfile(input_tree_file_dir) is True:
         RootTreeGTDB_single_tree(input_tree_file_dir, user_gnm_taxon, db_dir, gnm_domain, add_root_branch, rooted_tree_file_dir, gtdb_release)
-    elif os.path.isdir(rooted_tree_file_dir):
-
+    elif os.path.isdir(input_tree_file_dir) is True:
         tree_file_re = '%s/*.%s' % (input_tree_file_dir, tree_file_ext)
         tree_file_list = glob.glob(tree_file_re)
         if len(tree_file_list) == 0:
@@ -348,8 +347,8 @@ def RootTreeGTDB(args):
 
         # root trees in batch
         for each_tree_file in tree_file_list:
-            tree_f_name, _, _, _ = sep_path_basename_ext(each_tree_file)
-            pwd_tree_out = '%s/%s' % (rooted_tree_file_dir, tree_f_name)
+            tree_f_name, tree_f_path, tree_f_base, tree_f_ext = sep_path_basename_ext(each_tree_file)
+            pwd_tree_out = '%s/%s.rooted.%s' % (rooted_tree_file_dir, tree_f_base, tree_f_ext)
             RootTreeGTDB_single_tree(each_tree_file, user_gnm_taxon, db_dir, gnm_domain, add_root_branch, pwd_tree_out, gtdb_release)
     else:
         print('input tree file/folder not found, program exited!')

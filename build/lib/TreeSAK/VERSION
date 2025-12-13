@@ -1,5 +1,8 @@
-1.52.12
+1.53.4
 - fixed bugs
+
+1.53.0
+- new module added: batch_itol
 
 1.52.0
 - new module added: filter_rename_ar53

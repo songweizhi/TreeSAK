@@ -59,6 +59,7 @@ def print_main_help():
 
     Tree-related
        iTOL                   ->  Prepare iTOL files
+       batch_itol             ->  Batch access iTOL
        iTOL_gene_tree         ->  Genome metadata to gene metadata
        iTOL_msa_stats         ->  iTOL_msa_stats
        PB                     ->  Infer tree with PhyloBayes-MPI 
@@ -718,15 +719,11 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'AssessPB':
         from TreeSAK import AssessPB
         AssessPB_parser = subparsers.add_parser('AssessPB', usage=AssessPB.AssessPB_usage)
-        AssessPB_parser.add_argument('-c1',         required=False, default=None,           help='chain 1')
-        AssessPB_parser.add_argument('-c2',         required=False, default=None,           help='chain 2')
-        AssessPB_parser.add_argument('-c3',         required=False, default=None,           help='chain 3')
-        AssessPB_parser.add_argument('-c4',         required=False, default=None,           help='chain 4')
-        AssessPB_parser.add_argument('-cdir',       required=False, default=None,           help='chain folder')
-        AssessPB_parser.add_argument('-bi',         required=False, default=1000,           help='burn-in, default: 1000')
-        AssessPB_parser.add_argument('-si',         required=False, default=10,             help='sample interval, default: 10')
-        AssessPB_parser.add_argument('-o',          required=True, default=None,            help='output directory')
-        AssessPB_parser.add_argument('-f',          required=False, action="store_true",    help='force overwrite')
+        AssessPB_parser.add_argument('-c',      required=False, default=None,           help='a txt file contain all the chains')
+        AssessPB_parser.add_argument('-bi',     required=False, default=1000,           help='burn-in, default: 1000')
+        AssessPB_parser.add_argument('-si',     required=False, default=10,             help='sample interval, default: 10')
+        AssessPB_parser.add_argument('-o',      required=True, default=None,            help='output directory')
+        AssessPB_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         AssessPB.AssessPB(args)
 
@@ -924,6 +921,20 @@ if __name__ == '__main__':
         filter_rename_ar53_parser.add_argument('-f', required=False, action="store_true", help='force overwrite')
         args = vars(parser.parse_args())
         filter_rename_ar53.filter_rename_ar53(args)
+
+    elif sys.argv[1] == 'batch_itol':
+        from TreeSAK import batch_itol
+        batch_itol_parser = subparsers.add_parser('batch_itol', usage=batch_itol.batch_itol_usage)
+        batch_itol_parser.add_argument('-i',        required=True,                              help='input tree file or folder')
+        batch_itol_parser.add_argument('-x',        required=False, default=None,               help='file extension')
+        batch_itol_parser.add_argument('-o',        required=True,                              help='output file or folder')
+        batch_itol_parser.add_argument('-a',        required=False, default=None,               help='a txt file contain absolute to all annotation files')
+        batch_itol_parser.add_argument('-para',     required=False, default=None,               help='parameter file')
+        batch_itol_parser.add_argument('-api',      required=True,                              help='iTOL API key')
+        batch_itol_parser.add_argument('-ip',       required=False, default='batch_access_tmp', help='iTOL project name, default: batch_access_tmp')
+        batch_itol_parser.add_argument('-f',        required=False, action="store_true",        help='force overwrite')
+        args = vars(parser.parse_args())
+        batch_itol.batch_itol(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])

@@ -1,0 +1,23 @@
+internal_scale	0
+display_mode	1
+range_mode	2
+vertical_shift_factor	1
+horizontal_scale_factor	0.9
+
+# range
+range_mode	2 				# Possible values: 0,1 or 2 (0=off, 1=cover labels only, 2=cover full clades)
+include_ranges_legend	0
+
+# label
+current_font_name	Courier
+
+# branch
+line_width	2
+dashed_lines	1
+
+# bootstrap
+metadata_source	bootstrap          # Which metadata source to use for bootstrap display options
+bootstrap_display	1              # possible values: 0 or 1
+bootstrap_type	2                  # Possible values: 1, 2, 3 or 4 (1=Symbol, 2=Text label, 3=Branch color and 4=Branch width)
+bootstrap_label_size	15         # in pixels, integer >= 9
+bootstrap_label_percent_factor	10 # in pixels, integer >= 9

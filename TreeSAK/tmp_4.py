@@ -14,24 +14,21 @@ def sep_path_basename_ext(file_in):
     return f_name, f_path, f_base, f_ext
 
 
-file_dir = '/Users/songweizhi/Desktop/999/03_AOA_genomes_1369_dRep75_78_OMA_OG_cov85_best10'
+file_dir = '/Users/songweizhi/Desktop/999/03_AOA_genomes_1369_dRep85_263_GTDB_SCG_best50'
 file_ext = 'fa'
-gnm_txt  = '/Users/songweizhi/Desktop/999/03_AOA_genomes_1369_dRep75_78_for_PB_32.txt'
-op_dir   = '/Users/songweizhi/Desktop/999/03_AOA_genomes_1369_dRep75_32_OMA_OG_cov85_best10'
+gnm_txt  = '/Users/songweizhi/Desktop/999/03_AOA_genomes_1369_dRep85_255.txt'
+op_dir   = '/Users/songweizhi/Desktop/999/03_AOA_genomes_1369_dRep85_255_GTDB_SCG_best50'
 
 
 gnm_set = set()
 for each in open(gnm_txt):
     gnm_set.add(each.strip())
-print(gnm_set)
-print(len(gnm_set))
 
 
 file_re = '%s/*.%s' % (file_dir, file_ext)
 file_list = glob.glob(file_re)
 
 for each in file_list:
-    print(each)
     f_name, f_path, f_base, f_ext = sep_path_basename_ext(each)
     op_fa = '%s/%s' % (op_dir, f_name)
     op_fa_handle = open(op_fa, 'w')
@@ -44,6 +41,3 @@ for each in file_list:
         else:
             print(seq_id)
     op_fa_handle.close()
-
-
-

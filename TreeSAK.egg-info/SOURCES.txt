@@ -71,6 +71,7 @@ TreeSAK/ale_parser.py
 TreeSAK/ale_splitter.py
 TreeSAK/alignment_pruner.pl
 TreeSAK/assessOG.py
+TreeSAK/batch_itol.py
 TreeSAK/catfasta2phy.py
 TreeSAK/cogTree.py
 TreeSAK/compare_trees.R
@@ -124,6 +125,7 @@ TreeSAK/tmp_1.py
 TreeSAK/tmp_2.py
 TreeSAK/tmp_3.py
 TreeSAK/tmp_4.py
+TreeSAK/tmp_5.py
 TreeSAK/weighted_rand.rb
 bin/TreeSAK
 treesak.egg-info/PKG-INFO
