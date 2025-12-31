@@ -144,15 +144,15 @@ def iTOL(args):
     LeafMatrix              = args['lm']
     d2r                     = args['dr']
     scale_str               = args['scale']
-    show_color_strip_legend = args['legend']
+    hide_color_strip_legend = args['hide_legend']
+    show_strip_labels       = args['show_label']
     LegendTitle             = args['lt']
-    show_strip_labels       = args['show_strip_labels']
     FileOut                 = args['o']
     BinaryShape             = args['BinaryShape']
     BinaryColor             = args['BinaryColor']
+    STRIP_WIDTH             = args['strip_width']
 
     # General
-    STRIP_WIDTH                 = 100
     MARGIN                      = 20
     branch_width                = 2
 
@@ -288,36 +288,31 @@ def iTOL(args):
             FileOut_handle.write('STRIP_WIDTH\t%s\n' % STRIP_WIDTH)
             FileOut_handle.write('MARGIN\t%s\n'      % MARGIN)
 
-            if show_color_strip_legend is False:
-                FileOut_handle.write('\n# customize labels on the trip\n')
-                if show_strip_labels is True:
-                    FileOut_handle.write('SHOW_STRIP_LABELS\t1\n')
-                else:
-                    FileOut_handle.write('SHOW_STRIP_LABELS\t0\n')
+            # STRIP_LABELS setting
+            if show_strip_labels is True:
+                FileOut_handle.write('\n# customize labels on the strip\n')
+                FileOut_handle.write('SHOW_STRIP_LABELS\t1\n')
                 FileOut_handle.write('STRIP_LABEL_POSITION\tcenter\n')
                 FileOut_handle.write('STRIP_LABEL_ROTATION\t90\n')
             else:
                 FileOut_handle.write('\n# uncomment to show labels on the trip\n')
-                if show_strip_labels is True:
-                    FileOut_handle.write('# SHOW_STRIP_LABELS\t1\n')
-                else:
-                    FileOut_handle.write('# SHOW_STRIP_LABELS\t0\n')
+                FileOut_handle.write('# SHOW_STRIP_LABELS\t1\n')
                 FileOut_handle.write('# STRIP_LABEL_POSITION\tcenter\n')
                 FileOut_handle.write('# STRIP_LABEL_ROTATION\t90\n')
 
-        # write out legend info
-        if show_color_strip_legend is True:
-            FileOut_handle.write('\n# customize legend\n')
-            FileOut_handle.write('LEGEND_TITLE\t%s\n' % LegendTitle)
-            FileOut_handle.write('LEGEND_SHAPES\t%s\n' % '\t'.join(['1' for i in Group_to_Color_dict]))
-            FileOut_handle.write('LEGEND_COLORS\t%s\n' % '\t'.join(color_list))
-            FileOut_handle.write('LEGEND_LABELS\t%s\n' % '\t'.join(group_list))
-        else:
-            FileOut_handle.write('\n# comment this section if you want to hide the legend\n')
-            FileOut_handle.write('LEGEND_TITLE\t%s\n' % LegendTitle)
-            FileOut_handle.write('LEGEND_SHAPES\t%s\n' % '\t'.join(['1' for i in Group_to_Color_dict]))
-            FileOut_handle.write('LEGEND_COLORS\t%s\n' % '\t'.join(color_list))
-            FileOut_handle.write('LEGEND_LABELS\t%s\n' % '\t'.join(group_list))
+            # write out legend info
+            if hide_color_strip_legend is False:
+                FileOut_handle.write('\n# customize legend\n')
+                FileOut_handle.write('LEGEND_TITLE\t%s\n' % LegendTitle)
+                FileOut_handle.write('LEGEND_SHAPES\t%s\n' % '\t'.join(['1' for i in Group_to_Color_dict]))
+                FileOut_handle.write('LEGEND_COLORS\t%s\n' % '\t'.join(color_list))
+                FileOut_handle.write('LEGEND_LABELS\t%s\n' % '\t'.join(group_list))
+            else:
+                FileOut_handle.write('\n# uncomment this section if you want to show the legend\n')
+                FileOut_handle.write('# LEGEND_TITLE\t%s\n' % LegendTitle)
+                FileOut_handle.write('# LEGEND_SHAPES\t%s\n' % '\t'.join(['1' for i in Group_to_Color_dict]))
+                FileOut_handle.write('# LEGEND_COLORS\t%s\n' % '\t'.join(color_list))
+                FileOut_handle.write('# LEGEND_LABELS\t%s\n' % '\t'.join(group_list))
 
         FileOut_handle.write('\n# provide data here\nDATA\n')
         for leaf in Leaf_to_Group_dict:
@@ -784,8 +779,19 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-dr',                 required=False, default=None,           help='Donor to Recipient')
     iTOL_parser.add_argument('-scale',              required=False, default=None,           help='Scale Values, in format 0-3-6-9')
     iTOL_parser.add_argument('-lt',                 required=False, default=None,           help='Legend Title')
-    iTOL_parser.add_argument('-legend',             required=False, action='store_true',    help='show legend for ColorStrip')
-    iTOL_parser.add_argument('-show_strip_labels',  required=False, action='store_true',    help='SHOW_STRIP_LABELS')
+    iTOL_parser.add_argument('-hide_legend',        required=False, action='store_true',    help='hide legend for ColorStrip')
+    iTOL_parser.add_argument('-show_label',         required=False, action='store_true',    help='show label on ColorStrip')
+    iTOL_parser.add_argument('-strip_width',        required=False, default=100,            help='width of ColorStrip, default is 100')
     iTOL_parser.add_argument('-o',                  required=True,                          help='Output filename')
     args = vars(iTOL_parser.parse_args())
     iTOL(args)
+
+
+'''
+
+python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorStrip -strip_width 300 -hide_legend -show_label -lg /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/tmp/gnm_habitat_2.txt -gc /Users/songweizhi/Desktop/Sponge_r226/00_metadata/color_code_habitat.txt -lt habitat_2 -o /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/iTOL_habitat_2.txt
+python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorStrip -strip_width 180 -hide_legend -show_label -lg /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/tmp/gnm_habitat_2.txt -gc /Users/songweizhi/Desktop/Sponge_r226/00_metadata/color_code_habitat.txt -lt habitat_2 -o /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/iTOL_habitat_2.txt
+python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorStrip -strip_width 180 -hide_legend -show_label -lg /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/tmp/gnm_habitat_2.txt -gc /Users/songweizhi/Desktop/Sponge_r226/00_metadata/color_code_habitat.txt -lt habitat_2 -o /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/iTOL_habitat_2.txt
+python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorStrip -strip_width 180 -hide_legend -show_label -lg /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/tmp/gnm_habitat_2.txt -gc /Users/songweizhi/Desktop/Sponge_r226/00_metadata/color_code_habitat.txt -lt habitat_2 -o /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/iTOL_habitat_2.txt
+
+'''

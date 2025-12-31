@@ -1,7 +1,7 @@
 import os
 import argparse
 from Bio import AlignIO
-
+from networkx.classes import number_of_nodes
 
 PB_usage = '''
 ========================================== PB example commands ==========================================
@@ -75,6 +75,11 @@ def PB(args):
     num_of_threads  = args['t']
     num_of_chains   = args['n']
     force_overwrite = args['f']
+    submit_to_hpc4  = args['hpc4']
+    hpc4_wt         = args['hpc4_wt']
+    hpc4_q          = args['hpc4_q']
+    hpc4_a          = args['hpc4_a']
+    hpc4_conda      = args['hpc4_conda']
 
     ####################################################################################################################
 
@@ -83,7 +88,8 @@ def PB(args):
     settings_dombrowski = '-cat -gtr -x 10 -1 -dgam 4'
     setting_to_use  = settings_dombrowski
     msa_in_plp      = '%s/%s.phylip'        % (op_dir, msa_in_base)
-    cmd_txt         = '%s/%s_cmds.txt'      % (op_dir, msa_in_base)
+    cmd_txt         = '%s/pb_cmds.txt'      % op_dir
+    chain_list_txt  = '%s/chain_list.txt'   % op_dir
 
     ####################################################################################################################
 
@@ -102,19 +108,22 @@ def PB(args):
         fa2phy(msa_in, msa_in_plp)
         msa_to_use = msa_in_plp
 
+    msa_to_use_filename, _, _, _ = sep_path_basename_ext(msa_to_use)
+
+    chain_to_cmd_dict = dict()
     chain_name_list = []
     pb_mpi_cmd_list = []
     if num_of_chains == 1:
-        pb_mpi_cmd = 'export OMPI_MCA_btl=^openib; mpirun -np %s pb_mpi -d %s %s -s %s/%s' % (num_of_threads, msa_to_use, setting_to_use, op_dir, op_prefix)
-        chain_name_list.append('%s/%s' % (op_dir, op_prefix))
+        pb_mpi_cmd = 'export OMPI_MCA_btl=^openib; mpirun -np %s pb_mpi -d %s %s -s %s' % (num_of_threads, msa_to_use_filename, setting_to_use, op_prefix)
+        chain_name_list.append('%s' % op_prefix)
         pb_mpi_cmd_list.append(pb_mpi_cmd)
+        chain_to_cmd_dict[op_prefix] = pb_mpi_cmd
     else:
         for chain_index in range(1, (num_of_chains + 1)):
-            current_wd = '%s/%s_chain%s' % (op_dir, op_prefix, chain_index)
-            os.mkdir(current_wd)
-            pb_mpi_cmd = 'export OMPI_MCA_btl=^openib; mpirun -np %s pb_mpi -d %s %s -s %s/%s_chain%s' % (num_of_threads, msa_to_use, setting_to_use, current_wd, op_prefix, chain_index)
-            chain_name_list.append('%s/%s_chain%s' % (current_wd, op_prefix, chain_index))
+            pb_mpi_cmd = 'export OMPI_MCA_btl=^openib; mpirun -np %s pb_mpi -d %s %s -s %s_chain%s' % (num_of_threads, msa_to_use_filename, setting_to_use, op_prefix, chain_index)
+            chain_name_list.append('%s_chain%s' % (op_prefix, chain_index))
             pb_mpi_cmd_list.append(pb_mpi_cmd)
+            chain_to_cmd_dict[('%s_chain%s' % (op_prefix, chain_index))] = pb_mpi_cmd
 
     # write out commands
     cmd_txt_handle = open(cmd_txt, 'w')
@@ -137,6 +146,18 @@ def PB(args):
         cmd_txt_handle.write(bpcomp_cmd + '\n')
         cmd_txt_handle.close()
 
+    # write out chain_list_txt
+    chain_list_txt_handle = open(chain_list_txt, 'w')
+    chain_list_txt_handle.write('\n'.join(chain_name_list))
+    chain_list_txt_handle.close()
+
+    if submit_to_hpc4 is True:
+        os.chdir(op_dir)
+        for each_chain in chain_to_cmd_dict:
+            current_chain_cmd = chain_to_cmd_dict[each_chain]
+            submit_to_hpc4_cmd = 'BioSAK hpc4 -t %s -wt %s -q %s -a %s -conda %s -n %s -c "%s"' % (num_of_threads, hpc4_wt, hpc4_q, hpc4_a, hpc4_conda, each_chain, current_chain_cmd)
+            os.system(submit_to_hpc4_cmd)
+
     print('Commands exported to %s' % cmd_txt)
     print('Done!')
 
@@ -144,12 +165,17 @@ def PB(args):
 if __name__ == '__main__':
 
     PB_parser = argparse.ArgumentParser()
-    PB_parser.add_argument('-i',       required=True,                          help='input MSA file')
-    PB_parser.add_argument('-o',       required=True,                          help='output directory')
-    PB_parser.add_argument('-p',       required=True,                          help='output prefix')
-    PB_parser.add_argument('-fa2plp',  required=False, action="store_true",    help='convert MSA format from fasta to phylip')
-    PB_parser.add_argument('-n',       required=False, type=int, default=4,    help='number of chains, default: 4')
-    PB_parser.add_argument('-t',       required=False, type=int, default=48,   help='num of cores per mpirun, default: 48')
-    PB_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
+    PB_parser.add_argument('-i',            required=True,                              help='input MSA file')
+    PB_parser.add_argument('-o',            required=True,                              help='output directory')
+    PB_parser.add_argument('-p',            required=True,                              help='output prefix')
+    PB_parser.add_argument('-fa2plp',       required=False, action="store_true",        help='convert MSA format from fasta to phylip')
+    PB_parser.add_argument('-n',            required=False, type=int, default=4,        help='number of chains, default: 4')
+    PB_parser.add_argument('-t',            required=False, type=int, default=36,       help='num of cores per mpirun, default: 36')
+    PB_parser.add_argument('-f',            required=False, action="store_true",        help='force overwrite')
+    PB_parser.add_argument('-hpc4',         required=False, action="store_true",        help='submit to HKUST hpc4')
+    PB_parser.add_argument('-hpc4_wt',      required=False, default='119:59:59',        help='hpc4 walltime, default: 119:59:59')
+    PB_parser.add_argument('-hpc4_q',       required=False, default='amd',              help='hpc4 queue, default: amd')
+    PB_parser.add_argument('-hpc4_a',       required=False, default='spongeholobiont',  help='hpc4 account, default: spongeholobiont')
+    PB_parser.add_argument('-hpc4_conda',   required=False, default='mybase2',          help='hpc4 conda env, default: mybase2')
     args = vars(PB_parser.parse_args())
     PB(args)

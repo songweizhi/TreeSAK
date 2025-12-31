@@ -335,6 +335,7 @@ if __name__ == '__main__':
         from TreeSAK import print_leaves
         print_leaves_parser = subparsers.add_parser('print_leaves', usage=print_leaves.print_leaves_usage)
         print_leaves_parser.add_argument('-i', required=True, help='input tree file')
+        print_leaves_parser.add_argument('-o', required=True, help='output text file')
         args = vars(parser.parse_args())
         print_leaves.print_leaves(args)
 
@@ -706,13 +707,18 @@ if __name__ == '__main__':
     elif sys.argv[1] in ['PB', 'Pb', 'pb']:
         from TreeSAK import PB
         PB_parser = subparsers.add_parser('PB', usage=PB.PB_usage)
-        PB_parser.add_argument('-i',                required=True,                          help='input MSA file')
-        PB_parser.add_argument('-o',                required=True,                          help='output directory')
-        PB_parser.add_argument('-p',                required=True,                          help='output prefix')
-        PB_parser.add_argument('-fa2plp',           required=False, action="store_true",    help='convert MSA format from fasta to phylip')
-        PB_parser.add_argument('-n',                required=False, type=int, default=4,    help='number of chains to run in parallel, default: 4')
-        PB_parser.add_argument('-t',                required=False, type=int, default=12,   help='num of cores, default: 12')
-        PB_parser.add_argument('-f',                required=False, action="store_true",    help='force overwrite')
+        PB_parser.add_argument('-i',            required=True,                              help='input MSA file')
+        PB_parser.add_argument('-o',            required=True,                              help='output directory')
+        PB_parser.add_argument('-p',            required=True,                              help='output prefix')
+        PB_parser.add_argument('-fa2plp',       required=False, action="store_true",        help='convert MSA format from fasta to phylip')
+        PB_parser.add_argument('-n',            required=False, type=int, default=4,        help='number of chains, default: 4')
+        PB_parser.add_argument('-t',            required=False, type=int, default=36,       help='num of cores per mpirun, default: 36')
+        PB_parser.add_argument('-f',            required=False, action="store_true",        help='force overwrite')
+        PB_parser.add_argument('-hpc4',         required=False, action="store_true",        help='submit to HKUST hpc4')
+        PB_parser.add_argument('-hpc4_wt',      required=False, default='119:59:59',        help='hpc4 walltime, default: 119:59:59')
+        PB_parser.add_argument('-hpc4_q',       required=False, default='amd',              help='hpc4 queue, default: amd')
+        PB_parser.add_argument('-hpc4_a',       required=False, default='spongeholobiont',  help='hpc4 account, default: spongeholobiont')
+        PB_parser.add_argument('-hpc4_conda',   required=False, default='mybase2',          help='hpc4 conda env, default: mybase2')
         args = vars(parser.parse_args())
         PB.PB(args)
 
@@ -730,7 +736,11 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'gap_stats':
         from TreeSAK import gap_stats
         gap_stats_parser = subparsers.add_parser('gap_stats', usage=gap_stats.gap_stats_usage)
-        gap_stats_parser.add_argument('-i',         required=True, help='MSA in fasta format')
+        gap_stats_parser.add_argument('-i',  required=True,                             help='MSA in fasta format')
+        gap_stats_parser.add_argument('-c',  required=False, default=100, type=float,   help='maximum gap allowed in MSAs, default is 100, i.e., no filtering')
+        gap_stats_parser.add_argument('-o1', required=True,                             help='output stats file')
+        gap_stats_parser.add_argument('-o2', required=False, default=None,              help='filtered MSA')
+        gap_stats_parser.add_argument('-o3', required=False, default=None,              help='iTOL file')
         args = vars(parser.parse_args())
         gap_stats.gap_stats(args)
 
@@ -781,8 +791,9 @@ if __name__ == '__main__':
         iTOL_parser.add_argument('-dr',                 required=False, default=None,           help='Donor to Recipient')
         iTOL_parser.add_argument('-scale',              required=False, default=None,           help='Scale Values, in format 0-3-6-9')
         iTOL_parser.add_argument('-lt',                 required=False, default=None,           help='Legend Title')
-        iTOL_parser.add_argument('-legend',             required=False, action='store_true',    help='show legend for ColorStrip')
-        iTOL_parser.add_argument('-show_strip_labels',  required=False, action='store_true',    help='SHOW_STRIP_LABELS')
+        iTOL_parser.add_argument('-hide_legend',        required=False, action='store_true',    help='hide legend for ColorStrip')
+        iTOL_parser.add_argument('-show_label',         required=False, action='store_true',    help='show label on ColorStrip')
+        iTOL_parser.add_argument('-strip_width',        required=False, default=100,            help='width of ColorStrip, default is 100')
         iTOL_parser.add_argument('-o',                  required=True,                          help='Output filename')
         args = vars(parser.parse_args())
         iTOL.iTOL(args)

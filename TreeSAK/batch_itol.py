@@ -16,7 +16,7 @@ https://github.com/albertyw/itolapi
 http://itol.embl.de/help.cgi#batch
 
 # An example of the parameter file is available here
-# to be added
+https://github.com/songweizhi/TreeSAK/blob/master/DemoData/batch_itol/batch_itol_para.txt
 
 ===========================================================================================================
 '''
