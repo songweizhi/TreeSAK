@@ -63,8 +63,8 @@ def print_main_help():
        iTOL_gene_tree         ->  Genome metadata to gene metadata
        iTOL_msa_stats         ->  iTOL_msa_stats
        PB                     ->  Infer tree with PhyloBayes-MPI 
+       assessPB               ->  Compare PhyloBayes chains
        supertree              ->  Infer species tree from multiple gene trees 
-       AssessPB               ->  Compare PhyloBayes chains
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        GTDB_tree              ->  Get GTDB tree
@@ -722,16 +722,16 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         PB.PB(args)
 
-    elif sys.argv[1] == 'AssessPB':
-        from TreeSAK import AssessPB
-        AssessPB_parser = subparsers.add_parser('AssessPB', usage=AssessPB.AssessPB_usage)
-        AssessPB_parser.add_argument('-c',      required=False, default=None,           help='a txt file contain all the chains')
-        AssessPB_parser.add_argument('-bi',     required=False, default=1000,           help='burn-in, default: 1000')
-        AssessPB_parser.add_argument('-si',     required=False, default=10,             help='sample interval, default: 10')
-        AssessPB_parser.add_argument('-o',      required=True, default=None,            help='output directory')
-        AssessPB_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
+    elif sys.argv[1] == 'assessPB':
+        from TreeSAK import assessPB
+        assessPB_parser = subparsers.add_parser('assessPB', usage=assessPB.assessPB_usage)
+        assessPB_parser.add_argument('-i',      required=True,                          help='input txt file containing all the chains')
+        assessPB_parser.add_argument('-o',      required=True,                          help='output directory')
+        assessPB_parser.add_argument('-bi',     required=False, default=1000,           help='burn-in, default: 1000')
+        assessPB_parser.add_argument('-si',     required=False, default=10,             help='sample interval, default: 10')
+        assessPB_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
-        AssessPB.AssessPB(args)
+        assessPB.assessPB(args)
 
     elif sys.argv[1] == 'gap_stats':
         from TreeSAK import gap_stats

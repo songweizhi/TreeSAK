@@ -226,6 +226,7 @@ def iTOL(args):
         Group_list = []
         for each_leaf in open(LeafGroup):
             each_leaf_split = each_leaf.strip().split('\t')
+            print(each_leaf_split)
             Leaf_to_Group_dict[each_leaf_split[0]] = each_leaf_split[1]
             if each_leaf_split[1] not in Group_list:
                 Group_list.append(each_leaf_split[1])

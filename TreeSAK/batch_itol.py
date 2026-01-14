@@ -6,7 +6,7 @@ from itolapi import Itol
 
 
 batch_itol_usage = '''
-======================================= batch_itol example commands =======================================
+========================================= batch_itol example commands =========================================
 
 TreeSAK batch_itol -f -api API_key -ip batch_access_tmp -a annotation_files.txt -i input.tree -o out.pdf
 TreeSAK batch_itol -f -api API_key -ip batch_access_tmp -a annotation_files.txt -i tree_dir -x tree -o out_pdf
@@ -18,7 +18,10 @@ http://itol.embl.de/help.cgi#batch
 # An example of the parameter file is available here
 https://github.com/songweizhi/TreeSAK/blob/master/DemoData/batch_itol/batch_itol_para.txt
 
-===========================================================================================================
+# Note
+"An 'AssertionError' will be triggered for tree files with an extension of '.tre'."
+
+===============================================================================================================
 '''
 
 def sep_path_basename_ext(file_in):
@@ -43,7 +46,7 @@ def itol_single_tree(tree_file, annotation_files_txt, project_name, APIkey, para
     # upload tree to iTOL
     itol_uploader = Itol()
     itol_uploader.params['projectName'] = project_name  # better to create a project with a unique name.
-    itol_uploader.params['APIkey']      = APIkey  # sine we are the same account, we can use the same APIkey
+    itol_uploader.params['APIkey']      = APIkey
     itol_uploader.params['treeName']    = tree_file
     itol_uploader.add_file(Path(tree_file))
 

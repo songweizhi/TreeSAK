@@ -2,22 +2,22 @@ import os
 import argparse
 
 
-AssessPB_usage = '''
-====================== AssessPB example commands ======================
+assessPB_usage = '''
+====================== assessPB example commands ======================
 
 # Dependency: bpcomp and tracecomp (from PhyloBayes-MPI)
 export OMPI_MCA_btl=^openib
-TreeSAK AssessPB -c all_chains.txt
+TreeSAK assessPB -i four_chains.txt -o op_dir
 
 # This is a wrapper for (take 4 chains as an example): 
 bpcomp -x 1000 10 c1 c2 c3 c4
 tracecomp -x 1000 c1 c2 c3 c4
 
 # format of the file provided to -c: directory_path/output_prefix
-GTDB_SCG_best50p0_pb_chain1/GTDB_SCG_best50p0_pb_chain1 
-GTDB_SCG_best50p0_pb_chain2/GTDB_SCG_best50p0_pb_chain2 
-GTDB_SCG_best50p0_pb_chain3/GTDB_SCG_best50p0_pb_chain3 
-GTDB_SCG_best50p0_pb_chain4/GTDB_SCG_best50p0_pb_chain4
+GTDB_SCG_p0_chain1 
+GTDB_SCG_p0_chain2 
+GTDB_SCG_p0_chain3 
+GTDB_SCG_p0_chain4
 
 =======================================================================
 '''
@@ -27,15 +27,12 @@ def compare2chains(chain_1, chain_2, chain_3, chain_4, burn_in, sample_interval,
 
     # bpcomp:    -x <burnin> [<every> <until>]. default burnin = 10 percent of the chain
     # tracecomp: -x <burnin> [<every> <until>]. default burnin = 20 percent of the chain
-
     bpcomp_cmd    = 'bpcomp -o %s/bpcomp -x %s %s %s %s'                % (op_dir, burn_in, sample_interval, chain_1, chain_2)
     tracecomp_cmd = 'tracecomp -o %s/tracecomp -x %s %s %s'             % (op_dir, burn_in, chain_1, chain_2)
-
     if (chain_3 is not None) and (chain_4 is None):
         bpcomp_cmd    = 'bpcomp -o %s/bpcomp -x %s %s %s %s %s'         % (op_dir, burn_in, sample_interval, chain_1, chain_2, chain_3)
         tracecomp_cmd = 'tracecomp -o %s/tracecomp -x %s %s %s %s'      % (op_dir, burn_in, chain_1, chain_2, chain_3)
-
-    if (chain_3 is not None) and (chain_4 is not None):
+    elif (chain_3 is not None) and (chain_4 is not None):
         bpcomp_cmd    = 'bpcomp -o %s/bpcomp -x %s %s %s %s %s %s'      % (op_dir, burn_in, sample_interval, chain_1, chain_2, chain_3, chain_4)
         tracecomp_cmd = 'tracecomp -o %s/tracecomp -x %s %s %s %s %s'   % (op_dir, burn_in, chain_1, chain_2, chain_3, chain_4)
 
@@ -56,14 +53,15 @@ def compare2chains(chain_1, chain_2, chain_3, chain_4, burn_in, sample_interval,
     print('\n============================== tracecomp ==============================\n')
     os.system(tracecomp_cmd)
     print('\nGuideline')
-    print('good:       rel diﬀ < 0.1 and minimum eﬀective size > 300')
-    print('acceptable: rel diﬀ < 0.3 and minimum eﬀective size > 50')
+    print('rel diﬀ < 0.1 and MES > 300:   good')
+    print('rel diﬀ < 0.3 and MES > 50:    acceptable')
+    print('\nMES: minimum eﬀective size')
     print('\n========================================================================\n')
 
 
-def AssessPB(args):
+def assessPB(args):
 
-    chain_file      = args['c']
+    chain_file      = args['i']
     burn_in         = args['bi']
     sample_interval = args['si']
     op_dir          = args['o']
@@ -103,11 +101,11 @@ def AssessPB(args):
 
 if __name__ == '__main__':
 
-    AssessPB_parser = argparse.ArgumentParser()
-    AssessPB_parser.add_argument('-c',      required=False, default=None,           help='a txt file contain all the chains')
-    AssessPB_parser.add_argument('-bi',     required=False, default=1000,           help='burn-in, default: 1000')
-    AssessPB_parser.add_argument('-si',     required=False, default=10,             help='sample interval, default: 10')
-    AssessPB_parser.add_argument('-o',      required=True,  default=None,           help='output directory')
-    AssessPB_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
-    args = vars(AssessPB_parser.parse_args())
-    AssessPB(args)
+    assessPB_parser = argparse.ArgumentParser()
+    assessPB_parser.add_argument('-i',  required=True,                          help='input txt file containing all the chains')
+    assessPB_parser.add_argument('-o',  required=True,                          help='output directory')
+    assessPB_parser.add_argument('-bi', required=False, default=1000,           help='burn-in, default: 1000')
+    assessPB_parser.add_argument('-si', required=False, default=10,             help='sample interval, default: 10')
+    assessPB_parser.add_argument('-f',  required=False, action="store_true",    help='force overwrite')
+    args = vars(assessPB_parser.parse_args())
+    assessPB(args)
