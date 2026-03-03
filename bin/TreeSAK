@@ -84,6 +84,7 @@ def print_main_help():
        LcaToLeaves            ->  Get two leaves that define an internal node
        replace_clade          ->  Replace tree clade
        GeneTree               ->  Infer gene tree
+       guide_tree             ->  Prepare guide tree for iqtree
        
     Model-related
        PMSF                   ->  run iqtree with PMSF
@@ -181,10 +182,10 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'rename_leaves':
         from TreeSAK import rename_leaves
         rename_leaves_parser = subparsers.add_parser('rename_leaves', usage=rename_leaves.rename_leaves_usage)
-        rename_leaves_parser.add_argument('-i',    required=True,             help='input tree')
-        rename_leaves_parser.add_argument('-r',    required=True,             help='rename file')
-        rename_leaves_parser.add_argument('-f',    required=False, default=1, help='tree format, default: 1')
-        rename_leaves_parser.add_argument('-o',    required=True,             help='output tree')
+        rename_leaves_parser.add_argument('-i', required=True,                       help='input tree')
+        rename_leaves_parser.add_argument('-r', required=True,                       help='rename file')
+        rename_leaves_parser.add_argument('-f', required=False, default=1, type=int, help='tree format, default: 1')
+        rename_leaves_parser.add_argument('-o', required=True,                       help='output tree')
         args = vars(parser.parse_args())
         rename_leaves.rename_leaves(args)
 
@@ -312,14 +313,19 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'dating':
         from TreeSAK import dating
         dating_parser = subparsers.add_parser('dating', usage=dating.dating_usage)
-        dating_parser.add_argument('-i',       required=True,                          help='tree file')
-        dating_parser.add_argument('-m',       required=True,                          help='sequence alignments')
-        dating_parser.add_argument('-o',       required=True,                          help='output directory')
-        dating_parser.add_argument('-p',       required=True,                          help='output prefix')
-        dating_parser.add_argument('-s',       required=True,                          help='settings to compare')
-        dating_parser.add_argument('-st',      required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
-        dating_parser.add_argument('-srun',    required=False, action="store_true",    help='wrap commands with BioSAK srun')
-        dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
+        dating_parser.add_argument('-i',            required=True,                          help='input tree file')
+        dating_parser.add_argument('-m',            required=True,                          help='sequence alignments')
+        dating_parser.add_argument('-o',            required=True,                          help='output directory')
+        dating_parser.add_argument('-p',            required=True,                          help='output prefix')
+        dating_parser.add_argument('-s',            required=True,                          help='settings to compare')
+        dating_parser.add_argument('-BDparas',      required=True,                          help='BDparas, either M/m or C/c')
+        dating_parser.add_argument('-st',           required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
+        dating_parser.add_argument('-hpc4',         required=False, action="store_true",    help='submit job on hpc4')
+        dating_parser.add_argument('-hpc4_wt',      required=False, default='119:59:59',    help='walltime, default: 119:59:59')
+        dating_parser.add_argument('-hpc4_a',       required=False, default='marmolecol',   help='hpc4 account, select from marmolecol and spongeholobiont, default: marmolecol')
+        dating_parser.add_argument('-hpc4_q',       required=False, default='amd',          help='hpc4 queue, select from amd, intel, gpu-a30, gpu-l20 and gpu-rtx5880, default: amd')
+        dating_parser.add_argument('-hpc4_conda',   required=False, default='mybase2',      help='conda environment, default: mybase2')
+        dating_parser.add_argument('-f',            required=False, action="store_true",    help='force overwrite')
         args = vars(parser.parse_args())
         dating.dating(args)
 
@@ -334,8 +340,9 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'print_leaves':
         from TreeSAK import print_leaves
         print_leaves_parser = subparsers.add_parser('print_leaves', usage=print_leaves.print_leaves_usage)
-        print_leaves_parser.add_argument('-i', required=True, help='input tree file')
-        print_leaves_parser.add_argument('-o', required=True, help='output text file')
+        print_leaves_parser.add_argument('-i',   required=True,                         help='input tree file')
+        print_leaves_parser.add_argument('-fmt', required=False, default=1, type=int,   help='tree format, default is 1')
+        print_leaves_parser.add_argument('-o',   required=True,                         help='output text file')
         args = vars(parser.parse_args())
         print_leaves.print_leaves(args)
 
@@ -727,6 +734,7 @@ if __name__ == '__main__':
         assessPB_parser = subparsers.add_parser('assessPB', usage=assessPB.assessPB_usage)
         assessPB_parser.add_argument('-i',      required=True,                          help='input txt file containing all the chains')
         assessPB_parser.add_argument('-o',      required=True,                          help='output directory')
+        assessPB_parser.add_argument('-p',      required=False, default=None,           help='output prefix')
         assessPB_parser.add_argument('-bi',     required=False, default=1000,           help='burn-in, default: 1000')
         assessPB_parser.add_argument('-si',     required=False, default=10,             help='sample interval, default: 10')
         assessPB_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
@@ -946,6 +954,15 @@ if __name__ == '__main__':
         batch_itol_parser.add_argument('-f',        required=False, action="store_true",        help='force overwrite')
         args = vars(parser.parse_args())
         batch_itol.batch_itol(args)
+
+    elif sys.argv[1] == 'guide_tree':
+        from TreeSAK import guide_tree
+        guide_tree_parser = subparsers.add_parser('guide_tree', usage=guide_tree.guide_tree_usage)
+        guide_tree_parser.add_argument('-i', required=True, help='input tree')
+        guide_tree_parser.add_argument('-g', required=True, help='genome group')
+        guide_tree_parser.add_argument('-o', required=True, help='output tree')
+        args = vars(parser.parse_args())
+        guide_tree.guide_tree(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])

@@ -59,8 +59,8 @@ def gap_stats(args):
         op_itol_file_handle.write('HORIZONTAL_GRID\t0\n')
         op_itol_file_handle.write('VERTICAL_GRID\t0\n')
         op_itol_file_handle.write('\nDATA\n')
-        for each in sorted(list(qualified_seq_set)):
-            op_itol_file_handle.write('%s\t1\n' % each)
+        for each_seq in gap_pct_sorted:
+            op_itol_file_handle.write('%s\t%s\n' % (each_seq[0], each_seq[1]))
         op_itol_file_handle.close()
 
 

@@ -7,9 +7,10 @@ from distutils.spawn import find_executable
 dating_usage = '''
 ============================ dating example commands ============================
 
-# Requirement: PAML
+# Requirement: mcmctree (part of PAML)
 
-TreeSAK dating -i gnm.tree -m msa.phy -p topo1 -o dating_wd -f -s parameter.txt
+TreeSAK dating -i gnm.tree -m msa.phy -p topo1 -o dating_wd -f -s parameter.txt -BDparas M -hpc4
+TreeSAK dating -i gnm.tree -m msa.phy -p topo1 -o dating_wd -f -s parameter.txt -BDparas C -hpc4
 
 # parameter.txt file format (tab separated)
 clock	2,3
@@ -62,12 +63,12 @@ def prep_mcmctree_ctl(ctl_para_dict, mcmctree_ctl_file):
     ctl_file_handle.write('         alpha = %s  	* alpha for gamma rates at sites\n'                                     % ctl_para_dict.get('alpha',        0.5))
     ctl_file_handle.write('         ncatG = %s    	* No. categories in discrete gamma\n'                                   % ctl_para_dict.get('ncatG',        4))
     ctl_file_handle.write('     cleandata = %s    	* remove sites with ambiguity data (1:yes, 0:no)?\n'                    % ctl_para_dict.get('cleandata',    0))
-    ctl_file_handle.write('       BDparas = %s      * birth, death, sampling\n'                                             % ctl_para_dict.get('BDparas',      '1 1 0.1'))
+    ctl_file_handle.write('       BDparas = %s      * birth, death, sampling, conditional/multiplicative\n'                 % ctl_para_dict['BDparas'])
     ctl_file_handle.write('   kappa_gamma = %s      * gamma prior for kappa\n'                                              % ctl_para_dict.get('kappa_gamma',  '6 2'))
     ctl_file_handle.write('   alpha_gamma = %s      * gamma prior for alpha\n'                                              % ctl_para_dict.get('alpha_gamma',  '1 1'))
     ctl_file_handle.write('   rgene_gamma = %s      * gammaDir prior for rate for genes\n'                                  % ctl_para_dict.get('rgene_gamma',  '1 50 1'))
     ctl_file_handle.write('  sigma2_gamma = %s      * gammaDir prior for sigma^2     (for clock=2 or 3)\n'                  % ctl_para_dict.get('sigma2_gamma', '1 10 1'))
-    ctl_file_handle.write('      finetune = %s      * auto (0 or 1): times, musigma2, rates, mixing, paras, FossilErr\n'    % ctl_para_dict.get('finetune',     '1: .1 .1 .1 .1 .1 .1'))
+    # ctl_file_handle.write('      finetune = %s      * auto (0 or 1): times, musigma2, rates, mixing, paras, FossilErr\n'    % ctl_para_dict.get('finetune',     '1: .1 .1 .1 .1 .1 .1'))
     ctl_file_handle.write('         print = %s      * 0: no mcmc sample; 1: everything except branch rates 2: everything\n' % ctl_para_dict.get('print',        1))
     ctl_file_handle.write('        burnin = %s\n'                                                                           % ctl_para_dict.get('burnin',       50000))
     ctl_file_handle.write('      sampfreq = %s\n'                                                                           % ctl_para_dict.get('sampfreq',     50))
@@ -120,8 +121,13 @@ def dating(args):
     op_prefix           = args['p']
     seq_type            = args['st']
     settings_to_compare = args['s']
-    wrap_with_srun      = args['srun']
     force_overwrite     = args['f']
+    bd_paras            = args['BDparas']
+    submit_to_hpc4      = args['hpc4']
+    hpc4_wt             = args['hpc4_wt']
+    hpc4_a              = args['hpc4_a']
+    hpc4_q              = args['hpc4_q']
+    hpc4_conda          = args['hpc4_conda']
 
     check_dependencies(['mcmctree'])
 
@@ -167,6 +173,10 @@ def dating(args):
     get_bv_para_dict['outfile']  = 'out.txt'
     get_bv_para_dict['seqtype']  = seq_type
     get_bv_para_dict['usedata']  = '3'
+    if bd_paras in ['M', 'm']:
+        get_bv_para_dict['BDparas'] = '1 1 0.1 M'
+    if bd_paras in ['C', 'c']:
+        get_bv_para_dict['BDparas'] = '1 1 0.1 C'
 
     prep_mcmctree_ctl(get_bv_para_dict, mcmctree_ctl_bv)
 
@@ -186,10 +196,7 @@ def dating(args):
     ############################################# write out step 2 command #############################################
 
     print('Preparing files for dating estimation')
-
     para_comb_dict = get_parameter_combinations(para_to_test_dict)
-    print('para_comb_dict')
-    print(para_comb_dict)
 
     dating_cmds_txt_handle = open(dating_cmds_txt, 'w')
     for para_comb in sorted(list(para_comb_dict.keys())):
@@ -218,6 +225,10 @@ def dating(args):
         current_para_dict_run1['outfile']  = '%s_%s_run1_out.txt'  % (op_prefix, para_comb)
         current_para_dict_run1['seqtype']  = seq_type
         current_para_dict_run1['usedata']  = '2'
+        if bd_paras in ['M', 'm']:
+            current_para_dict_run1['BDparas'] = '1 1 0.1 M'
+        if bd_paras in ['C', 'c']:
+            current_para_dict_run1['BDparas'] = '1 1 0.1 C'
 
         # run 2
         current_para_dict_run2 = para_comb_dict[para_comb].copy()
@@ -227,6 +238,10 @@ def dating(args):
         current_para_dict_run2['outfile']  = '%s_%s_run2_out.txt'  % (op_prefix, para_comb)
         current_para_dict_run2['seqtype']  = seq_type
         current_para_dict_run2['usedata']  = '2'
+        if bd_paras in ['M', 'm']:
+            current_para_dict_run2['BDparas'] = '1 1 0.1 M'
+        if bd_paras in ['C', 'c']:
+            current_para_dict_run2['BDparas'] = '1 1 0.1 C'
 
         prep_mcmctree_ctl(current_para_dict_run1, mcmctree_ctl_1)
         prep_mcmctree_ctl(current_para_dict_run2, mcmctree_ctl_2)
@@ -238,11 +253,16 @@ def dating(args):
         # write out commands
         cmd_run_1 = 'cd %s/%s/%s; mcmctree' % (current_pwd, op_dir, current_dating_wd_1.split('/')[-1])
         cmd_run_2 = 'cd %s/%s/%s; mcmctree' % (current_pwd, op_dir, current_dating_wd_2.split('/')[-1])
-        if wrap_with_srun is True:
-            cmd_run_1 = 'BioSAK srun -c "%s"' % cmd_run_1
-            cmd_run_2 = 'BioSAK srun -c "%s"' % cmd_run_2
         dating_cmds_txt_handle.write(cmd_run_1 + '\n')
         dating_cmds_txt_handle.write(cmd_run_2 + '\n')
+
+        # submit_to_hpc4
+        if submit_to_hpc4 is True:
+            hpc4_cmd_run_1 = 'BioSAK hpc4 -wt %s -q %s -a %s -t 2 -tpc 1 -conda %s -n %s_%s_run1 -c "%s"' % (hpc4_wt, hpc4_q, hpc4_a, hpc4_conda, op_prefix, para_comb, cmd_run_1)
+            hpc4_cmd_run_2 = 'BioSAK hpc4 -wt %s -q %s -a %s -t 2 -tpc 1 -conda %s -n %s_%s_run2 -c "%s"' % (hpc4_wt, hpc4_q, hpc4_a, hpc4_conda, op_prefix, para_comb, cmd_run_2)
+            os.system(hpc4_cmd_run_1)
+            os.system(hpc4_cmd_run_2)
+
     dating_cmds_txt_handle.close()
 
     print('Job script for performing dating exported to: %s' % dating_cmds_txt)
@@ -251,14 +271,19 @@ def dating(args):
 if __name__ == '__main__':
 
     dating_parser = argparse.ArgumentParser()
-    dating_parser.add_argument('-i',       required=True,                          help='input tree file')
-    dating_parser.add_argument('-m',       required=True,                          help='sequence alignments')
-    dating_parser.add_argument('-o',       required=True,                          help='output directory')
-    dating_parser.add_argument('-p',       required=True,                          help='output prefix')
-    dating_parser.add_argument('-s',       required=True,                          help='settings to compare')
-    dating_parser.add_argument('-st',      required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
-    dating_parser.add_argument('-srun',    required=False, action="store_true",    help='wrap commands with BioSAK srun')
-    dating_parser.add_argument('-f',       required=False, action="store_true",    help='force overwrite')
+    dating_parser.add_argument('-i',            required=True,                          help='input tree file')
+    dating_parser.add_argument('-m',            required=True,                          help='sequence alignments')
+    dating_parser.add_argument('-o',            required=True,                          help='output directory')
+    dating_parser.add_argument('-p',            required=True,                          help='output prefix')
+    dating_parser.add_argument('-s',            required=True,                          help='settings to compare')
+    dating_parser.add_argument('-BDparas',      required=True,                          help='BDparas, either M/m or C/c')
+    dating_parser.add_argument('-st',           required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
+    dating_parser.add_argument('-hpc4',         required=False, action="store_true",    help='submit job on hpc4')
+    dating_parser.add_argument('-hpc4_wt',      required=False, default='119:59:59',    help='walltime, default: 119:59:59')
+    dating_parser.add_argument('-hpc4_a',       required=False, default='marmolecol',   help='hpc4 account, select from marmolecol and spongeholobiont, default: marmolecol')
+    dating_parser.add_argument('-hpc4_q',       required=False, default='amd',          help='hpc4 queue, select from amd, intel, gpu-a30, gpu-l20 and gpu-rtx5880, default: amd')
+    dating_parser.add_argument('-hpc4_conda',   required=False, default='mybase2',      help='conda environment, default: mybase2')
+    dating_parser.add_argument('-f',            required=False, action="store_true",    help='force overwrite')
     args = vars(dating_parser.parse_args())
     dating(args)
 

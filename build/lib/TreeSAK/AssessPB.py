@@ -65,7 +65,11 @@ def assessPB(args):
     burn_in         = args['bi']
     sample_interval = args['si']
     op_dir          = args['o']
+    op_prefix       = args['p']
     force_overwrite = args['f']
+
+    if op_prefix is None:
+        op_prefix = op_dir.split('/')[-1]
 
     cmd_txt         = '%s/cmds.txt' % op_dir
 
@@ -98,12 +102,19 @@ def assessPB(args):
     elif len(chain_list) == 4:
         compare2chains(chain_list[0], chain_list[1], chain_list[2], chain_list[3], burn_in, sample_interval, op_dir, cmd_txt)
 
+    # rename treefile
+    pwd_bpcomp_con_tre          = '%s/bpcomp.con.tre'   % op_dir
+    pwd_bpcomp_con_tre_renamed  = '%s/%s.treefile'      % (op_dir, op_prefix)
+    rename_cmd = 'mv %s %s' % (pwd_bpcomp_con_tre, pwd_bpcomp_con_tre_renamed)
+    os.system(rename_cmd)
+
 
 if __name__ == '__main__':
 
     assessPB_parser = argparse.ArgumentParser()
     assessPB_parser.add_argument('-i',  required=True,                          help='input txt file containing all the chains')
     assessPB_parser.add_argument('-o',  required=True,                          help='output directory')
+    assessPB_parser.add_argument('-p',  required=False, default=None,           help='output prefix')
     assessPB_parser.add_argument('-bi', required=False, default=1000,           help='burn-in, default: 1000')
     assessPB_parser.add_argument('-si', required=False, default=10,             help='sample interval, default: 10')
     assessPB_parser.add_argument('-f',  required=False, action="store_true",    help='force overwrite')

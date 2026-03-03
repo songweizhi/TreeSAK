@@ -73,6 +73,5 @@ if __name__ == '__main__':
     rename_leaves_parser.add_argument('-r',    required=True,                       help='rename file')
     rename_leaves_parser.add_argument('-f',    required=False, default=1, type=int, help='tree format, default: 1')
     rename_leaves_parser.add_argument('-o',    required=True,                       help='output tree')
-
     args = vars(rename_leaves_parser.parse_args())
     rename_leaves(args)

@@ -88,6 +88,7 @@ TreeSAK/get_SCG_tree.py
 TreeSAK/get_arCOG_seq.py
 TreeSAK/global_functions.py
 TreeSAK/gnm_leaves.py
+TreeSAK/guide_tree.py
 TreeSAK/iTOL.py
 TreeSAK/iTOL_gene_tree.py
 TreeSAK/itol_msa_stats.py
