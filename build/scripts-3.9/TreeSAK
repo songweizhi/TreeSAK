@@ -85,6 +85,7 @@ def print_main_help():
        replace_clade          ->  Replace tree clade
        GeneTree               ->  Infer gene tree
        guide_tree             ->  Prepare guide tree for iqtree
+       get_lca_id             ->  get LCA id
        
     Model-related
        PMSF                   ->  run iqtree with PMSF
@@ -92,13 +93,12 @@ def print_main_help():
        
     Dating-related
        dating                 ->  Perform molecular dating
-       AssessCVG              ->  Assess dating convergence
        CompareMCMC            ->  Compare MCMCTree outputs
        PlotMcmcNode           ->  distribution of node's age estimation 
        VisHPD95               ->  HPD95 of estimated node age
        pRTC                   ->  Perform probabilistic RTC dating
        mcmcTC                 ->  adding time constraints to mcmctree tree
-       mcmc2tree              ->  get the tree with internal node id from mcmctree output
+       mcmc2tree              ->  get the tree with internal node from mcmctree output
     
     Phylo-related stats
        PhyloBiAssoc            ->  A wrapper for binaryPGLMM test
@@ -963,6 +963,14 @@ if __name__ == '__main__':
         guide_tree_parser.add_argument('-o', required=True, help='output tree')
         args = vars(parser.parse_args())
         guide_tree.guide_tree(args)
+
+    elif sys.argv[1] == 'get_lca_id':
+        from TreeSAK import get_lca_id
+        get_lca_id_parser = subparsers.add_parser('get_lca_id', usage=get_lca_id.get_lca_id_usage)
+        get_lca_id_parser.add_argument('-i', required=True, help='input tree file')
+        get_lca_id_parser.add_argument('-l', required=True, help='leaves file')
+        args = vars(parser.parse_args())
+        get_lca_id.get_lca_id(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])

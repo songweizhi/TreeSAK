@@ -60,8 +60,7 @@ def get_posterior_df(mcmc, burn_in=2000, scale=1, all_col=True):
     rates = [_ for _ in mcmc_df.columns if _.startswith('r_g')]
     paras = [_ for _ in mcmc_df.columns if _.startswith('mu') or _.startswith('sigma2')]
 
-    post_df = pd.DataFrame(columns=['Posterior mean time (100 Ma)',
-                                    'CI_width', 'CIs'],
+    post_df = pd.DataFrame(columns=['Posterior mean time (100 Ma)', 'CI_width', 'CIs'],
                            index=node_names)
     raw_n2CI = cal_HPD_CI(mcmc_df, burn_in=burn_in)
     if 'lnL' in mcmc_df.columns:

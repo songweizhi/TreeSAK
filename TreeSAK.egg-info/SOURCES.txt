@@ -86,6 +86,7 @@ TreeSAK/format_leaf_name.py
 TreeSAK/gap_stats.py
 TreeSAK/get_SCG_tree.py
 TreeSAK/get_arCOG_seq.py
+TreeSAK/get_lca_id.py
 TreeSAK/global_functions.py
 TreeSAK/gnm_leaves.py
 TreeSAK/guide_tree.py
@@ -126,7 +127,6 @@ TreeSAK/tmp_1.py
 TreeSAK/tmp_2.py
 TreeSAK/tmp_3.py
 TreeSAK/tmp_4.py
-TreeSAK/tmp_5.py
 TreeSAK/weighted_rand.rb
 bin/TreeSAK
 treesak.egg-info/PKG-INFO
