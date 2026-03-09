@@ -1,8 +1,11 @@
+1.56.1
+- fixed bugs
+
+1.56.0
+- new module added: mcmctree_out
+
 1.55.0
 - new module added: get_lca_id
-
-1.54.5
-- fixed bugs
 
 1.54.0
 - new module added: guide_tree

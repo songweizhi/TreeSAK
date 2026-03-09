@@ -94,12 +94,13 @@ def print_main_help():
     Dating-related
        dating                 ->  Perform molecular dating
        CompareMCMC            ->  Compare MCMCTree outputs
-       PlotMcmcNode           ->  distribution of node's age estimation 
+       PlotMcmcNode           ->  Distribution of node's age estimation 
        VisHPD95               ->  HPD95 of estimated node age
        pRTC                   ->  Perform probabilistic RTC dating
-       mcmcTC                 ->  adding time constraints to mcmctree tree
-       mcmc2tree              ->  get the tree with internal node from mcmctree output
-    
+       mcmcTC                 ->  Adding time constraints to mcmctree tree
+       mcmc2tree              ->  Get the tree with internal node from mcmctree output
+       mcmctree_out           ->  Parse MCMCTree produced .out file
+       
     Phylo-related stats
        PhyloBiAssoc            ->  A wrapper for binaryPGLMM test
 
@@ -971,6 +972,15 @@ if __name__ == '__main__':
         get_lca_id_parser.add_argument('-l', required=True, help='leaves file')
         args = vars(parser.parse_args())
         get_lca_id.get_lca_id(args)
+
+    elif sys.argv[1] == 'mcmctree_out':
+        from TreeSAK import mcmctree_out
+        mcmctree_out_parser = subparsers.add_parser('mcmctree_out', usage=mcmctree_out.mcmctree_out_usage)
+        mcmctree_out_parser.add_argument('-i', required=True, help='MCMCTree out file/dir')
+        mcmctree_out_parser.add_argument('-n', required=True, help='interested nodes')
+        mcmctree_out_parser.add_argument('-o', required=True, help='output table')
+        args = vars(parser.parse_args())
+        mcmctree_out.mcmctree_out(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])

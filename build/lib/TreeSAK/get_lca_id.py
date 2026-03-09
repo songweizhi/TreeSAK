@@ -44,9 +44,9 @@ def get_lca_id(args):
         print('%s\t%s' % (leaf_txt.strip(), lca_node_name))
     else:
         for each_line in open(leaf_txt):
-            leaf_split = each_line.strip().split(',')
+            leaf_split = each_line.strip().split()[0].split(',')
             lca_node_name = get_lca_of_leaves(tree_subject, leaf_split[0], leaf_split[1])
-            print('%s\t%s' % (each_line.strip(), lca_node_name))
+            print('%s\t%s' % (each_line.strip().split()[0], lca_node_name))
 
 
 if __name__ == '__main__':
