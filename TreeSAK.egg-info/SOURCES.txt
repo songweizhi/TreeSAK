@@ -59,8 +59,10 @@ TreeSAK/SplitScore.py
 TreeSAK/SplitScore1.py
 TreeSAK/SplitScore1OMA.py
 TreeSAK/SplitScore2.py
+TreeSAK/Tanglegram.py
 TreeSAK/TaxaCountStats.R
 TreeSAK/TaxonTree.py
+TreeSAK/TimeScale.py
 TreeSAK/TreeSAK_config.py
 TreeSAK/VERSION
 TreeSAK/VisHPD95.R
@@ -76,6 +78,8 @@ TreeSAK/catfasta2phy.py
 TreeSAK/cogTree.py
 TreeSAK/compare_trees.R
 TreeSAK/compare_trees.py
+TreeSAK/cophyloplot.R
+TreeSAK/cophyloplot.py
 TreeSAK/dating.py
 TreeSAK/dating_ss.py
 TreeSAK/deltall.py
@@ -128,6 +132,7 @@ TreeSAK/tmp_1.py
 TreeSAK/tmp_2.py
 TreeSAK/tmp_3.py
 TreeSAK/tmp_4.py
+TreeSAK/tree_fmt.py
 TreeSAK/weighted_rand.rb
 bin/TreeSAK
 treesak.egg-info/PKG-INFO

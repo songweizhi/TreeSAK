@@ -1,13 +1,9 @@
 import math
-import os.path
 import random
+import os.path
 import argparse
 import seaborn as sns
 
-
-'''
-TreeSAK iTOL -ColorLabel -lg Mag_genus.txt -gc genus_color.txt-o ColorLabel_genus.txt
-'''
 
 iTOL_usage = '''
 ==================================== iTOL example commands ====================================
@@ -28,6 +24,7 @@ TreeSAK iTOL -ColorClade -lg Mag_genus.txt -gc genus_color.txt-o ColorClade_genu
 TreeSAK iTOL -ExternalShape -lm identity_matrix.txt -lt Identity -scale 25-50-75-100 -o ExternalShape_identity.txt
 TreeSAK iTOL -PieChart -lv MagCompleteness.txt -lt Completeness -o PieChart_completeness.txt
 TreeSAK iTOL -Collapse -lg MagTaxon.txt -o Collapse_by_taxon.txt
+TreeSAK iTOL -TimeScale -rg 3.5-0 -u Ga -rk Era,Eon -ct /Users/songweizhi/DB/chart.ttl
 
 # Leaf-to-Group file format (-lg, tab separated, no header)
 genome_1	Bacteria
@@ -51,8 +48,135 @@ Genome_id SampleA   SampleB   SampleC
 genome_1	6.15    2.23    1.56
 genome_2	6.63    1.72    2.55
 
+# chart.ttl is available at https://github.com/i-c-stratigraphy/chart/blob/main/chart.ttl
+
 ===============================================================================================
 '''
+
+
+def get_timescale_file(chart_ttl, time_range, time_unit, interested_rank):
+
+    # https://github.com/i-c-stratigraphy/chart/blob/main/chart.ttl
+    op_dir = '.'
+
+    time_range_split = time_range.split('-')
+    specified_time_range_l = float(time_range_split[0])
+    specified_time_range_r = float(time_range_split[1])
+
+    dod = dict()
+    current_ns2_id = ''
+    current_ns1_rank = ''
+    current_range_start = ''
+    current_range_end = ''
+    current_color = ''
+    for each_line in open(chart_ttl):
+        if each_line.startswith('ns2:'):
+            current_ns2_id = each_line.strip()[len('ns2:'):]
+        if each_line.startswith('    ns1:rank '):
+            current_ns1_rank = each_line.strip().split('/rank/')[1].split('>')[0]
+        if each_line.startswith('    skos:definition "A time period from '):
+            if 'million years ago to the present"' in each_line:
+                current_range_start = each_line.split('A time period from ')[-1].split()[0]
+                current_range_end = '0'
+            else:
+                current_range_start = each_line.split(' to ')[0].split()[-1]
+                current_range_end   = each_line.split(' to ')[1].split()[0]
+        if each_line.startswith('    schema:color "'):
+            current_color = each_line.strip().split('"')[1]
+            if current_ns1_rank not in dod:
+                dod[current_ns1_rank] = dict()
+            if current_ns2_id not in dod[current_ns1_rank]:
+                dod[current_ns1_rank][current_ns2_id] = dict()
+            dod[current_ns1_rank][current_ns2_id] = [float(current_range_start), float(current_range_end), current_color]
+
+    interested_rank_list = interested_rank.split(',')
+    for each_rank in dod:
+        if each_rank in interested_rank_list:
+            itol_file = './iTOL_TimeScale_%s.txt' % each_rank
+            itol_file_handle = open(itol_file, 'w')
+            itol_file_handle.write('DATASET_TIMESCALE\nSEPARATOR TAB\n')
+            itol_file_handle.write('\n')
+
+            itol_file_handle.write('# position related\n')
+            itol_file_handle.write('POSITION_ABOVE\t0\n')
+            vertical_shift_index = interested_rank_list.index(each_rank) + 1
+            vertical_shift_value = vertical_shift_index * 50
+            itol_file_handle.write('VERTICAL_SHIFT\t%s\n' % vertical_shift_value)
+            itol_file_handle.write('AUTO_SCALE\t0\n')
+            itol_file_handle.write('SCALING_FACTOR\t1\n')
+            itol_file_handle.write('COVER_TREE\t0\n')
+            itol_file_handle.write('\n')
+
+            itol_file_handle.write('# dataset label related\n')
+            itol_file_handle.write('DATASET_LABEL\t%s\n' % each_rank)
+            itol_file_handle.write('SHOW_LABELS\t1\n')
+            itol_file_handle.write('LABEL_POSITION\tend\n')
+            itol_file_handle.write('LABEL_SHIFT_X\t30\n')
+            itol_file_handle.write('LABEL_SHIFT_Y\t0\n')
+            itol_file_handle.write('SIZE_FACTOR\t2\n')
+            itol_file_handle.write('LABEL_ROTATION\t0\n')
+            itol_file_handle.write('\n')
+
+            itol_file_handle.write('# range label related\n')
+            itol_file_handle.write('SHOW_RANGE_LABELS\t1\n')
+            itol_file_handle.write('RANGE_LABEL_SIZE\t10\n')
+            itol_file_handle.write('RANGE_LABEL_ROTATION\t0\n')
+            itol_file_handle.write('RANGE_LABEL_POSITION\tcenter\n')
+            itol_file_handle.write('RANGE_LABEL_SHIFT_X\t0\n')
+            itol_file_handle.write('RANGE_LABEL_SHIFT_Y\t0\n')
+            itol_file_handle.write('RANGE_LABEL_COLOR\t#000000\n')
+            itol_file_handle.write('# RANGE_LABEL_AUTO_COLOR\t1\n')
+            itol_file_handle.write('\n')
+
+            itol_file_handle.write('# border related\n')
+            itol_file_handle.write('BORDER_WIDTH\t0\n')
+            itol_file_handle.write('BORDER_COLOR\t#000000\n')
+            itol_file_handle.write('BORDER_DASHED\t0\n')
+            itol_file_handle.write('\n')
+
+            itol_file_handle.write('# value label related\n')
+            itol_file_handle.write('SHOW_VALUE_LABELS\t0\n')
+            itol_file_handle.write('VALUE_LABEL_SIZE_FACTOR\t0.5\n')
+            itol_file_handle.write('VALUE_LABEL_ROTATION\t0\n')
+            itol_file_handle.write('VALUE_LABEL_SHIFT\t0\n')
+            itol_file_handle.write('\n')
+
+            itol_file_handle.write('\nDATA\n')
+            for each_range in dod[each_rank]:
+                current_range_color = dod[each_rank][each_range][2]
+                current_range_l = float(dod[each_rank][each_range][0])
+                current_range_r = float(dod[each_rank][each_range][1])
+                if current_range_l < current_range_r:
+                    current_range_l = float(dod[each_rank][each_range][1])
+                    current_range_r = float(dod[each_rank][each_range][0])
+
+                if time_unit == 'Ga':
+                    current_range_l = current_range_l/1000
+                    current_range_r = current_range_r/1000
+
+                range_l_to_write = ''
+                range_r_to_write = ''
+                if (current_range_l <= specified_time_range_l) and (current_range_r >= specified_time_range_r):
+                    range_l_to_write = current_range_l
+                    range_r_to_write = current_range_r
+                elif (specified_time_range_l >= current_range_l >= specified_time_range_r) and (current_range_r <= specified_time_range_r):
+                    range_l_to_write = current_range_l
+                    range_r_to_write = specified_time_range_r
+                elif (current_range_l >= specified_time_range_l) and (specified_time_range_l >= current_range_r >= specified_time_range_r):
+                    range_l_to_write = specified_time_range_l
+                    range_r_to_write = current_range_r
+                elif (current_range_l <= specified_time_range_r):
+                    pass
+                elif (current_range_r >= specified_time_range_l):
+                    pass
+                elif (current_range_l >= specified_time_range_l) and (current_range_r<= specified_time_range_r):
+                    range_l_to_write = specified_time_range_l
+                    range_r_to_write = specified_time_range_r
+
+                if (range_l_to_write != '') and (range_r_to_write != ''):
+                    itol_data_str = '%s\t%s\t\t\t%s\t%s\t%s\tnormal' % (range_l_to_write, range_r_to_write, current_range_color, current_range_color, each_range)
+                    itol_file_handle.write(itol_data_str + '\n')
+            itol_file_handle.close()
 
 
 def get_color_list(color_num):
@@ -135,6 +259,7 @@ def iTOL(args):
     PieChart                = args['PieChart']
     Collapse                = args['Collapse']
     MultiStyleLabel         = args['MultiStyleLabel']
+    TimeScale               = args['TimeScale']
     leaf_id_txt             = args['id']
     LeafGroup               = args['lg']
     GroupColor              = args['gc']
@@ -151,6 +276,10 @@ def iTOL(args):
     BinaryShape             = args['BinaryShape']
     BinaryColor             = args['BinaryColor']
     STRIP_WIDTH             = args['strip_width']
+    chart_ttl               = args['ct']
+    time_range              = args['rg']
+    time_unit               = args['u']
+    interested_rank         = args['rk']
 
     # General
     MARGIN                      = 20
@@ -171,7 +300,7 @@ def iTOL(args):
 
     # check the number of specified file type
     True_num = 0
-    for file_type in [Labels, ColorStrip, ColorRange, SimpleBar, Heatmap, ExternalShape, Binary, BinaryID, PieChart, Collapse, ColorClade, ColorLabel, ColoredLabel]:
+    for file_type in [Labels, ColorStrip, ColorRange, SimpleBar, Heatmap, ExternalShape, Binary, BinaryID, PieChart, Collapse, ColorClade, ColorLabel, ColoredLabel, TimeScale]:
         if file_type is True:
             True_num += 1
 
@@ -662,6 +791,11 @@ def iTOL(args):
 
     ####################################################################################################################
 
+    if TimeScale is True:
+        get_timescale_file(chart_ttl, time_range, time_unit, interested_rank)
+
+    ####################################################################################################################
+
     # Prepare ExternalShape file
     if ExternalShape is True:
 
@@ -769,6 +903,7 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-Connection',         required=False, action='store_true',    help='Connection')
     iTOL_parser.add_argument('-PieChart',           required=False, action='store_true',    help='PieChart')
     iTOL_parser.add_argument('-Collapse',           required=False, action='store_true',    help='Collapse')
+    iTOL_parser.add_argument('-TimeScale',          required=False, action='store_true',    help='TimeScale')
     iTOL_parser.add_argument('-id',                 required=False, default=None,           help='File contains leaf id')
     iTOL_parser.add_argument('-ll',                 required=False, default=None,           help='Leaf Label')
     iTOL_parser.add_argument('-lg',                 required=False, default=None,           help='Leaf Group')
@@ -782,16 +917,10 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-hide_legend',        required=False, action='store_true',    help='hide legend for ColorStrip')
     iTOL_parser.add_argument('-show_label',         required=False, action='store_true',    help='show label on ColorStrip')
     iTOL_parser.add_argument('-strip_width',        required=False, default=100,            help='width of ColorStrip, default is 100')
-    iTOL_parser.add_argument('-o',                  required=True,                          help='Output filename')
+    iTOL_parser.add_argument('-o',                  required=False, default=None,           help='Output filename')
+    iTOL_parser.add_argument('-ct',                 required=False, default=None,           help='TimeScale, chart.ttl file')
+    iTOL_parser.add_argument('-rg',                 required=False, default=None,           help='TimeScale, time range, e.g., 3.5-0')
+    iTOL_parser.add_argument('-u',                  required=False, default='Ga',           help='TimeScale, time unit, choose from Ga and Ma, default is Ga')
+    iTOL_parser.add_argument('-rk',                 required=False, default='Era,Eon',      help='TimeScale, interested rank, default is Era,Eon')
     args = vars(iTOL_parser.parse_args())
     iTOL(args)
-
-
-'''
-
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorStrip -strip_width 300 -hide_legend -show_label -lg /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/tmp/gnm_habitat_2.txt -gc /Users/songweizhi/Desktop/Sponge_r226/00_metadata/color_code_habitat.txt -lt habitat_2 -o /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/iTOL_habitat_2.txt
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorStrip -strip_width 180 -hide_legend -show_label -lg /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/tmp/gnm_habitat_2.txt -gc /Users/songweizhi/Desktop/Sponge_r226/00_metadata/color_code_habitat.txt -lt habitat_2 -o /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/iTOL_habitat_2.txt
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorStrip -strip_width 180 -hide_legend -show_label -lg /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/tmp/gnm_habitat_2.txt -gc /Users/songweizhi/Desktop/Sponge_r226/00_metadata/color_code_habitat.txt -lt habitat_2 -o /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/iTOL_habitat_2.txt
-python3 /Users/songweizhi/PycharmProjects/TreeSAK/TreeSAK/iTOL.py -ColorStrip -strip_width 180 -hide_legend -show_label -lg /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/tmp/gnm_habitat_2.txt -gc /Users/songweizhi/Desktop/Sponge_r226/00_metadata/color_code_habitat.txt -lt habitat_2 -o /Users/songweizhi/Desktop/Sponge_r226/00_metadata/iTOL_2284/iTOL_habitat_2.txt
-
-'''

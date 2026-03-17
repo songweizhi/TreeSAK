@@ -85,7 +85,8 @@ def print_main_help():
        replace_clade          ->  Replace tree clade
        GeneTree               ->  Infer gene tree
        guide_tree             ->  Prepare guide tree for iqtree
-       get_lca_id             ->  get LCA id
+       get_lca_id             ->  Get LCA id
+       tree_fmt               ->  Update tree format
        
     Model-related
        PMSF                   ->  run iqtree with PMSF
@@ -127,11 +128,12 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'subset':
         from TreeSAK import subset
         subset_parser = subparsers.add_parser('subset', description='Subset tree', usage=subset.subset_usage)
-        subset_parser.add_argument('-i',   required=True,                          help='input tree file')
-        subset_parser.add_argument('-o',   required=True,                          help='output tree file')
-        subset_parser.add_argument('-k',   required=False, default=None,           help='leaves to keep')
-        subset_parser.add_argument('-r',   required=False, default=None,           help='leaves to remove')
-        subset_parser.add_argument('-fmt', required=False, default=1, type=int,    help='tree format, default: 1')
+        subset_parser.add_argument('-i',   required=True,                           help='input tree file')
+        subset_parser.add_argument('-fi',  required=False, default=1, type=int,     help='input tree format, default: 1')
+        subset_parser.add_argument('-k',   required=False, default=None,            help='leaves to keep')
+        subset_parser.add_argument('-r',   required=False, default=None,            help='leaves to remove')
+        subset_parser.add_argument('-o',   required=True,                           help='output tree file')
+        subset_parser.add_argument('-fo',  required=False, default=1, type=int,     help='output tree format, default: 1')
         args = vars(parser.parse_args())
         subset.subset(args)
 
@@ -790,6 +792,7 @@ if __name__ == '__main__':
         iTOL_parser.add_argument('-Connection',         required=False, action='store_true',    help='Connection')
         iTOL_parser.add_argument('-PieChart',           required=False, action='store_true',    help='PieChart')
         iTOL_parser.add_argument('-Collapse',           required=False, action='store_true',    help='Collapse')
+        iTOL_parser.add_argument('-TimeScale',          required=False, action='store_true',    help='TimeScale')
         iTOL_parser.add_argument('-id',                 required=False, default=None,           help='File contains leaf id')
         iTOL_parser.add_argument('-ll',                 required=False, default=None,           help='Leaf Label')
         iTOL_parser.add_argument('-gc',                 required=False, default=None,           help='Specify Group/column Color (optional)')
@@ -803,7 +806,11 @@ if __name__ == '__main__':
         iTOL_parser.add_argument('-hide_legend',        required=False, action='store_true',    help='hide legend for ColorStrip')
         iTOL_parser.add_argument('-show_label',         required=False, action='store_true',    help='show label on ColorStrip')
         iTOL_parser.add_argument('-strip_width',        required=False, default=100,            help='width of ColorStrip, default is 100')
-        iTOL_parser.add_argument('-o',                  required=True,                          help='Output filename')
+        iTOL_parser.add_argument('-o',                  required=False, default=None,           help='Output filename')
+        iTOL_parser.add_argument('-ct',                 required=False, default=None,           help='TimeScale, chart.ttl file')
+        iTOL_parser.add_argument('-rg',                 required=False, default=None,           help='TimeScale, time range, e.g., 3.5-0')
+        iTOL_parser.add_argument('-u',                  required=False, default='Ga',           help='TimeScale, time unit, choose from Ga and Ma, default is Ga')
+        iTOL_parser.add_argument('-rk',                 required=False, default='Era,Eon',      help='TimeScale, interested rank, default is Era,Eon')
         args = vars(parser.parse_args())
         iTOL.iTOL(args)
 
@@ -981,6 +988,16 @@ if __name__ == '__main__':
         mcmctree_out_parser.add_argument('-o', required=True, help='output table')
         args = vars(parser.parse_args())
         mcmctree_out.mcmctree_out(args)
+
+    elif sys.argv[1] == 'tree_fmt':
+        from TreeSAK import tree_fmt
+        tree_fmt_parser = subparsers.add_parser('tree_fmt', usage=tree_fmt.tree_fmt_usage)
+        tree_fmt_parser.add_argument('-i',   required=True,                          help='input tree')
+        tree_fmt_parser.add_argument('-fi',  required=False, default=1, type=int,    help='input tree format, default: 1')
+        tree_fmt_parser.add_argument('-o',   required=True,                          help='output tree')
+        tree_fmt_parser.add_argument('-fo',  required=False, default=1, type=int,    help='output tree format, default: 1')
+        args = vars(parser.parse_args())
+        tree_fmt.tree_fmt(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])
