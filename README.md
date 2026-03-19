@@ -30,8 +30,9 @@ Installation
 TreeSAK modules
 ---
 
-                 ...::: TreeSAK v1.45.5 :::...
+                 ...::: TreeSAK v1.58.0 :::...
 
+                 
     Marker-related
        ExtractMarkerSeq       ->  Extract marker by blastn  
        deltall                ->  Parse stdout of deltaLL.rb
@@ -41,12 +42,14 @@ TreeSAK modules
        AssessMarkerDeltaLL    ->  Assess Markers by DeltaLL
        OMA                    ->  Prepare input files for running OMA 
        OMA2                   ->  Filter OMA predicted OGs
-
+       filter_rename_ar53     ->  Filter rename GTDB markers
+       
     Multiple Sequence Alignment
        BMGE                   ->  Run BMGE
        pruneMSA               ->  Prune MSA with alignment_pruner.pl
-       recodeAA               ->  Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories
+       recode                 ->  Recode amino acids to Dayoff 4, Dayoff 6 or SR4 categories
        fa2phy                 ->  Convert MSA format (fasta to phylip)
+       phy2fa                 ->  Convert MSA format (phylip to fasta)
        SliceMSA               ->  Slice MSA by column
        ConcateMSA             ->  Concatenate MSAs
        ConvertMSA             ->  Convert MSA format
@@ -57,10 +60,12 @@ TreeSAK modules
 
     Tree-related
        iTOL                   ->  Prepare iTOL files
+       batch_itol             ->  Batch access iTOL
        iTOL_gene_tree         ->  Genome metadata to gene metadata
+       iTOL_msa_stats         ->  iTOL_msa_stats
        PB                     ->  Infer tree with PhyloBayes-MPI 
-       supertree              ->  Infer species tree from gene trees 
-       AssessPB               ->  Compare PhyloBayes chains
+       assessPB               ->  Compare PhyloBayes chains
+       supertree              ->  Infer species tree from multiple gene trees 
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        GTDB_tree              ->  Get GTDB tree
@@ -73,12 +78,17 @@ TreeSAK modules
        ModifyTopo             ->  Modify tree topology
        GeneRax                ->  (to be added) Run GeneRax    
        ALE                    ->  Modules for running ALE
-       FunTree                ->  Infer tree for individual COG/KEGG function
+       cogTree                ->  Infer tree for individual COG function
+       koTree                 ->  Infer tree for individual KEGG function
        RootTree               ->  Root tree with outgroup leaves
-       RootTreeGTDB214        ->  Root tree by GTDB taxonomy (r214)
-       RootTreeGTDB220        ->  Root tree by GTDB taxonomy (r220)
+       RootTreeGTDB           ->  Root tree by GTDB taxonomy
        LcaToLeaves            ->  Get two leaves that define an internal node
        replace_clade          ->  Replace tree clade
+       GeneTree               ->  Infer gene tree
+       guide_tree             ->  Prepare guide tree for iqtree
+       get_lca_id             ->  Get LCA id
+       tree_fmt               ->  Change tree format
+       rm_leaf                ->  Remove leaf/leaves from tree
        
     Model-related
        PMSF                   ->  run iqtree with PMSF
@@ -86,13 +96,13 @@ TreeSAK modules
        
     Dating-related
        dating                 ->  Perform molecular dating
-       AssessCVG              ->  Assess dating convergence
        CompareMCMC            ->  Compare MCMCTree outputs
-       PlotMcmcNode           ->  distribution of node's age estimation 
+       PlotMcmcNode           ->  Distribution of node's age estimation 
        VisHPD95               ->  HPD95 of estimated node age
        pRTC                   ->  Perform probabilistic RTC dating
-       mcmcTC                 ->  adding time constraints to mcmctree tree
-       mcmc2tree              ->  get the tree with internal node id from mcmctree output
-    
+       mcmcTC                 ->  Adding time constraints to mcmctree tree
+       mcmc2tree              ->  Get the tree with internal node from mcmctree output
+       mcmctree_out           ->  Parse MCMCTree produced .out file
+       
     Phylo-related stats
        PhyloBiAssoc            ->  A wrapper for binaryPGLMM test

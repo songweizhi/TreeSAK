@@ -1,3 +1,4 @@
+import os
 import random
 import dendropy
 import argparse
@@ -5,11 +6,12 @@ from ete3 import Tree
 
 
 RootTree_usage = '''
-====================== RootTree example commands ======================
+======================= RootTree example commands =======================
 
-TreeSAK RootTree -i input.tree -og outgroup_genomes.txt -o rooted.tree
+TreeSAK RootTree -i input.tree -o rooted.tree -og outgroup_genomes.txt
+TreeSAK RootTree -i input.tree -o rooted.tree -og leaf1,leaf2,leaf3
 
-=======================================================================
+=========================================================================
 '''
 
 
@@ -78,8 +80,11 @@ def RootTree(args):
     add_root_branch     = args['add_root']
 
     out_group_set = set()
-    for each_og in open(out_group_txt):
-        out_group_set.add(each_og.strip())
+    if os.path.isfile(out_group_txt) is True:
+        for each_og in open(out_group_txt):
+            out_group_set.add(each_og.strip())
+    else:
+        out_group_set = out_group_txt.split(',')
 
     # tre = Tree(tree_file, format=tree_fmt)
     # out_group_lca = tre.get_common_ancestor(out_group_set)

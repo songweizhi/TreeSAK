@@ -1,7 +1,18 @@
 import os
 import argparse
 from ete3 import Tree
+from Bio import SeqIO
 
+guide_tree_usage = '''
+============================== guide_tree example command ==============================
+
+TreeSAK guide_tree -i in.tree -g gnm_group.txt -o out.tree
+TreeSAK guide_tree -i in.tree -g gnm_group.txt -o out.tree -id interested_gnm.txt
+TreeSAK guide_tree -i in.tree -g gnm_group.txt -o out.tree -id representative_gene.fa
+TreeSAK guide_tree -i in.tree -g gnm_group.txt -o out.tree -id representative_gene.aln
+
+========================================================================================
+'''
 
 def sep_path_basename_ext(file_in):
 
@@ -14,44 +25,42 @@ def sep_path_basename_ext(file_in):
     return f_name, f_path, f_base, f_ext
 
 
-guide_tree_usage = '''
-======================== guide_tree example command ========================
-
-TreeSAK guide_tree -i in.tree -g gnm_group.txt -o out.tree
-
-cd /Users/songweizhi/Desktop/Sponge_r226/07_Sponge_tree/sponge_phylogeny_Maria
-TreeSAK guide_tree -i sponge_phylogeny_Maria.tre -g 18S_taxa.txt -o sponge_phylogeny_Maria_guide_tree.tre
-
-============================================================================
-'''
-
-
 def guide_tree(args):
 
-    tree_in         = args['i']
-    tree_out        = args['o']
-    gnm_group_txt   = args['g']
+    tree_in                     = args['i']
+    gnm_group_txt               = args['g']
+    interested_gene_gnm_txt_fa  = args['id']
+    tree_out                    = args['o']
 
-    _, _, f_in_base, f_in_ext            = sep_path_basename_ext(tree_out)
+    if os.path.isfile(tree_in) is False:
+        print('%s not exist, program exited!' % tree_in)
+        exit()
+
+    count_all_gene_genome = True
+    interested_gene_genome_set = set()
+    if interested_gene_gnm_txt_fa is not None:
+
+        if os.path.isfile(interested_gene_gnm_txt_fa) is False:
+            print('%s not exist, program exited!' % interested_gene_gnm_txt_fa)
+            exit()
+
+        count_all_gene_genome = False
+        _, _, _, id_f_ext = sep_path_basename_ext(interested_gene_gnm_txt_fa)
+        if id_f_ext in ['fa', 'fasta','fas','ffn','faa','fna', 'aln']:
+            for each_seq in SeqIO.parse(open(interested_gene_gnm_txt_fa), 'fasta'):
+                interested_gene_genome_set.add(each_seq.id)
+        else:
+            for each_line in open(interested_gene_gnm_txt_fa):
+                interested_gene_genome_set.add(each_line.strip().split('')[0])
+
+    # define output/tmp file name
+    _, _, f_in_base, f_in_ext            = sep_path_basename_ext(tree_in)
     _, f_out_path, f_out_base, f_out_ext = sep_path_basename_ext(tree_out)
     tree_in_subset_file                  = '%s/%s_subset.%s'                  % (f_out_path, f_in_base, f_in_ext)
     seqs_not_on_guide_tree_txt           = '%s/%s_seqs_not_on_guide_tree.txt' % (f_out_path, f_out_base)
 
-    if os.path.isfile(tree_in) is False:
-        print('%s is not exist' % tree_in)
-        exit()
-
     t_in = Tree(tree_in, format=0)
     topo_tree_leaves = [i.name for i in t_in.get_leaves()]
-
-    group_to_member_dict = dict()
-    for each in open(gnm_group_txt):
-        each_split = each.strip().split('\t')
-        gnm_id  = each_split[0]
-        gnm_grp = each_split[1]
-        if gnm_grp not in group_to_member_dict:
-            group_to_member_dict[gnm_grp] = set()
-        group_to_member_dict[gnm_grp].add(gnm_id)
 
     seq_to_tax_dict = dict()
     grp_to_seq_dict = dict()
@@ -60,22 +69,31 @@ def guide_tree(args):
     for each_seq in open(gnm_group_txt):
         each_seq_split = each_seq.strip().split('\t')
         seq_id   = each_seq_split[0]
-        seq_tax  = each_seq_split[1]
-        seq_tax_split = seq_tax.strip().split(';')
-        seq_to_tax_dict[seq_id] = seq_tax
 
-        seq_grp = ''
-        for each_r in seq_tax_split:
-            if each_r in topo_tree_leaves:
-                seq_grp = each_r
+        count_current_seq = False
+        if count_all_gene_genome is True:
+            count_current_seq = True
+        else:
+            if seq_id in interested_gene_genome_set:
+                count_current_seq = True
 
-        seq_to_grp_dict[seq_id] = seq_grp
-        if seq_grp not in grp_to_seq_dict:
-            grp_to_seq_dict[seq_grp] = set()
-        grp_to_seq_dict[seq_grp].add(seq_id)
+        if count_current_seq is True:
+            seq_tax  = each_seq_split[1]
+            seq_tax_split = seq_tax.strip().split(';')
+            seq_to_tax_dict[seq_id] = seq_tax
 
-        if seq_grp == '':
-            seqs_not_on_topo_tree.add(seq_id)
+            seq_grp = ''
+            for each_r in seq_tax_split:
+                if each_r in topo_tree_leaves:
+                    seq_grp = each_r
+
+            seq_to_grp_dict[seq_id] = seq_grp
+            if seq_grp not in grp_to_seq_dict:
+                grp_to_seq_dict[seq_grp] = set()
+            grp_to_seq_dict[seq_grp].add(seq_id)
+
+            if seq_grp == '':
+                seqs_not_on_topo_tree.add(seq_id)
 
     if len(seqs_not_on_topo_tree) > 0:
         print('%s sequences can not be placed on guide tree, for details: %s'    % (len(seqs_not_on_topo_tree), seqs_not_on_guide_tree_txt))
@@ -123,8 +141,9 @@ def guide_tree(args):
 if __name__ == '__main__':
 
     guide_tree_parser = argparse.ArgumentParser(usage=guide_tree_usage)
-    guide_tree_parser.add_argument('-i',    required=True,  help='input tree')
-    guide_tree_parser.add_argument('-g',    required=True,  help='genome group/taxonomy')
-    guide_tree_parser.add_argument('-o',    required=True,  help='output tree')
+    guide_tree_parser.add_argument('-i',    required=True,                  help='input tree')
+    guide_tree_parser.add_argument('-g',    required=True,                  help='gene/genome group/taxonomy')
+    guide_tree_parser.add_argument('-id',   required=False, default=None,   help='interested genes/genomes')
+    guide_tree_parser.add_argument('-o',    required=True,                  help='output tree')
     args = vars(guide_tree_parser.parse_args())
     guide_tree(args)

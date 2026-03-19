@@ -692,7 +692,9 @@ if __name__ == '__main__':
         from TreeSAK import replace_clade
         replace_clade_parser = subparsers.add_parser('replace_clade', usage=replace_clade.replace_clade_usage)
         replace_clade_parser.add_argument('-m',  required=True,                         help='main tree file')
+        replace_clade_parser.add_argument('-mf', required=False, default=1, type=int,   help='main tree format, default: 1')
         replace_clade_parser.add_argument('-s',  required=True,                         help='subtree file')
+        replace_clade_parser.add_argument('-sf', required=False, default=1, type=int,   help='subtree format, default: 1')
         replace_clade_parser.add_argument('-l',  required=True,                         help='leaves on main tree to be replaced')
         replace_clade_parser.add_argument('-o',  required=True,                         help='output tree')
         replace_clade_parser.add_argument('-of', required=False, default=9, type=int,   help='output tree format, default is 9')
@@ -966,9 +968,10 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'guide_tree':
         from TreeSAK import guide_tree
         guide_tree_parser = subparsers.add_parser('guide_tree', usage=guide_tree.guide_tree_usage)
-        guide_tree_parser.add_argument('-i', required=True, help='input tree')
-        guide_tree_parser.add_argument('-g', required=True, help='genome group')
-        guide_tree_parser.add_argument('-o', required=True, help='output tree')
+        guide_tree_parser.add_argument('-i',    required=True,                  help='input tree')
+        guide_tree_parser.add_argument('-g',    required=True,                  help='gene/genome group/taxonomy')
+        guide_tree_parser.add_argument('-id',   required=False, default=None,   help='interested genes/genomes')
+        guide_tree_parser.add_argument('-o',    required=True,                  help='output tree')
         args = vars(parser.parse_args())
         guide_tree.guide_tree(args)
 
