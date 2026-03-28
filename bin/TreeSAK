@@ -59,6 +59,7 @@ def print_main_help():
 
     Tree-related
        iTOL                   ->  Prepare iTOL files
+       iTOL_Tanglegram        ->  Prepare iTOL Tanglegram files
        batch_itol             ->  Batch access iTOL
        iTOL_gene_tree         ->  Genome metadata to gene metadata
        iTOL_msa_stats         ->  iTOL_msa_stats

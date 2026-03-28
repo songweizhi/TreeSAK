@@ -59,6 +59,7 @@ def print_main_help():
 
     Tree-related
        iTOL                   ->  Prepare iTOL files
+       iTOL_Tanglegram        ->  Prepare iTOL Tanglegram files
        batch_itol             ->  Batch access iTOL
        iTOL_gene_tree         ->  Genome metadata to gene metadata
        iTOL_msa_stats         ->  iTOL_msa_stats
@@ -86,7 +87,8 @@ def print_main_help():
        GeneTree               ->  Infer gene tree
        guide_tree             ->  Prepare guide tree for iqtree
        get_lca_id             ->  Get LCA id
-       tree_fmt               ->  Update tree format
+       tree_fmt               ->  Change tree format
+       rm_leaf                ->  Remove leaf/leaves from tree
        
     Model-related
        PMSF                   ->  run iqtree with PMSF
@@ -1001,6 +1003,17 @@ if __name__ == '__main__':
         tree_fmt_parser.add_argument('-fo',  required=False, default=1, type=int,    help='output tree format, default: 1')
         args = vars(parser.parse_args())
         tree_fmt.tree_fmt(args)
+
+    elif sys.argv[1] == 'rm_leaf':
+        from TreeSAK import rm_leaf
+        rm_leaf_parser = subparsers.add_parser('rm_leaf', usage=rm_leaf.rm_leaf_usage)
+        rm_leaf_parser.add_argument('-i',   required=True,                        help='input tree file')
+        rm_leaf_parser.add_argument('-if',  required=False, default=0, type=int,  help='input tree format, default is 0')
+        rm_leaf_parser.add_argument('-l',   required=True,                        help='leaf/leaves to remove')
+        rm_leaf_parser.add_argument('-o',   required=True,                        help='output tree file')
+        rm_leaf_parser.add_argument('-of',  required=False, default=0, type=int,  help='output tree format, default is 0')
+        args = vars(parser.parse_args())
+        rm_leaf.rm_leaf(args)
 
     else:
         print('Unrecognized module: %s, program exited!' % sys.argv[1])

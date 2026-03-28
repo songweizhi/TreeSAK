@@ -10,6 +10,19 @@ TreeSAK replace_clade -m main.tree -s sub.tree -o out.tree -l leaves.txt
 TreeSAK replace_clade -m main.tree -s sub.tree -o out.tree -l leaf1
 TreeSAK replace_clade -m main.tree -s sub.tree -o out.tree -l leaf1,leaf2
 
+# https://etetoolkit.org/docs/latest/tutorial/tutorial_trees.html
+0	flexible with support values
+1	flexible with internal node names
+2	all branches + leaf names + internal supports
+3	all branches + all names
+4	leaf branches + leaf names
+5	internal and leaf branches + leaf names
+6	internal branches + leaf names
+7	leaf branches + all names
+8	all names
+9	leaf names
+100	topology only
+
 ============================================================================
 '''
 

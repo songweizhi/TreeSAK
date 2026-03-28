@@ -59,7 +59,6 @@ TreeSAK/SplitScore.py
 TreeSAK/SplitScore1.py
 TreeSAK/SplitScore1OMA.py
 TreeSAK/SplitScore2.py
-TreeSAK/Tanglegram.py
 TreeSAK/TaxaCountStats.R
 TreeSAK/TaxonTree.py
 TreeSAK/TimeScale.py
@@ -95,6 +94,7 @@ TreeSAK/global_functions.py
 TreeSAK/gnm_leaves.py
 TreeSAK/guide_tree.py
 TreeSAK/iTOL.py
+TreeSAK/iTOL_Tanglegram.py
 TreeSAK/iTOL_gene_tree.py
 TreeSAK/itol_msa_stats.py
 TreeSAK/keep_highest_rrtc.py
@@ -122,6 +122,7 @@ TreeSAK/recode.py
 TreeSAK/remove_bias.R
 TreeSAK/rename_leaves.py
 TreeSAK/replace_clade.py
+TreeSAK/rm_leaf.py
 TreeSAK/root_with_out_group.py
 TreeSAK/run_TaxaCountStats_R_s1.py
 TreeSAK/subsample_drep_gnms.py

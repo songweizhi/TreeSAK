@@ -44,27 +44,25 @@ def get_node_age_dict(out_txt):
                     node_mean = each_line_split[1].replace(',', '')
                     hpd_ci_95_l = each_line_split[4].replace(',', '')
                     hpd_ci_95_r = each_line_split[5].replace(',', '')
-                    value_str = '%s(%s %s)' % (node_mean, hpd_ci_95_l, hpd_ci_95_r)
+                    value_str = '%s\t%s-%s' % (node_mean, hpd_ci_95_l, hpd_ci_95_r)
                     node_age_dict[node_id] = value_str
     return node_age_dict
 
 
 def mcmctree_out(args):
 
-    mcmc_out_dir            = args['i']
-    interested_nodes_txt    = args['n']
-    op_txt                  = args['o']
-
-    _, op_f_path, op_f_base, op_f_ext = sep_path_basename_ext(op_txt)
-    op_txt_with_hpd_ci_95 = '%s/%s_HPD_CI_95.%s' % (op_f_path, op_f_base, op_f_ext)
+    mcmc_out_dir         = args['i']
+    interested_nodes_txt = args['n']
+    op_txt               = args['o']
 
     # read in interested_nodes_txt
     interested_node_dict = dict()
     for each_line in open(interested_nodes_txt):
         each_line_split = each_line.strip().split('\t')
-        node_id   = each_line_split[0]
-        node_desc = each_line_split[1]
-        interested_node_dict[node_id] = node_desc
+        if len(each_line_split) > 1:
+            node_id   = each_line_split[0]
+            node_desc = each_line_split[1]
+            interested_node_dict[node_id] = node_desc
 
     node_age_dod = dict()
     if os.path.isfile(mcmc_out_dir) is True:
@@ -90,20 +88,17 @@ def mcmctree_out(args):
     node_list_sorted = sorted(list(interested_node_dict.keys()))
     node_list_sorted_with_desc = [('%s__%s' % (i, interested_node_dict[i])) for i in node_list_sorted]
 
-    op_txt_handle = open(op_txt_with_hpd_ci_95, 'w')
-    op_txt_mean_handle = open(op_txt, 'w')
+    op_txt_handle = open(op_txt, 'w')
+    op_txt_handle.write('Node\tPosterior_mean\tHPD_CI_95\tDescription\n')
     if len(node_age_dod) ==1:
         for each_setting in node_age_dod:
             current_value_dict = node_age_dod[each_setting]
             for each_node_id in node_list_sorted:
                 current_node_value = current_value_dict[each_node_id]
-                current_node_mean = current_node_value.split('(')[0]
-                op_txt_handle.write('%s\t%s\t%s\n'      % (each_node_id, current_node_value, interested_node_dict.get(each_node_id, '')))
-                op_txt_mean_handle.write('%s\t%s\t%s\n' % (each_node_id, current_node_mean, interested_node_dict.get(each_node_id, '')))
+                op_txt_handle.write('%s\t%s\t%s\n' % (each_node_id, current_node_value, interested_node_dict.get(each_node_id, '')))
 
     elif len(node_age_dod) >=2:
         op_txt_handle.write('\t' + '\t'.join(node_list_sorted_with_desc) + '\n')
-        op_txt_mean_handle.write('\t' + '\t'.join(node_list_sorted_with_desc) + '\n')
         for each_setting in node_age_dod:
             current_value_dict = node_age_dod[each_setting]
             current_value_list = [each_setting]
@@ -114,9 +109,7 @@ def mcmctree_out(args):
                 current_value_list.append(current_node_value)
                 current_mean_list.append(current_node_mean)
             op_txt_handle.write('\t'.join(current_value_list) + '\n')
-            op_txt_mean_handle.write('\t'.join(current_mean_list) + '\n')
     op_txt_handle.close()
-    op_txt_mean_handle.close()
 
 
 if __name__ == '__main__':
