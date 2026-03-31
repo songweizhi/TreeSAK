@@ -5,7 +5,7 @@ from Bio import SeqIO
 gap_stats_usage = '''
 ================================== gap_stats example commands ==================================
 
-TreeSAK gap_stats -i msa.fasta -c 40 -o1 stats.txt -o2 msa_maxgap40.fasta -o3 MSA_gap_iTOL.txt
+TreeSAK gap_stats -i msa.fasta -c 40 -o stats.txt -o2 msa_maxgap40.fasta -o3 MSA_gap_iTOL.txt
 
 ================================================================================================
 '''
@@ -15,7 +15,7 @@ def gap_stats(args):
 
     msa_in_fa    = args['i']
     gap_cutoff   = args['c']
-    op_stats_txt = args['o1']
+    op_stats_txt = args['o']
     op_msa_file  = args['o2']
     op_itol_file = args['o3']
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     gap_stats_parser = argparse.ArgumentParser()
     gap_stats_parser.add_argument('-i',  required=True,                             help='MSA in fasta format')
     gap_stats_parser.add_argument('-c',  required=False, default=100, type=float,   help='maximum gap allowed in MSAs, default is 100, i.e., no filtering')
-    gap_stats_parser.add_argument('-o1', required=True,                             help='output stats file')
+    gap_stats_parser.add_argument('-o',  required=True,                             help='output stats file')
     gap_stats_parser.add_argument('-o2', required=False, default=None,              help='filtered MSA')
     gap_stats_parser.add_argument('-o3', required=False, default=None,              help='iTOL file')
     args = vars(gap_stats_parser.parse_args())

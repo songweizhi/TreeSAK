@@ -92,6 +92,10 @@ def get_timescale_file(chart_ttl, time_range, time_unit, interested_rank):
     interested_rank_list = interested_rank.split(',')
     for each_rank in dod:
         if each_rank in interested_rank_list:
+
+            itol_file       = './iTOL_TimeScale_%s%s_%s.txt'        % (time_range, time_unit, each_rank)
+            itol_file_grey  = './iTOL_TimeScale_%s%s_%s_grey.txt'   % (time_range, time_unit, each_rank)
+
             current_rank_dict = dod[each_rank]
             items = current_rank_dict.items()
             sorted_items = sorted(items, key=lambda item: item[1][0])
@@ -105,23 +109,20 @@ def get_timescale_file(chart_ttl, time_range, time_unit, interested_rank):
                 vertical_shift_value_grey     = vertical_shift_index * 50
                 vertical_shift_value_non_grey = vertical_shift_value_grey
 
-            itol_file = './iTOL_TimeScale_%s.txt' % each_rank
             itol_file_handle = open(itol_file, 'w')
             itol_file_handle.write('DATASET_TIMESCALE\nSEPARATOR TAB\n\n')
-
             itol_file_handle.write('# position related\nPOSITION_ABOVE\t0\nVERTICAL_SHIFT\t%s\nAUTO_SCALE\t0\nSCALING_FACTOR\t1\nCOVER_TREE\t0\n\n' % (vertical_shift_value_non_grey))
             itol_file_handle.write('# dataset label related\nDATASET_LABEL\t%s\nSHOW_LABELS\t1\nLABEL_POSITION\tend\nLABEL_SHIFT_X\t30\nLABEL_SHIFT_Y\t0\nSIZE_FACTOR\t2\nLABEL_ROTATION\t0\n\n' % each_rank)
-            itol_file_handle.write('# range label related\nSHOW_RANGE_LABELS\t1\nRANGE_LABEL_SIZE\t10\nRANGE_LABEL_ROTATION\t0\nRANGE_LABEL_POSITION\tcenter\nRANGE_LABEL_SHIFT_X\t0\nRANGE_LABEL_SHIFT_Y\t0\nRANGE_LABEL_COLOR\t#000000\n# RANGE_LABEL_AUTO_COLOR\t1\n\n')
+            itol_file_handle.write('# range label related\nSHOW_RANGE_LABELS\t1\nRANGE_LABEL_SIZE\t1.2\nRANGE_LABEL_ROTATION\t0\nRANGE_LABEL_POSITION\tcenter\nRANGE_LABEL_SHIFT_X\t0\nRANGE_LABEL_SHIFT_Y\t0\nRANGE_LABEL_COLOR\t#000000\n# RANGE_LABEL_AUTO_COLOR\t1\n\n')
             itol_file_handle.write('# border related\nBORDER_WIDTH\t0\nBORDER_COLOR\t#000000\nBORDER_DASHED\t0\n\n')
             itol_file_handle.write('# value label related\nSHOW_VALUE_LABELS\t0\nVALUE_LABEL_SIZE_FACTOR\t0.5\nVALUE_LABEL_ROTATION\t0\nVALUE_LABEL_SHIFT\t0\n\n')
             itol_file_handle.write('\nDATA\n')
 
-            itol_file_grey = './iTOL_TimeScale_%s_grey.txt' % each_rank
             itol_file_grey_handle = open(itol_file_grey, 'w')
             itol_file_grey_handle.write('DATASET_TIMESCALE\nSEPARATOR TAB\n\n')
             itol_file_grey_handle.write('# position related\nPOSITION_ABOVE\t0\nVERTICAL_SHIFT\t%s\nAUTO_SCALE\t0\nSCALING_FACTOR\t1\nCOVER_TREE\t1\n\n' % vertical_shift_value_grey)
             itol_file_grey_handle.write('# dataset label related\nDATASET_LABEL\t%s_grey\nSHOW_LABELS\t0\nLABEL_POSITION\tend\nLABEL_SHIFT_X\t30\nLABEL_SHIFT_Y\t0\nSIZE_FACTOR\t2\nLABEL_ROTATION\t0\n\n' % each_rank)
-            itol_file_grey_handle.write('# range label related\nSHOW_RANGE_LABELS\t0\nRANGE_LABEL_SIZE\t10\nRANGE_LABEL_ROTATION\t0\nRANGE_LABEL_POSITION\tcenter\nRANGE_LABEL_SHIFT_X\t0\nRANGE_LABEL_SHIFT_Y\t0\nRANGE_LABEL_COLOR\t#000000\n# RANGE_LABEL_AUTO_COLOR\t1\n\n')
+            itol_file_grey_handle.write('# range label related\nSHOW_RANGE_LABELS\t0\nRANGE_LABEL_SIZE\t1.2\nRANGE_LABEL_ROTATION\t0\nRANGE_LABEL_POSITION\tcenter\nRANGE_LABEL_SHIFT_X\t0\nRANGE_LABEL_SHIFT_Y\t0\nRANGE_LABEL_COLOR\t#000000\n# RANGE_LABEL_AUTO_COLOR\t1\n\n')
             itol_file_grey_handle.write('# border related\nBORDER_WIDTH\t0\nBORDER_COLOR\t#000000\nBORDER_DASHED\t0\n\n')
             itol_file_grey_handle.write('# value label related\nSHOW_VALUE_LABELS\t0\nVALUE_LABEL_SIZE_FACTOR\t0.5\nVALUE_LABEL_ROTATION\t0\nVALUE_LABEL_SHIFT\t0\n\n')
             itol_file_grey_handle.write('\nDATA\n')

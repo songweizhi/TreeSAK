@@ -61,7 +61,6 @@ TreeSAK/SplitScore1OMA.py
 TreeSAK/SplitScore2.py
 TreeSAK/TaxaCountStats.R
 TreeSAK/TaxonTree.py
-TreeSAK/TimeScale.py
 TreeSAK/TreeSAK_config.py
 TreeSAK/VERSION
 TreeSAK/VisHPD95.R

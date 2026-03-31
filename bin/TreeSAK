@@ -753,7 +753,7 @@ if __name__ == '__main__':
         gap_stats_parser = subparsers.add_parser('gap_stats', usage=gap_stats.gap_stats_usage)
         gap_stats_parser.add_argument('-i',  required=True,                             help='MSA in fasta format')
         gap_stats_parser.add_argument('-c',  required=False, default=100, type=float,   help='maximum gap allowed in MSAs, default is 100, i.e., no filtering')
-        gap_stats_parser.add_argument('-o1', required=True,                             help='output stats file')
+        gap_stats_parser.add_argument('-o',  required=True,                             help='output stats file')
         gap_stats_parser.add_argument('-o2', required=False, default=None,              help='filtered MSA')
         gap_stats_parser.add_argument('-o3', required=False, default=None,              help='iTOL file')
         args = vars(parser.parse_args())
@@ -856,7 +856,6 @@ if __name__ == '__main__':
         from TreeSAK import mcmc2tree
         mcmc2tree_parser = subparsers.add_parser('mcmc2tree', usage=mcmc2tree.mcmc2tree_usage)
         mcmc2tree_parser.add_argument('-i', required=True, help='the .out file from mcmctree')
-        mcmc2tree_parser.add_argument('-o', required=True, help='output tree file')
         args = vars(parser.parse_args())
         mcmc2tree.mcmc2tree(args)
 
