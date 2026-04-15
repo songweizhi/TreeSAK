@@ -44,6 +44,7 @@ TreeSAK/PB.py
 TreeSAK/PMSF.py
 TreeSAK/PhyloBiAssoc.R
 TreeSAK/PhyloBiAssoc.py
+TreeSAK/PhyloHessian.py
 TreeSAK/PlotMCMC.py
 TreeSAK/PlotMcmcNode.py
 TreeSAK/PlotMcmcNode_old.py
@@ -132,6 +133,7 @@ TreeSAK/tmp_1.py
 TreeSAK/tmp_2.py
 TreeSAK/tmp_3.py
 TreeSAK/tmp_4.py
+TreeSAK/tmp_6.py
 TreeSAK/tree_fmt.py
 TreeSAK/weighted_rand.rb
 bin/TreeSAK

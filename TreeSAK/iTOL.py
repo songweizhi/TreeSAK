@@ -48,6 +48,11 @@ Genome_id SampleA   SampleB   SampleC
 genome_1	6.15    2.23    1.56
 genome_2	6.63    1.72    2.55
 
+# Collapse file format
+GCA964588035_1|GCA035283565_1	g__JBBDNF01
+GCA035456305_1|GCA013330055_1	g__UBA8516
+GCA964531195_1|GCA016201435_1	g__TA-20
+
 # chart.ttl is available at https://github.com/i-c-stratigraphy/chart/blob/main/chart.ttl
 
 ===============================================================================================
@@ -542,7 +547,7 @@ def iTOL(args):
                 col_color_list = [Column_to_Color_dict.get(i, ColumnColor) for i in col_name_list]
 
                 Binary_FileOut_handle.write('DATASET_BINARY\n\nSEPARATOR TAB\nDATASET_LABEL\t%s\nCOLOR\t%s\n' % (LegendTitle, Binary_color))
-                Binary_FileOut_handle.write('SHOW_LABELS\t1\nLABEL_ROTATION\t45\nLABEL_SHIFT\t5\n')
+                Binary_FileOut_handle.write('SHOW_LABELS\t1\nLABEL_ROTATION\t45\nLABEL_SHIFT\t30\nSIZE_FACTOR\t2\n')
                 Binary_FileOut_handle.write('FIELD_LABELS\t%s\n' % '\t'.join(col_name_list))
                 Binary_FileOut_handle.write('FIELD_COLORS\t%s\n' % '\t'.join(col_color_list))
                 Binary_FileOut_handle.write('MARGIN\t10\n')
@@ -567,7 +572,7 @@ def iTOL(args):
     if BinaryID is True:
         BinaryID_FileOut_handle = open(FileOut, 'w')
         BinaryID_FileOut_handle.write('DATASET_BINARY\n\nSEPARATOR TAB\nDATASET_LABEL\t%s\nCOLOR\tred\n' % LegendTitle)
-        BinaryID_FileOut_handle.write('SHOW_LABELS\t1\nLABEL_ROTATION\t45\nLABEL_SHIFT\t5\n')
+        BinaryID_FileOut_handle.write('SHOW_LABELS\t1\nLABEL_ROTATION\t45\nLABEL_SHIFT\t30\nSIZE_FACTOR\t2\n')
         BinaryID_FileOut_handle.write('FIELD_LABELS\t%s\n' % LegendTitle)
         BinaryID_FileOut_handle.write('FIELD_COLORS\t%s\n' % BinaryColor)
         BinaryID_FileOut_handle.write('# FIELD_SHAPES: 1: rectangle; 2: circle; 3: star; 4: right pointing triangle; 5: left pointing triangle; 6: check mark\n')

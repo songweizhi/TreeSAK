@@ -6,7 +6,11 @@ import argparse
 OMA_usage = '''
 ======================= OMA example commands =======================
 
-TreeSAK OMA -i faa_files -x faa -og og_gnm.txt -o OMA_wd -f -t 32
+# infer OG
+TreeSAK OMA -i faa_files -x faa -o OMA_wd -f -t 256
+
+# infer OG and HOG
+TreeSAK OMA -i faa_files -x faa -o OMA_wd -f -t 256 -og og_gnm.txt
 
 ====================================================================
 '''
@@ -20,7 +24,7 @@ def sep_path_basename_ext(file_in):
     return f_path, f_base, f_ext
 
 
-def get_default_para_dict():
+def get_default_para_dict(og_txt):
 
     default_para_str = '''
     OutputFolder := 'Output';
@@ -39,7 +43,6 @@ def get_default_para_dict():
     StableIdsForGroups := false;
     GuessIdType := false;
     DoHierarchicalGroups := 'bottom-up';
-    SpeciesTree := 'estimate';
     MinEdgeCompletenessFraction := 0.65;
     ReachabilityCutoff := 0.65;
     MaxTimePerLevel := 1200;  # 20min
@@ -60,6 +63,9 @@ def get_default_para_dict():
         if para_line != '':
             para_line_split = para_line.split(':=')
             default_para_dict[para_line_split[0]] = para_line_split[1]
+
+    if og_txt is not None:
+        default_para_dict['SpeciesTree'] = 'estimate'
 
     return default_para_dict
 
@@ -97,9 +103,10 @@ def OMA(args):
         exit()
 
     # check og_gnm_txt
-    if os.path.isfile(og_gnm_txt) is False:
-        print('Out group genome id file not detected, program exited!')
-        exit()
+    if og_gnm_txt is not None:
+        if os.path.isfile(og_gnm_txt) is False:
+            print('Out group genome id file not detected, program exited!')
+            exit()
 
     # copy genome files into DB folder
     gnm_id_rename_dict = dict()
@@ -123,13 +130,14 @@ def OMA(args):
         print('Format of file names passed checking')
 
     # get default_para_dict
-    default_para_dict = get_default_para_dict()
+    default_para_dict = get_default_para_dict(og_gnm_txt)
 
     # read in og_gnm_txt
     renamed_og_gnm_list = []
-    for each_og_gnm in open(og_gnm_txt):
-        og_gnm_renamed = gnm_id_rename_dict[each_og_gnm.strip()]
-        renamed_og_gnm_list.append(og_gnm_renamed)
+    if og_gnm_txt is not None:
+        for each_og_gnm in open(og_gnm_txt):
+            og_gnm_renamed = gnm_id_rename_dict[each_og_gnm.strip()]
+            renamed_og_gnm_list.append(og_gnm_renamed)
 
     # write out parameter file
     with open(pwd_parameter_file, 'w') as pwd_parameter_file_handle:
@@ -141,8 +149,9 @@ def OMA(args):
             pwd_parameter_file_handle.write("InputDataType := 'DNA';\n")
 
         # write OutgroupSpecies line
-        OutgroupSpecies_value_str = "['%s']" % "', '".join(renamed_og_gnm_list)
-        pwd_parameter_file_handle.write("OutgroupSpecies := %s;\n" % OutgroupSpecies_value_str)
+        if len(renamed_og_gnm_list) > 0:
+            OutgroupSpecies_value_str = "['%s']" % "', '".join(renamed_og_gnm_list)
+            pwd_parameter_file_handle.write("OutgroupSpecies := %s;\n" % OutgroupSpecies_value_str)
 
         # write out the rest lines
         for each_para in default_para_dict:
@@ -162,7 +171,7 @@ if __name__ == '__main__':
     OMA_parser.add_argument('-i',   required=True,                       help='genome folder')
     OMA_parser.add_argument('-x',   required=True,                       help='genome file extension')
     OMA_parser.add_argument('-st',  required=False, default='AA',        help='sequence type, AA or DNA, default: AA')
-    OMA_parser.add_argument('-og',  required=True,                       help='outgroup genomes, without file extension')
+    OMA_parser.add_argument('-og',  required=False, default=None,        help='outgroup genomes, without file extension, default is None')
     OMA_parser.add_argument('-o',   required=True,  default=None,        help='output dir, i.e., OMA working directory')
     OMA_parser.add_argument('-f',   required=False, action="store_true", help='force overwrite')
     OMA_parser.add_argument('-t',   required=False, type=int, default=6, help='number of threads for running OMA, default: 6')

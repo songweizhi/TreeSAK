@@ -354,7 +354,7 @@ def MarkerRef2Tree(args):
     # get marker id set
     marker_seq_re   = '%s/*.%s' % (marker_seq_dir, marker_seq_ext)
     marker_seq_list = [os.path.basename(file_name) for file_name in glob.glob(marker_seq_re)]
-    marker_id_set = set()
+    marker_id_set   = set()
     for each_marker_seq_file in marker_seq_list:
         _, marker_seq_basename, _ = sep_path_basename_ext(each_marker_seq_file)
         marker_id_set.add(marker_seq_basename)
