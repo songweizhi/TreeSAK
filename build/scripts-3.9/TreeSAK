@@ -103,6 +103,7 @@ def print_main_help():
        mcmcTC                 ->  Adding time constraints to mcmctree tree
        mcmc2tree              ->  Get the tree with internal node from mcmctree output
        mcmctree_out           ->  Parse MCMCTree produced .out file
+       reltime                ->  Parse RelTime produced .out file
        
     Phylo-related stats
        PhyloBiAssoc            ->  A wrapper for binaryPGLMM test
@@ -915,14 +916,15 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         GeneTree.GeneTree(args)
 
-    elif sys.argv[1] == 'parse_reltime':
-        from TreeSAK import parse_reltime
-        parse_reltime_parser = subparsers.add_parser('parse_reltime', usage=parse_reltime.parse_reltime_usage)
-        parse_reltime_parser.add_argument('-i', required=True, help='reltime output file')
-        parse_reltime_parser.add_argument('-n', required=True, help='interested node txt')
-        parse_reltime_parser.add_argument('-o', required=True, help='output txt file')
+    elif sys.argv[1] == 'reltime':
+        from TreeSAK import reltime
+        reltime_parser = subparsers.add_parser('reltime', usage=reltime.reltime_usage)
+        reltime_parser.add_argument('-i',       required=True,                          help='reltime output file')
+        reltime_parser.add_argument('-n',       required=False, default=None,           help='interested node txt')
+        reltime_parser.add_argument('-scale',   required=False, default=1, type=int,    help='scale the value, default is 1 (no scaling)')
+        reltime_parser.add_argument('-o',       required=True,                          help='output txt file')
         args = vars(parser.parse_args())
-        parse_reltime.parse_reltime(args)
+        reltime.reltime(args)
 
     elif sys.argv[1] == 'mcmctree_vs_reltime':
         from TreeSAK import mcmctree_vs_reltime
