@@ -1,8 +1,17 @@
 import os
-import glob
 import argparse
 from ete3 import Tree
-from TreeSAK.TreeSAK_config import config_dict
+
+
+def sep_path_basename_ext(file_in):
+
+    f_path, f_name = os.path.split(file_in)
+    if f_path == '':
+        f_path = '.'
+    f_base, f_ext = os.path.splitext(f_name)
+    f_ext = f_ext[1:]
+
+    return f_name, f_path, f_base, f_ext
 
 
 def mcmctree_out_to_tree_str(mamctree_out):
@@ -92,7 +101,7 @@ def read_in_posterior_mean(mcmctree_out):
                 if each_element not in ['', '(']:
                     each_element_value = each_element.replace('(', '').replace(')', '').replace(',', '')
                     each_line_split_no_empty.append(each_element_value)
-            if len(each_line_split_no_empty) == 9:
+            if len(each_line_split_no_empty) >= 7:
                 node_id           = each_line_split_no_empty[0]
                 value_mean        = each_line_split_no_empty[1]
                 value_hpd95_small = each_line_split_no_empty[4]
@@ -104,21 +113,27 @@ def read_in_posterior_mean(mcmctree_out):
 
 
 VisHPD95_usage = '''
-============================ VisHPD95 example command ============================
+========================== VisHPD95 example command ==========================
 
-TreeSAK VisHPD95 -i mcmc_out -o HPD95.pdf -n nodes.txt -label label.txt
-TreeSAK VisHPD95 -i mcmc_out -o HPD95.pdf -n nodes.txt -label label.txt -x 9 -y 6
+TreeSAK VisHPD95 -i samples.txt -n nodes.txt -o HPD95.pdf
+
+# The input file has three columns (tab separated)
+# Samples will be colored by the 2nd column and shaped by the 3rd column
+mcmc_out/M1_PA_75_DeltaLL_50_clock2_nsample500000_out.txt	DeltaLL_50	IR
+mcmc_out/M1_PA_75_DeltaLL_50_clock3_nsample500000_out.txt	DeltaLL_50	AR
+mcmc_out/M1_PA_75_DeltaLL_75_clock2_nsample500000_out.txt	DeltaLL_75	IR
+mcmc_out/M1_PA_75_DeltaLL_75_clock3_nsample500000_out.txt	DeltaLL_75	AR
 
 # Example data
 https://github.com/songweizhi/TreeSAK/tree/master/DemoData/VisHPD95
 
-==================================================================================
+==============================================================================
 '''
 
 
 def VisHPD95(args):
 
-    mcmc_in     = args['i']
+    input_txt   = args['i']
     node_txt    = args['n']
     label_txt   = args['label']
     plot_out    = args['o']
@@ -127,48 +142,47 @@ def VisHPD95(args):
 
     pwd_current_file  = os.path.realpath(__file__)
     current_file_path = '/'.join(pwd_current_file.split('/')[:-1])
-    VisHPD95_R  = '%s/VisHPD95.R' % current_file_path
+    VisHPD95_R        = '%s/VisHPD95.R' % current_file_path
+    dm_out            = '%s.txt' % plot_out
 
-    dm_out      = '%s.txt' % plot_out
-
-    # check MCMCTree output file/dir
-    if os.path.isfile(mcmc_in) is True:
-        mcmc_out_file_list = [mcmc_in]
-    else:
-        mcmc_out_file_re = '%s/*_out.txt' % (mcmc_in)
-        mcmc_out_file_list = glob.glob(mcmc_out_file_re)
-
-    if len(mcmc_out_file_list) == 0:
-        print('MCMCTree out file not found, program exited!')
+    if os.path.isfile(input_txt) is False:
+        print('%s not found, program exited!' % input_txt)
         exit()
 
-    # read in y-axis label file
+    mcmc_out_file_list = set()
     label_dict = dict()
     color_dict = dict()
     shape_dict = dict()
-    if label_txt is not None:
-        for each_sample in open(label_txt):
-            each_sample_split = each_sample.strip().split('\t')
-            if len(each_sample_split) == 3:
-                label_dict[each_sample_split[0]] = each_sample_split[1]
-                color_dict[each_sample_split[0]] = each_sample_split[1]
-                shape_dict[each_sample_split[0]] = each_sample_split[2]
+    missing_file_set = set()
+    for each_file in open(input_txt):
+        if not each_file.startswith('File\tColor_by\tShape_by'):
+            each_file_split = each_file.strip().split('\t')
+            if len(each_file_split) == 3:
+                pwd_file = each_file_split[0]
+                mcmc_out_file_list.add(pwd_file)
+                _, _, f_base, _ = sep_path_basename_ext(pwd_file)
+                label_dict[f_base] = each_file_split[1]
+                color_dict[f_base] = each_file_split[1]
+                shape_dict[f_base] = each_file_split[2]
+                if os.path.isfile(pwd_file) is False:
+                    missing_file_set.add(pwd_file)
             else:
                 print('Format error: %s' % label_txt)
                 exit()
 
+    if len(missing_file_set) > 0:
+        print('The following files are missing, program exited!')
+        print('\n'.join(sorted(list(missing_file_set))))
+        exit()
+
     dm_out_handle = open(dm_out, 'w')
     dm_out_handle.write('Test\tShape\tVar\tMean\tLow\tHigh\n')
     for mcmc_out_file in mcmc_out_file_list:
-        mcmc_out_file_no_path = mcmc_out_file
-        if '/' in mcmc_out_file_no_path:
-            mcmc_out_file_no_path = mcmc_out_file_no_path.split('/')[-1]
-
-        color_col_to_write = color_dict.get(mcmc_out_file_no_path, mcmc_out_file_no_path)
-        shape_col_to_write = shape_dict.get(mcmc_out_file_no_path, mcmc_out_file_no_path)
+        _, _, mcmc_out_file_base, _ = sep_path_basename_ext(mcmc_out_file)
+        color_col_to_write = color_dict.get(mcmc_out_file_base, mcmc_out_file_base)
+        shape_col_to_write = shape_dict.get(mcmc_out_file_base, mcmc_out_file_base)
         node_set, node_rename_dict, tree_str = get_internal_node_to_plot(node_txt, mcmc_out_file)
         node_to_mean_95_hpd_dict = read_in_posterior_mean(mcmc_out_file)
-
         for each_node in node_set:
             node_name_to_write = node_rename_dict.get(each_node, each_node)
             mean_95_hpd_list = node_to_mean_95_hpd_dict.get(each_node)
@@ -183,18 +197,10 @@ def VisHPD95(args):
 if __name__ == '__main__':
 
     VisHPD95_parser = argparse.ArgumentParser()
-    VisHPD95_parser.add_argument('-i',      required=True,                      help='mcmc.txt file or folder')
-    VisHPD95_parser.add_argument('-n',      required=True,                      help='Nodes to plot')
-    VisHPD95_parser.add_argument('-label',  required=False, default=None,       help='labels on y axis')
-    VisHPD95_parser.add_argument('-x',      required=False, default=8,type=int, help='plot width, default: 8')
-    VisHPD95_parser.add_argument('-y',      required=False, default=5,type=int, help='plot height, default: 5')
-    VisHPD95_parser.add_argument('-o',      required=True,                      help='Output plot')
+    VisHPD95_parser.add_argument('-i',      required=True,                          help='input file')
+    VisHPD95_parser.add_argument('-n',      required=True,                          help='nodes to plot')
+    VisHPD95_parser.add_argument('-x',      required=False, default=10,type=int,    help='plot width, default: 10')
+    VisHPD95_parser.add_argument('-y',      required=False, default=6,type=int,     help='plot height, default: 6')
+    VisHPD95_parser.add_argument('-o',      required=True,                          help='output plot')
     args = vars(VisHPD95_parser.parse_args())
     VisHPD95(args)
-
-'''
-
-cd /Users/songweizhi/Desktop/777
-python3 ~/PycharmProjects/TreeSAK/TreeSAK/VisHPD95.py -i M1_mcmc_txt -o M1_HPD95.pdf -n nodes_five.txt -label y_label_out.txt
-
-'''

@@ -16,7 +16,7 @@ plot_grouped_HPD95 <- function(data_file, plot_width, plot_height, plot_file){
           panel.grid.minor=element_blank()) +                                   # remove grid
     xlab("") +                                                                  # x-axis label text
     ylab("95% HPD CI") +                                                        # y-axis label text
-    theme(axis.text.x=element_text(size=12, color='black', angle=30, hjust=1),  # x-axis label, rotate at an angle of 45
+    theme(axis.text.x=element_text(size=12, color='black', angle=315, hjust=0),  # x-axis label, rotate at an angle of 45
           axis.text.y=element_text(size=12, color='black'),                     # y-axis label
           legend.text=element_text(size=10)) +                                  # legend label
     scale_color_discrete(name="Color") +                                        # customize color legend, title
@@ -31,8 +31,8 @@ plot_grouped_HPD95 <- function(data_file, plot_width, plot_height, plot_file){
 
 option_list = list(
   make_option(c("-i", "--datain"),  type="character", default=NULL, help="input data matrix"),
-  make_option(c("-x", "--width"),   type="double",    default=8,    help="plot width"),
-  make_option(c("-y", "--height"),  type="double",    default=5,    help="plot height"),
+  make_option(c("-x", "--width"),   type="double",    default=10,   help="plot width"),
+  make_option(c("-y", "--height"),  type="double",    default=6,    help="plot height"),
   make_option(c("-o", "--plotout"), type="character", default=NULL, help="output plot"));
 
 opt_parser      = OptionParser(option_list=option_list);

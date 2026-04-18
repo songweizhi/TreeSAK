@@ -376,12 +376,11 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'VisHPD95':
         from TreeSAK import VisHPD95
         VisHPD95_parser = subparsers.add_parser('VisHPD95', usage=VisHPD95.VisHPD95_usage)
-        VisHPD95_parser.add_argument('-i',      required=True,                      help='mcmc.txt file or folder')
-        VisHPD95_parser.add_argument('-n',      required=True,                      help='Nodes to plot')
-        VisHPD95_parser.add_argument('-label',  required=False, default=None,       help='labels on y axis')
-        VisHPD95_parser.add_argument('-x',      required=False, default=8,type=int, help='plot width, default: 8')
-        VisHPD95_parser.add_argument('-y',      required=False, default=5,type=int, help='plot height, default: 5')
-        VisHPD95_parser.add_argument('-o',      required=True,                      help='Output plot')
+        VisHPD95_parser.add_argument('-i',      required=True,                          help='input file')
+        VisHPD95_parser.add_argument('-n',      required=True,                          help='nodes to plot')
+        VisHPD95_parser.add_argument('-x',      required=False, default=10,type=int,    help='plot width, default is 10')
+        VisHPD95_parser.add_argument('-y',      required=False, default=6,type=int,     help='plot height, default is 6')
+        VisHPD95_parser.add_argument('-o',      required=True,                          help='output plot')
         args = vars(parser.parse_args())
         VisHPD95.VisHPD95(args)
 
