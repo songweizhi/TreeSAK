@@ -9,14 +9,14 @@ from ete3 import Tree
 RootTreeGTDB_usage = '''
 ========================================== RootTreeGTDB example command ==========================================   
 
-TreeSAK RootTreeGTDB -r r226 -add_root -db db_dir -d ar -tree ar53.tree -tax ar53.summary.tsv -o ar53.rooted.tree
-TreeSAK RootTreeGTDB -r r226 -add_root -db db_dir -d bac -tree bac120.tree -tax bac120.summary.tsv -o bac120.rooted.tree
+TreeSAK RootTreeGTDB -r r232 -add_root -db db_dir -d ar -tree ar53.tree -tax ar53.summary.tsv -o ar53.rooted.tree
+TreeSAK RootTreeGTDB -r r232 -add_root -db db_dir -d bac -tree bac120.tree -tax bac120.summary.tsv -o bac120.rooted.tree
 
 # Need to download and decompress the following files to your database folder (provide with -db)
-https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/ar53_r226.tree.tar.gz
-https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/bac120_r226.tree.tar.gz
-https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/ar53_metadata_r226.tsv.gz
-https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/bac120_metadata_r226.tsv.gz
+https://data.gtdb.aau.ecogenomic.org/releases/release232/232.0/ar53_r232.tree.gz
+https://data.gtdb.aau.ecogenomic.org/releases/release232/232.0/bac120_r232.tree.gz
+https://data.gtdb.aau.ecogenomic.org/releases/release232/232.0/ar53_metadata_r232.tsv.gz
+https://data.gtdb.aau.ecogenomic.org/releases/release232/232.0/bac120_metadata_r232.tsv.gz
 
 ==================================================================================================================
 '''
@@ -153,21 +153,10 @@ def RootTreeGTDB_single_tree(input_unrooted_tree, user_gnm_taxon, db_dir, gnm_do
         leaf_list.append(leaf_name)
 
     # define file name
-    if gtdb_release in ['r214', 'R214']:
-        gtdb_ref_tree_ar    = '%s/ar53_r214.tree'           % db_dir
-        gtdb_ref_tree_bac   = '%s/bac120_r214.tree'         % db_dir
-        gtdb_gnm_meta_ar    = '%s/ar53_metadata_r214.tsv'   % db_dir
-        gtdb_gnm_meta_bac   = '%s/bac120_metadata_r214.tsv' % db_dir
-    elif gtdb_release in ['r220', 'R220']:
-        gtdb_ref_tree_ar    = '%s/ar53_r220.tree'           % db_dir
-        gtdb_ref_tree_bac   = '%s/bac120_r220.tree'         % db_dir
-        gtdb_gnm_meta_ar    = '%s/ar53_metadata_r220.tsv'   % db_dir
-        gtdb_gnm_meta_bac   = '%s/bac120_metadata_r220.tsv' % db_dir
-    elif gtdb_release in ['r226', 'R226']:
-        gtdb_ref_tree_ar    = '%s/ar53_r226.tree'           % db_dir
-        gtdb_ref_tree_bac   = '%s/bac120_r226.tree'         % db_dir
-        gtdb_gnm_meta_ar    = '%s/ar53_metadata_r226.tsv'   % db_dir
-        gtdb_gnm_meta_bac   = '%s/bac120_metadata_r226.tsv' % db_dir
+    gtdb_ref_tree_ar    = '%s/ar53_%s.tree'           % (db_dir, gtdb_release)
+    gtdb_ref_tree_bac   = '%s/bac120_%s.tree'         % (db_dir, gtdb_release)
+    gtdb_gnm_meta_ar    = '%s/ar53_metadata_%s.tsv'   % (db_dir, gtdb_release)
+    gtdb_gnm_meta_bac   = '%s/bac120_metadata_%s.tsv' % (db_dir, gtdb_release)
 
     if gnm_domain == 'bac':
         gtdb_ref_tree = gtdb_ref_tree_bac
@@ -366,6 +355,6 @@ if __name__ == '__main__':
     RootTreeGTDB_parser.add_argument('-add_root', required=False, action='store_true', help='add the root branch')
     RootTreeGTDB_parser.add_argument('-o',        required=True,                       help='output folder')
     RootTreeGTDB_parser.add_argument('-f',        required=False, action="store_true", help='force overwrite')
-    RootTreeGTDB_parser.add_argument('-r',        required=True,                       help='GTDB release, e.g., r220, r226')
+    RootTreeGTDB_parser.add_argument('-r',        required=True,                       help='GTDB release, e.g., r232')
     args = vars(RootTreeGTDB_parser.parse_args())
     RootTreeGTDB(args)

@@ -1,3 +1,5 @@
+import os
+import glob
 import math
 import random
 import os.path
@@ -15,6 +17,7 @@ TreeSAK iTOL -ColoredLabel -lg leaf_group.txt -gc group_color.txt -o iTOL_Colore
 TreeSAK iTOL -Binary -lm Binary_matrix.txt -lt Enzyme -o Presence_Absence_iTOL.txt -cc "#F1BB83"
 TreeSAK iTOL -Binary -lm Binary_matrix.txt -lt Enzyme -o Presence_Absence_iTOL.txt -cc col_color.txt
 TreeSAK iTOL -BinaryID -id MagID.txt -lt dRep95 -o dRep95_representatives_iTOL.txt
+TreeSAK iTOL -BinaryID -id Mag_dir -x fna -lt dRep95 -o dRep95_representatives_iTOL.txt
 TreeSAK iTOL -Heatmap -lm MagAbundance.txt -lt Abundance -o Heatmap_abundance.txt
 TreeSAK iTOL -SimpleBar -lv MagSize.txt -scale 0-3-6-9 -lt Size -o SimpleBar_size.txt
 TreeSAK iTOL -ColorStrip -lg MagTaxon.txt -lt Phylum -gc phylum_color.txt -o ColorStrip_taxon.txt
@@ -57,6 +60,17 @@ GCA964531195_1|GCA016201435_1	g__TA-20
 
 ===============================================================================================
 '''
+
+
+def sep_path_basename_ext(file_in):
+
+    f_path, f_name = os.path.split(file_in)
+    if f_path == '':
+        f_path = '.'
+    f_base, f_ext = os.path.splitext(f_name)
+    f_ext = f_ext[1:]
+
+    return f_name, f_path, f_base, f_ext
 
 
 def get_timescale_file(chart_ttl, time_range, time_unit, interested_rank):
@@ -280,6 +294,7 @@ def iTOL(args):
     time_range              = args['rg']
     time_unit               = args['u']
     interested_rank         = args['rk']
+    file_ext                = args['x']
 
     # General
     MARGIN                      = 20
@@ -570,6 +585,19 @@ def iTOL(args):
 
     # Prepare BinaryID file
     if BinaryID is True:
+
+        id_set = set()
+        if os.path.isfile(leaf_id_txt) is True:
+            for each_line in open(leaf_id_txt):
+                leaf_id = each_line.strip().split()[0]
+                id_set.add(leaf_id)
+        elif os.path.isdir(leaf_id_txt) is True:
+            file_re = '%s/*.%s' % (leaf_id_txt, file_ext)
+            file_list = glob.glob(file_re)
+            for each_file in file_list:
+                _, _, f_base, _ = sep_path_basename_ext(each_file)
+                id_set.add(f_base)
+
         BinaryID_FileOut_handle = open(FileOut, 'w')
         BinaryID_FileOut_handle.write('DATASET_BINARY\n\nSEPARATOR TAB\nDATASET_LABEL\t%s\nCOLOR\tred\n' % LegendTitle)
         BinaryID_FileOut_handle.write('SHOW_LABELS\t1\nLABEL_ROTATION\t45\nLABEL_SHIFT\t30\nSIZE_FACTOR\t2\n')
@@ -581,9 +609,8 @@ def iTOL(args):
         BinaryID_FileOut_handle.write('HORIZONTAL_GRID\t0\n')
         BinaryID_FileOut_handle.write('VERTICAL_GRID\t0\n')
         BinaryID_FileOut_handle.write('\nDATA\n')
-        for each_line in open(leaf_id_txt):
-            leaf_id = each_line.strip().split()[0]
-            BinaryID_FileOut_handle.write('%s\t1\n' % leaf_id)
+        for each_id in sorted(list(id_set)):
+            BinaryID_FileOut_handle.write('%s\t1\n' % each_id)
         BinaryID_FileOut_handle.close()
 
     ####################################################################################################################
@@ -905,6 +932,7 @@ if __name__ == '__main__':
     iTOL_parser.add_argument('-Collapse',           required=False, action='store_true',    help='Collapse')
     iTOL_parser.add_argument('-TimeScale',          required=False, action='store_true',    help='TimeScale')
     iTOL_parser.add_argument('-id',                 required=False, default=None,           help='File contains leaf id')
+    iTOL_parser.add_argument('-x',                  required=False, default=None,           help='File extension')
     iTOL_parser.add_argument('-ll',                 required=False, default=None,           help='Leaf Label')
     iTOL_parser.add_argument('-lg',                 required=False, default=None,           help='Leaf Group')
     iTOL_parser.add_argument('-gc',                 required=False, default=None,           help='Specify Group/column Color (optional)')

@@ -19,7 +19,7 @@ def print_leaves(args):
     tree_fmt     = args['fmt']
 
     leaf_list = []
-    for leaf in Tree(tree_file_in, format=tree_fmt):
+    for leaf in Tree(tree_file_in, format=tree_fmt, quoted_node_names=True):
         leaf_name = leaf.name
         leaf_list.append(leaf_name)
 

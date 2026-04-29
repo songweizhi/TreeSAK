@@ -2,15 +2,15 @@ library(ggplot2)
 library(optparse)
 
 
-plot_grouped_HPD95 <- function(data_file, plot_width, plot_height, plot_file){
-
+plot_grouped_HPD95 <- function(data_file, plot_width, plot_height, plot_file, x_axis_label_order){
+ 
   dat <- read.table(data_file, header = T)
-
-  ggplot(dat, aes(x = Var, y = Mean, ymin = Low, ymax = High)) +
-    geom_pointrange(aes(col = factor(Test), shape=factor(Shape)),
+  ggplot(dat, aes(x=Node, # x=factor(Node, level=unlist(strsplit(x_axis_label_order, split = ",")))
+                  y = Mean, ymin = Low, ymax = High)) +
+    geom_pointrange(aes(color=factor(Color), shape=factor(Shape)),
                     position=position_dodge(width=0.6),                         # controls distance between groups
-                    linewidth = 0.9,                                            # line width
-                    size=0.75) +                                                # size of shape
+                    linewidth = 0.6,                                            # line width
+                    size=0.5) +                                                # size of shape
     theme_bw() +                                                                # remove background
     theme(panel.grid.major=element_blank(),                                     # remove grid
           panel.grid.minor=element_blank()) +                                   # remove grid
@@ -30,16 +30,18 @@ plot_grouped_HPD95 <- function(data_file, plot_width, plot_height, plot_file){
 
 
 option_list = list(
-  make_option(c("-i", "--datain"),  type="character", default=NULL, help="input data matrix"),
-  make_option(c("-x", "--width"),   type="double",    default=10,   help="plot width"),
-  make_option(c("-y", "--height"),  type="double",    default=6,    help="plot height"),
-  make_option(c("-o", "--plotout"), type="character", default=NULL, help="output plot"));
+  make_option(c("-i", "--datain"),      type="character", default=NULL,    help="input data matrix"),
+  make_option(c("-x", "--width"),       type="double",    default=10,      help="plot width"),
+  make_option(c("-y", "--height"),      type="double",    default=6,       help="plot height"),
+  make_option(c("-l", "--labelorder"),  type="character", default=NULL,    help="order of x-axis label"),
+  make_option(c("-o", "--plotout"),     type="character", default=NULL,    help="output plot"));
 
-opt_parser      = OptionParser(option_list=option_list);
-opt             = parse_args(opt_parser);
-data_matrix_txt = opt$datain
-plot_width      = opt$width
-plot_height     = opt$height
-output_plot     = opt$plotout
+opt_parser         = OptionParser(option_list=option_list);
+opt                = parse_args(opt_parser);
+data_matrix_txt    = opt$datain
+plot_width         = opt$width
+plot_height        = opt$height
+output_plot        = opt$plotout
+x_axis_label_order = opt$labelorder
 
-plot_grouped_HPD95(data_matrix_txt, plot_width, plot_height, output_plot)
+plot_grouped_HPD95(data_matrix_txt, plot_width, plot_height, output_plot, x_axis_label_order)

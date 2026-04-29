@@ -3,6 +3,27 @@ import argparse
 from ete3 import Tree
 
 
+VisHPD95_usage = '''
+============================ VisHPD95 example command ============================
+
+TreeSAK VisHPD95 -i samples.txt -n nodes.txt -o HPD95.pdf
+
+# The input file has three columns (tab separated)
+# Samples will be colored by the 1st column and shaped by the 2nd column
+DeltaLL_50	IR  dating_results/M1_PA_75_DeltaLL_50_clock2_nsample500000_out.txt
+DeltaLL_50	AR  dating_results/M1_PA_75_DeltaLL_50_clock3_nsample500000_out.txt
+DeltaLL_75	IR  dating_results/M1_PA_75_DeltaLL_75_clock2_nsample500000_out.txt
+DeltaLL_75	AR  dating_results/M1_PA_75_DeltaLL_75_clock3_nsample500000_out.txt
+JTT_default	RelTime	dating_results/topo1_RelTime_JTT_default.txt
+JTT_Gamma4	RelTime	dating_results/topo1_RelTime_JTT_Gamma4.txt
+
+# Example data
+https://github.com/songweizhi/TreeSAK/tree/master/DemoData/VisHPD95
+
+==================================================================================
+'''
+
+
 def sep_path_basename_ext(file_in):
 
     f_path, f_name = os.path.split(file_in)
@@ -112,86 +133,201 @@ def read_in_posterior_mean(mcmctree_out):
     return node_to_mean_hpd95_dict
 
 
-VisHPD95_usage = '''
-========================== VisHPD95 example command ==========================
+def get_lca_from_reltime_op(reltime_txt, leaf_1_name, leaf_2_name):
 
-TreeSAK VisHPD95 -i samples.txt -n nodes.txt -o HPD95.pdf
+    leaf_set = set()
+    child_to_parent_dict = dict()
+    id_to_name_dict = dict()
+    name_to_id_dict = dict()
+    for each_line in open(reltime_txt):
+        if not each_line.startswith('NodeLabel'):
+            each_line_split = each_line.strip().split('\t')
+            each_line_split = [i.strip() for i in each_line_split]
+            if len(each_line_split) > 1:
+                node_name = each_line_split[0].replace(' ', '_')
+                node_id = each_line_split[1]
+                des1 = each_line_split[2]
+                des2 = each_line_split[3]
+                id_to_name_dict[node_id] = node_name
+                name_to_id_dict[node_name] = node_id
+                child_to_parent_dict[des1] = node_id
+                child_to_parent_dict[des2] = node_id
+                if (des1 == '-') and (des2 == '-'):
+                    leaf_set.add(node_id)
 
-# The input file has three columns (tab separated)
-# Samples will be colored by the 2nd column and shaped by the 3rd column
-mcmc_out/M1_PA_75_DeltaLL_50_clock2_nsample500000_out.txt	DeltaLL_50	IR
-mcmc_out/M1_PA_75_DeltaLL_50_clock3_nsample500000_out.txt	DeltaLL_50	AR
-mcmc_out/M1_PA_75_DeltaLL_75_clock2_nsample500000_out.txt	DeltaLL_75	IR
-mcmc_out/M1_PA_75_DeltaLL_75_clock3_nsample500000_out.txt	DeltaLL_75	AR
+    leaf_to_lineage_dict = dict()
+    for leaf in sorted([i for i in leaf_set]):
+        original_leaf = leaf
+        lineage_list = [leaf]
+        while leaf in child_to_parent_dict:
+            leaf_p = child_to_parent_dict[leaf]
+            lineage_list.append(leaf_p)
+            leaf = leaf_p
+        leaf_to_lineage_dict[original_leaf] = lineage_list
 
-# Example data
-https://github.com/songweizhi/TreeSAK/tree/master/DemoData/VisHPD95
+    leaf_1_id     = name_to_id_dict[leaf_1_name]
+    leaf_2_id     = name_to_id_dict[leaf_2_name]
+    leaf_1_linage = leaf_to_lineage_dict[leaf_1_id]
+    leaf_2_linage = leaf_to_lineage_dict[leaf_2_id]
 
-==============================================================================
-'''
+    lca = ''
+    for each_p in leaf_1_linage[::-1]:
+        if each_p in leaf_2_linage:
+            lca = each_p
+    return lca
+
+
+def parse_reltime_op(reltime_txt, interested_nodes_txt):
+
+    scale_factor = 1
+
+    lca_to_leaves_dict = dict()
+    interested_node_desc_dict = dict()
+    if interested_nodes_txt is not None:
+        if os.path.isfile(interested_nodes_txt) is False:
+            print('%s not found, program exited!' % interested_nodes_txt)
+            exit()
+        for interested_node in open(interested_nodes_txt):
+            interested_node_split = interested_node.strip().split('\t')
+            paired_leaves = interested_node_split[0]
+            interested_node_desc = paired_leaves
+            if len(interested_node_split) > 1:
+                interested_node_desc = interested_node_split[1]
+            interested_node_desc_dict[paired_leaves] = interested_node_desc
+            leaf_1 = paired_leaves.split(',')[0]
+            leaf_2 = paired_leaves.split(',')[1]
+            lca_id = get_lca_from_reltime_op(reltime_txt, leaf_1, leaf_2)
+            lca_to_leaves_dict[lca_id] = paired_leaves.strip()
+
+    value_list = []
+    line_num_index = 0
+    for each_line in open(reltime_txt):
+        each_line_split = each_line.strip().split('\t')
+        each_line_split = [i.strip() for i in each_line_split]
+        if line_num_index != 0:
+            if len(each_line_split) > 1:
+                if len(lca_to_leaves_dict) == 0:
+                    value_list.append('\t'.join(each_line_split))
+                else:
+                    node_id = each_line_split[1]
+                    if node_id in lca_to_leaves_dict:
+                        corresponding_leaves = lca_to_leaves_dict[node_id]
+                        interested_node_desc = interested_node_desc_dict[corresponding_leaves]
+                        value_list.append('%s\t%s\t%s' % (corresponding_leaves, interested_node_desc, '\t'.join(each_line_split)))
+        line_num_index += 1
+
+    to_write_dict = dict()
+    line_num_index = 0
+    for each_line in value_list:
+        if line_num_index > 0:
+            each_line_split = each_line.strip().split('\t')
+            node_label = each_line_split[1]
+            div_time = each_line_split[7]
+            ci_lower = each_line_split[8]
+            ci_upper = each_line_split[9]
+            if len(lca_to_leaves_dict) != 0:
+                div_time = each_line_split[9]
+                ci_lower = each_line_split[10]
+                ci_upper = each_line_split[11]
+            if not ((div_time == '-') and (ci_lower == '-') and (ci_upper == '-')):
+                div_time = float("{0:.2f}".format(float(div_time) * scale_factor))
+                ci_lower = float("{0:.2f}".format(float(ci_lower) * scale_factor))
+                ci_upper = float("{0:.2f}".format(float(ci_upper) * scale_factor))
+                to_write_dict[node_label] = '%s\t%s-%s\t%s' % (div_time, ci_upper, ci_lower, node_label)
+                to_write_dict[node_label] = [div_time, ci_lower, ci_upper]
+        line_num_index += 1
+
+    return to_write_dict
 
 
 def VisHPD95(args):
 
     input_txt   = args['i']
     node_txt    = args['n']
-    label_txt   = args['label']
     plot_out    = args['o']
     plot_width  = args['x']
     plot_height = args['y']
 
+    _, op_path, op_base, _ = sep_path_basename_ext(plot_out)
+
     pwd_current_file  = os.path.realpath(__file__)
     current_file_path = '/'.join(pwd_current_file.split('/')[:-1])
-    VisHPD95_R        = '%s/VisHPD95.R' % current_file_path
-    dm_out            = '%s.txt' % plot_out
+    VisHPD95_R        = '%s/VisHPD95.R'   % current_file_path
+    dm_out            = '%s/%s_table.txt' % (op_path, op_base)
 
     if os.path.isfile(input_txt) is False:
         print('%s not found, program exited!' % input_txt)
         exit()
 
-    mcmc_out_file_list = set()
-    label_dict = dict()
-    color_dict = dict()
-    shape_dict = dict()
-    missing_file_set = set()
+    dating_result_file_list = set()
+    label_dict              = dict()
+    color_dict              = dict()
+    shape_dict              = dict()
+    missing_file_set        = set()
+    missing_tree_file_set   = set()
     for each_file in open(input_txt):
-        if not each_file.startswith('File\tColor_by\tShape_by'):
-            each_file_split = each_file.strip().split('\t')
-            if len(each_file_split) == 3:
-                pwd_file = each_file_split[0]
-                mcmc_out_file_list.add(pwd_file)
-                _, _, f_base, _ = sep_path_basename_ext(pwd_file)
-                label_dict[f_base] = each_file_split[1]
-                color_dict[f_base] = each_file_split[1]
-                shape_dict[f_base] = each_file_split[2]
-                if os.path.isfile(pwd_file) is False:
-                    missing_file_set.add(pwd_file)
-            else:
-                print('Format error: %s' % label_txt)
-                exit()
+        each_file_split = each_file.strip().split('\t')
+        if len(each_file_split) == 3:
+            dating_result_file  = each_file_split[2].strip()
+            dating_result_file_list.add(dating_result_file)
+            if os.path.isfile(dating_result_file) is False:
+                missing_file_set.add(dating_result_file)
+            label_dict[dating_result_file] = each_file_split[0]
+            color_dict[dating_result_file] = each_file_split[0]
+            shape_dict[dating_result_file] = each_file_split[1]
+        else:
+            print('There is something wrong with the format of %s' % input_txt)
+            print('run "TreeSAK VisHPD95 -h" for help, Program exited!')
+            exit()
 
     if len(missing_file_set) > 0:
         print('The following files are missing, program exited!')
         print('\n'.join(sorted(list(missing_file_set))))
         exit()
 
+    if len(missing_tree_file_set) > 0:
+        print('The following tree files are missing, program exited!')
+        print('\n'.join(sorted(list(missing_tree_file_set))))
+        exit()
+
+    ########## read in dating results ##########
     dm_out_handle = open(dm_out, 'w')
     dm_out_handle.write('Test\tShape\tVar\tMean\tLow\tHigh\n')
-    for mcmc_out_file in mcmc_out_file_list:
-        _, _, mcmc_out_file_base, _ = sep_path_basename_ext(mcmc_out_file)
-        color_col_to_write = color_dict.get(mcmc_out_file_base, mcmc_out_file_base)
-        shape_col_to_write = shape_dict.get(mcmc_out_file_base, mcmc_out_file_base)
-        node_set, node_rename_dict, tree_str = get_internal_node_to_plot(node_txt, mcmc_out_file)
-        node_to_mean_95_hpd_dict = read_in_posterior_mean(mcmc_out_file)
-        for each_node in node_set:
-            node_name_to_write = node_rename_dict.get(each_node, each_node)
-            mean_95_hpd_list = node_to_mean_95_hpd_dict.get(each_node)
-            dm_out_handle.write('%s\t%s\t%s\t%s\n' % (color_col_to_write, shape_col_to_write, node_name_to_write, '\t'.join(mean_95_hpd_list)))
+    n = 1
+    for dating_result_file in dating_result_file_list:
+        dating_result_file_name, _, _, _ = sep_path_basename_ext(dating_result_file)
+        color_col_to_write  = color_dict.get(dating_result_file, dating_result_file)
+        shape_col_to_write  = shape_dict.get(dating_result_file, dating_result_file)
+        dating_approach = ''
+        with open(dating_result_file) as f:
+            first_line = f.readline()
+            if first_line.startswith('MCMCTREE'):
+                dating_approach = 'mcmctree'
+            elif first_line.startswith('NodeLabel'):
+                dating_approach = 'reltime'
+            else:
+                print('Unrecognisable dating approach for %s, program exited!' % dating_result_file_name)
+                exit()
+
+        if dating_approach == 'mcmctree':
+            node_set, node_rename_dict, tree_str = get_internal_node_to_plot(node_txt, dating_result_file)
+            node_to_mean_95_hpd_dict = read_in_posterior_mean(dating_result_file)
+            for each_node in node_set:
+                node_name_to_write = node_rename_dict.get(each_node, each_node)
+                mean_95_hpd_list = node_to_mean_95_hpd_dict.get(each_node)
+                dm_out_handle.write('%s\t%s\t%s\t%s\n' % (color_col_to_write, shape_col_to_write, node_name_to_write, '\t'.join(mean_95_hpd_list)))
+        if dating_approach == 'reltime':
+            reltime_value_dict = parse_reltime_op(dating_result_file, node_txt)
+            for each_node in reltime_value_dict:
+                node_age_value_list = reltime_value_dict[each_node]
+                dm_out_handle.write('%s\t%s\t%s\t%s\n' % (color_col_to_write, shape_col_to_write, each_node, '\t'.join([str(i) for i in node_age_value_list])))
     dm_out_handle.close()
 
-    plot_cmd   = 'Rscript %s -i %s -x %s -y %s -o %s' % (VisHPD95_R, dm_out, plot_width, plot_height, plot_out)
+    plot_cmd = 'Rscript %s -i %s -x %s -y %s -o %s' % (VisHPD95_R, dm_out, plot_width, plot_height, plot_out)
     os.system(plot_cmd)
+
     print('Plot exported to: %s' % plot_out)
+    print('Done!')
 
 
 if __name__ == '__main__':

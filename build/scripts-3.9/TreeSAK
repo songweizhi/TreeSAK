@@ -715,7 +715,7 @@ if __name__ == '__main__':
         RootTreeGTDB_parser.add_argument('-add_root', required=False, action='store_true', help='add the root branch')
         RootTreeGTDB_parser.add_argument('-o',        required=True,                       help='output folder')
         RootTreeGTDB_parser.add_argument('-f',        required=False, action="store_true", help='force overwrite')
-        RootTreeGTDB_parser.add_argument('-r',        required=True,                       help='GTDB release, e.g., r220, r226')
+        RootTreeGTDB_parser.add_argument('-r',        required=True,                       help='GTDB release, e.g., r232')
         args = vars(parser.parse_args())
         RootTreeGTDB.RootTreeGTDB(args)
 
@@ -799,6 +799,7 @@ if __name__ == '__main__':
         iTOL_parser.add_argument('-Collapse',           required=False, action='store_true',    help='Collapse')
         iTOL_parser.add_argument('-TimeScale',          required=False, action='store_true',    help='TimeScale')
         iTOL_parser.add_argument('-id',                 required=False, default=None,           help='File contains leaf id')
+        iTOL_parser.add_argument('-x',                  required=False, default=None,           help='File extension')
         iTOL_parser.add_argument('-ll',                 required=False, default=None,           help='Leaf Label')
         iTOL_parser.add_argument('-gc',                 required=False, default=None,           help='Specify Group/column Color (optional)')
         iTOL_parser.add_argument('-cc',                 required=False, default=None,           help='Specify Column Color (for ExternalShape format) (optional)')
@@ -1027,6 +1028,8 @@ cd /Users/songweizhi/PycharmProjects/TreeSAK
 rm -r build dist TreeSAK.egg-info
 python3 setup.py sdist bdist_wheel
 twine upload dist/*
+
+__token__
 
 pip3 install --upgrade TreeSAK
 

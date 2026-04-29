@@ -1,6 +1,0 @@
-mcmc_out/M1_PA_75_DeltaLL_50_clock2_nsample500000_out.txt	DeltaLL_50	IR
-mcmc_out/M1_PA_75_DeltaLL_50_clock3_nsample500000_out.txt	DeltaLL_50	AR
-mcmc_out/M1_PA_75_DeltaLL_75_clock2_nsample500000_out.txt	DeltaLL_75	IR
-mcmc_out/M1_PA_75_DeltaLL_75_clock3_nsample500000_out.txt	DeltaLL_75	AR
-mcmc_out/M1_PA_75_DeltaLL_100_clock2_nsample500000_out.txt	DeltaLL_100	IR
-mcmc_out/M1_PA_75_DeltaLL_100_clock3_nsample500000_out.txt	DeltaLL_100	AR
