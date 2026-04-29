@@ -185,7 +185,6 @@ def get_lca_from_reltime_op(reltime_txt, leaf_1_name, leaf_2_name):
 def parse_reltime_op(reltime_txt, interested_nodes_txt):
 
     scale_factor = 1
-
     lca_to_leaves_dict = dict()
     interested_node_desc_dict = dict()
     if interested_nodes_txt is not None:
@@ -203,10 +202,6 @@ def parse_reltime_op(reltime_txt, interested_nodes_txt):
             leaf_2 = paired_leaves.split(',')[1]
             lca_id = get_lca_from_reltime_op(reltime_txt, leaf_1, leaf_2)
             lca_to_leaves_dict[lca_id] = paired_leaves.strip()
-
-    print(lca_to_leaves_dict)
-    print(interested_node_desc_dict)
-    print()
 
     value_list = []
     line_num_index = 0
@@ -226,25 +221,22 @@ def parse_reltime_op(reltime_txt, interested_nodes_txt):
         line_num_index += 1
 
     to_write_dict = dict()
-    line_num_index = 0
     for each_line in value_list:
-        if line_num_index > 0:
-            each_line_split = each_line.strip().split('\t')
-            node_label = each_line_split[1]
-            div_time = each_line_split[7]
-            ci_lower = each_line_split[8]
-            ci_upper = each_line_split[9]
-            if len(lca_to_leaves_dict) != 0:
-                div_time = each_line_split[9]
-                ci_lower = each_line_split[10]
-                ci_upper = each_line_split[11]
-            if not ((div_time == '-') and (ci_lower == '-') and (ci_upper == '-')):
-                div_time = float("{0:.2f}".format(float(div_time) * scale_factor))
-                ci_lower = float("{0:.2f}".format(float(ci_lower) * scale_factor))
-                ci_upper = float("{0:.2f}".format(float(ci_upper) * scale_factor))
-                to_write_dict[node_label] = '%s\t%s-%s\t%s' % (div_time, ci_upper, ci_lower, node_label)
-                to_write_dict[node_label] = [div_time, ci_lower, ci_upper]
-        line_num_index += 1
+        each_line_split = each_line.strip().split('\t')
+        node_label = each_line_split[1]
+        div_time = each_line_split[7]
+        ci_lower = each_line_split[8]
+        ci_upper = each_line_split[9]
+        if len(lca_to_leaves_dict) != 0:
+            div_time = each_line_split[9]
+            ci_lower = each_line_split[10]
+            ci_upper = each_line_split[11]
+        if not ((div_time == '-') and (ci_lower == '-') and (ci_upper == '-')):
+            div_time = float("{0:.2f}".format(float(div_time) * scale_factor))
+            ci_lower = float("{0:.2f}".format(float(ci_lower) * scale_factor))
+            ci_upper = float("{0:.2f}".format(float(ci_upper) * scale_factor))
+            to_write_dict[node_label] = '%s\t%s-%s\t%s' % (div_time, ci_upper, ci_lower, node_label)
+            to_write_dict[node_label] = [div_time, ci_lower, ci_upper]
 
     return to_write_dict
 
@@ -376,6 +368,7 @@ def VisHPD95(args):
 
     plot_cmd    = 'Rscript %s -i %s -x %s -y %s -o %s -l "%s" -b %s -v %s' % (VisHPD95_R,    dm_out, plot_width, plot_height, plot_out, order_str, break_point_str, v_line_str)
     plot_cmd_v2 = 'Rscript %s -i %s -x %s -y %s -o %s -l "%s" -b %s -v %s' % (VisHPD95_R_v2, dm_out, plot_width, plot_height, plot_out, order_str, break_point_str, v_line_str)
+    print(plot_cmd_v2)
     os.system(plot_cmd_v2)
 
     print('Plot exported to: %s' % plot_out)
