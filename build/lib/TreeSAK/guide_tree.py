@@ -3,6 +3,7 @@ import argparse
 from ete3 import Tree
 from Bio import SeqIO
 
+
 guide_tree_usage = '''
 ============================== guide_tree example command ==============================
 
@@ -10,6 +11,9 @@ TreeSAK guide_tree -i in.tree -g gnm_group.txt -o out.tree
 TreeSAK guide_tree -i in.tree -g gnm_group.txt -o out.tree -id interested_gnm.txt
 TreeSAK guide_tree -i in.tree -g gnm_group.txt -o out.tree -id representative_gene.fa
 TreeSAK guide_tree -i in.tree -g gnm_group.txt -o out.tree -id representative_gene.aln
+
+# Note
+Topology tree leaves that do not have assigned genomes will be omitted from the output tree.
 
 ========================================================================================
 '''
@@ -28,9 +32,16 @@ def sep_path_basename_ext(file_in):
 def guide_tree(args):
 
     tree_in                     = args['i']
+    tree_in_leaves_to_ignore    = args['x']
     gnm_group_txt               = args['g']
     interested_gene_gnm_txt_fa  = args['id']
     tree_out                    = args['o']
+
+    if tree_in_leaves_to_ignore is not None:
+        if os.path.isfile(tree_in_leaves_to_ignore) is False:
+            pass
+        else:
+            pass
 
     if os.path.isfile(tree_in) is False:
         print('%s not exist, program exited!' % tree_in)
@@ -141,7 +152,7 @@ def guide_tree(args):
 if __name__ == '__main__':
 
     guide_tree_parser = argparse.ArgumentParser(usage=guide_tree_usage)
-    guide_tree_parser.add_argument('-i',    required=True,                  help='input tree')
+    guide_tree_parser.add_argument('-i',    required=True,                  help='input topo tree')
     guide_tree_parser.add_argument('-g',    required=True,                  help='gene/genome group/taxonomy')
     guide_tree_parser.add_argument('-id',   required=False, default=None,   help='interested genes/genomes')
     guide_tree_parser.add_argument('-o',    required=True,                  help='output tree')

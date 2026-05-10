@@ -52,8 +52,8 @@ def mcmctree_out_to_tree_str(mamctree_out):
         if tree_line == current_line:
             tree_str = each_line.strip()
         current_line += 1
-
     tree_str_no_space = tree_str.replace(' ', '')
+    tree_str_no_space = '(%s);' % tree_str_no_space[:-1]
 
     # rename tree nodes
     t = Tree(tree_str_no_space, format=1)
@@ -63,7 +63,6 @@ def mcmctree_out_to_tree_str(mamctree_out):
         else:
             node_name_new = 't_n%s' % each_node.name
         each_node.name = node_name_new
-
     tree_str_renamed = t.write(format=8)
 
     return tree_str_renamed

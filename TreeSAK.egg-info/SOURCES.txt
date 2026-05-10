@@ -128,7 +128,7 @@ TreeSAK/rm_leaf.py
 TreeSAK/root_with_out_group.py
 TreeSAK/run_TaxaCountStats_R_s1.py
 TreeSAK/subsample_drep_gnms.py
-TreeSAK/subset.py
+TreeSAK/subset_tree.py
 TreeSAK/subset_tree_stupid_old_way.py
 TreeSAK/supertree.py
 TreeSAK/tmp_1.py

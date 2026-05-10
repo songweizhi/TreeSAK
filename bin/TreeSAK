@@ -69,7 +69,7 @@ def print_main_help():
        MarkerSeq2Tree         ->  Marker sequence to tree
        MarkerRef2Tree         ->  Marker (reference sequence) to Tree
        GTDB_tree              ->  Get GTDB tree
-       subset                 ->  Subset tree
+       subset_tree            ->  Subset tree
        TaxonTree              ->  Subset GTDB tree by taxon
        compare_trees          ->  Compare trees with Mantel test
        rename_leaves          ->  Rename tree leaves
@@ -128,17 +128,17 @@ if __name__ == '__main__':
         print_main_help()
         sys.exit(0)
 
-    elif sys.argv[1] == 'subset':
-        from TreeSAK import subset
-        subset_parser = subparsers.add_parser('subset', description='Subset tree', usage=subset.subset_usage)
-        subset_parser.add_argument('-i',   required=True,                           help='input tree file')
-        subset_parser.add_argument('-fi',  required=False, default=1, type=int,     help='input tree format, default: 1')
-        subset_parser.add_argument('-k',   required=False, default=None,            help='leaves to keep')
-        subset_parser.add_argument('-r',   required=False, default=None,            help='leaves to remove')
-        subset_parser.add_argument('-o',   required=True,                           help='output tree file')
-        subset_parser.add_argument('-fo',  required=False, default=1, type=int,     help='output tree format, default: 1')
+    elif sys.argv[1] == 'subset_tree':
+        from TreeSAK import subset_tree
+        subset_tree_parser = subparsers.add_parser('subset_tree', description='Subset tree', usage=subset_tree.subset_tree_usage)
+        subset_tree_parser.add_argument('-i',   required=True,                           help='input tree file')
+        subset_tree_parser.add_argument('-fi',  required=False, default=1, type=int,     help='input tree format, default: 1')
+        subset_tree_parser.add_argument('-k',   required=False, default=None,            help='leaves to keep')
+        subset_tree_parser.add_argument('-r',   required=False, default=None,            help='leaves to remove')
+        subset_tree_parser.add_argument('-o',   required=True,                           help='output tree file')
+        subset_tree_parser.add_argument('-fo',  required=False, default=1, type=int,     help='output tree format, default: 1')
         args = vars(parser.parse_args())
-        subset.subset(args)
+        subset_tree.subset_tree(args)
 
     elif sys.argv[1] == 'label_tree':
         from TreeSAK import label_tree
