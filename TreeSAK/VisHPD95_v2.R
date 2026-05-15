@@ -2,13 +2,15 @@ library(ggplot2)
 library(optparse)
 
 
-plot_grouped_HPD95 <- function(data_file, plot_width, plot_height, plot_file, x_axis_label_order, break_point_str, v_line_str){
+plot_grouped_HPD95 <- function(data_file, plot_width, plot_height, plot_file, x_axis_label_order, break_point_str, v_line_str, time_unit){
  
   v_line_list      = as.numeric(unlist(strsplit(v_line_str, split = ",")))
   break_point_list = as.numeric(unlist(strsplit(break_point_str, split = ",")))
   label_list       = unlist(strsplit(x_axis_label_order, split = ","))
   
   dat <- read.table(data_file, header = T)
+
+  y_axis_label = paste("95% HPD CI (", time_unit, ")", sep="")
   
   ggplot(dat, aes(x=Post_X, y = Mean, ymin = Low, ymax = High)) +
     geom_linerange(aes(color = Color), linewidth = 0.6, alpha = 0.5) +
@@ -18,7 +20,7 @@ plot_grouped_HPD95 <- function(data_file, plot_width, plot_height, plot_file, x_
     theme_bw() +                                                                # remove background
     theme(panel.grid.major=element_blank(),                                     # remove grid
           panel.grid.minor=element_blank()) +                                   # remove grid
-    xlab("") + ylab("95% HPD CI") +                                             # x and y axis label text
+    xlab("") + ylab(y_axis_label) +                                             # x and y axis label text
     geom_vline(xintercept = v_line_list, linewidth = 0.1, linetype = "dashed") + # y-axis label text
     theme(axis.text.x=element_text(size=12, color='black', angle=315, hjust=0),  # x-axis label, rotate at an angle of 45
           axis.text.y=element_text(size=12, color='black'),                     # y-axis label
@@ -36,6 +38,7 @@ option_list = list(
   make_option(c("-l", "--labelorder"),  type="character", default=NULL,    help="X-axis label order"),
   make_option(c("-b", "--breakpoint"),  type="character", default=NULL,    help="X-axis break point"),
   make_option(c("-v", "--vlines"),      type="character", default=NULL,    help="vertical lines"),
+  make_option(c("-u", "--timeunit"),    type="character", default="Ga",    help="time unit"),
   make_option(c("-o", "--plotout"),     type="character", default=NULL,    help="output plot"));
 
 opt_parser         = OptionParser(option_list=option_list);
@@ -47,5 +50,6 @@ output_plot        = opt$plotout
 x_axis_label_order = opt$labelorder
 break_point_str    = opt$breakpoint
 v_line_str         = opt$vlines
+time_unit          = opt$timeunit
 
-plot_grouped_HPD95(data_matrix_txt, plot_width, plot_height, output_plot, x_axis_label_order, break_point_str, v_line_str)
+plot_grouped_HPD95(data_matrix_txt, plot_width, plot_height, output_plot, x_axis_label_order, break_point_str, v_line_str, time_unit)

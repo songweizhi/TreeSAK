@@ -32,16 +32,9 @@ def sep_path_basename_ext(file_in):
 def guide_tree(args):
 
     tree_in                     = args['i']
-    tree_in_leaves_to_ignore    = args['x']
     gnm_group_txt               = args['g']
     interested_gene_gnm_txt_fa  = args['id']
     tree_out                    = args['o']
-
-    if tree_in_leaves_to_ignore is not None:
-        if os.path.isfile(tree_in_leaves_to_ignore) is False:
-            pass
-        else:
-            pass
 
     if os.path.isfile(tree_in) is False:
         print('%s not exist, program exited!' % tree_in)

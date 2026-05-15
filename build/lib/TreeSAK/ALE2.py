@@ -13,6 +13,8 @@ TreeSAK ALE2 -1 ALE1_op_dir -s genome.treefile -t 10 -f -runALE -docker gregmich
 Note: 
 Genome names should NOT contain "_", the program will tackle this automatically.
 
+# If you use TreeSAK's RootTreeGTDB module for rooting, do NOT provide "-add_root".
+
 # You can try to add this while building the docker images
 --platform linux/arm64/v8
 

@@ -136,6 +136,7 @@ TreeSAK/tmp_2.py
 TreeSAK/tmp_3.py
 TreeSAK/tmp_4.py
 TreeSAK/tmp_6.py
+TreeSAK/tmp_7.py
 TreeSAK/tree_fmt.py
 TreeSAK/weighted_rand.rb
 bin/TreeSAK

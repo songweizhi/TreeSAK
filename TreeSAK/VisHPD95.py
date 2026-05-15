@@ -247,6 +247,7 @@ def VisHPD95(args):
     plot_out    = args['o']
     plot_width  = args['x']
     plot_height = args['y']
+    time_unit   = args['u']
 
     _, op_path, op_base, _ = sep_path_basename_ext(plot_out)
 
@@ -287,6 +288,7 @@ def VisHPD95(args):
             color_dict[dating_result_file] = each_file_split[1]
             shape_dict[dating_result_file] = each_file_split[2]
         else:
+            print(each_file_split)
             print('There is something wrong with the format of %s' % input_txt)
             print('run "TreeSAK VisHPD95 -h" for help, Program exited!')
             exit()
@@ -365,8 +367,8 @@ def VisHPD95(args):
     break_point_list_sorted = sorted(break_point_list)
     break_point_str = ','.join([str(i) for i in break_point_list_sorted])
 
-    plot_cmd    = 'Rscript %s -i %s -x %s -y %s -o %s -l "%s" -b %s -v %s' % (VisHPD95_R,    dm_out, plot_width, plot_height, plot_out, order_str, break_point_str, v_line_str)
-    plot_cmd_v2 = 'Rscript %s -i %s -x %s -y %s -o %s -l "%s" -b %s -v %s' % (VisHPD95_R_v2, dm_out, plot_width, plot_height, plot_out, order_str, break_point_str, v_line_str)
+    # plot_cmd    = 'Rscript %s -i %s -x %s -y %s -o %s -l "%s" -b %s -v %s -u %s' % (VisHPD95_R,    dm_out, plot_width, plot_height, plot_out, order_str, break_point_str, v_line_str, time_unit)
+    plot_cmd_v2 = 'Rscript %s -i %s -x %s -y %s -o %s -l "%s" -b %s -v %s -u %s' % (VisHPD95_R_v2, dm_out, plot_width, plot_height, plot_out, order_str, break_point_str, v_line_str, time_unit)
     print(plot_cmd_v2)
     os.system(plot_cmd_v2)
 
@@ -381,6 +383,7 @@ if __name__ == '__main__':
     VisHPD95_parser.add_argument('-n',      required=True,                          help='nodes to plot')
     VisHPD95_parser.add_argument('-x',      required=False, default=10,type=int,    help='plot width, default: 10')
     VisHPD95_parser.add_argument('-y',      required=False, default=6,type=int,     help='plot height, default: 6')
+    VisHPD95_parser.add_argument('-u',      required=False, default='Ga',           help='time unit, default is Ga')
     VisHPD95_parser.add_argument('-o',      required=True,                          help='output plot')
     args = vars(VisHPD95_parser.parse_args())
     VisHPD95(args)

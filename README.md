@@ -31,7 +31,6 @@ TreeSAK modules
 ---
 
                  ...::: TreeSAK v1.58.0 :::...
-
                  
     Marker-related
        ExtractMarkerSeq       ->  Extract marker by blastn  
