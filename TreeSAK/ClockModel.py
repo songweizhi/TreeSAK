@@ -4,16 +4,15 @@ import itertools
 from distutils.spawn import find_executable
 
 
-dating_usage = '''
-============================ dating example commands ============================
+ClockModel_usage = '''
+============================ ClockModel example commands ============================
 
-# Requirement: mcmctree (part of PAML)
+# Requirement: mcmctree (part of PAML) and R package mcmc3r
 
-TreeSAK dating -i gnm.tree -m msa.phy -p topo1 -o dating_wd -f -s parameter.txt -BDparas M -hpc4
-TreeSAK dating -i gnm.tree -m msa.phy -p topo1 -o dating_wd -f -s parameter.txt -BDparas C -hpc4
+TreeSAK ClockModel -h 
 
 # parameter.txt file format (tab separated)
-clock	2,3
+clock	1,2,3
 nsample	50000
 
 # assess dating results

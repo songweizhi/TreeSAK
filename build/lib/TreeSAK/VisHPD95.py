@@ -248,6 +248,7 @@ def VisHPD95(args):
     plot_width  = args['x']
     plot_height = args['y']
     time_unit   = args['u']
+    keep_table  = args['tmp']
 
     _, op_path, op_base, _ = sep_path_basename_ext(plot_out)
 
@@ -371,6 +372,8 @@ def VisHPD95(args):
     plot_cmd_v2 = 'Rscript %s -i %s -x %s -y %s -o %s -l "%s" -b %s -v %s -u %s' % (VisHPD95_R_v2, dm_out, plot_width, plot_height, plot_out, order_str, break_point_str, v_line_str, time_unit)
     print(plot_cmd_v2)
     os.system(plot_cmd_v2)
+    if keep_table is False:
+        os.system('rm %s' % dm_out)
 
     print('Plot exported to: %s' % plot_out)
     print('Done!')
@@ -384,6 +387,7 @@ if __name__ == '__main__':
     VisHPD95_parser.add_argument('-x',      required=False, default=10,type=int,    help='plot width, default: 10')
     VisHPD95_parser.add_argument('-y',      required=False, default=6,type=int,     help='plot height, default: 6')
     VisHPD95_parser.add_argument('-u',      required=False, default='Ga',           help='time unit, default is Ga')
+    VisHPD95_parser.add_argument('-tmp',    required=False, action="store_true",    help='keep the table')
     VisHPD95_parser.add_argument('-o',      required=True,                          help='output plot')
     args = vars(VisHPD95_parser.parse_args())
     VisHPD95(args)

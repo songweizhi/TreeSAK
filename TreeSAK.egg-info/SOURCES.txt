@@ -19,6 +19,7 @@ TreeSAK/AssessMarkerPA.py
 TreeSAK/BMGE.jar
 TreeSAK/BMGE.py
 TreeSAK/C60SR4.nex
+TreeSAK/ClockModel.py
 TreeSAK/CompareMCMC.py
 TreeSAK/ConcateMSA.py
 TreeSAK/ConvertMSA.py

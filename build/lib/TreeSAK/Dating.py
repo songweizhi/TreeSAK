@@ -140,14 +140,9 @@ def dating(args):
     ####################################################################################################################
 
     current_pwd = os.getcwd()
-
     tree_f_name, tree_f_path, tree_f_base, tree_f_ext = sep_path_basename_ext(tree_file)
     msa_f_name,  msa_f_path,  msa_f_base,  msa_f_ext  = sep_path_basename_ext(msa_file)
-
-    get_bv_wd       = '%s/get_bv_wd'       % op_dir
-    mcmctree_ctl_bv = '%s/mcmctree.ctl'    % get_bv_wd
-    get_BV_cmd_txt  = '%s/get_BV_cmd.txt'  % get_bv_wd
-    dating_cmds_txt = '%s/dating_cmds.txt' % op_dir
+    dating_cmds_txt = '%s/dating_cmds.txt'  % op_dir
 
     # create output folder
     if os.path.isdir(op_dir) is True:
@@ -162,36 +157,43 @@ def dating(args):
     ############################################# write out step 1 command #############################################
 
     # prepare files for getting bv file
-    os.system('mkdir %s'  % get_bv_wd)
-    os.system('cp %s %s/' % (tree_file, get_bv_wd))
-    os.system('cp %s %s/' % (msa_file, get_bv_wd))
+    if 'clock' in para_to_test_dict:
+        clock_list = para_to_test_dict['clock']
+        for each_clock in clock_list:
+            get_bv_wd       = '%s/get_bv_clock%s' % (op_dir, each_clock)
+            mcmctree_ctl_bv = '%s/mcmctree.ctl'   % get_bv_wd
+            get_BV_cmd_txt  = '%s/get_BV_cmd.txt' % get_bv_wd
 
-    get_bv_para_dict = dict()
-    get_bv_para_dict['seqfile']  = msa_f_name
-    get_bv_para_dict['treefile'] = tree_f_name
-    get_bv_para_dict['mcmcfile'] = 'mcmc.txt'
-    get_bv_para_dict['outfile']  = 'out.txt'
-    get_bv_para_dict['seqtype']  = seq_type
-    get_bv_para_dict['usedata']  = '3'
-    if bd_paras in ['M', 'm']:
-        get_bv_para_dict['BDparas'] = '1 1 0.1 M'
-    if bd_paras in ['C', 'c']:
-        get_bv_para_dict['BDparas'] = '1 1 0.1 C'
+            os.system('mkdir %s' % get_bv_wd)
+            os.system('cp %s %s/' % (tree_file, get_bv_wd))
+            os.system('cp %s %s/' % (msa_file, get_bv_wd))
 
-    prep_mcmctree_ctl(get_bv_para_dict, mcmctree_ctl_bv)
+            get_bv_para_dict = dict()
+            get_bv_para_dict['seqfile']  = msa_f_name
+            get_bv_para_dict['treefile'] = tree_f_name
+            get_bv_para_dict['mcmcfile'] = 'mcmc.txt'
+            get_bv_para_dict['outfile']  = 'out.txt'
+            get_bv_para_dict['seqtype']  = seq_type
+            get_bv_para_dict['usedata']  = '3'
+            get_bv_para_dict['clock']    = each_clock
+            if bd_paras in ['M', 'm']:
+                get_bv_para_dict['BDparas'] = '1 1 0.1 M'
+            if bd_paras in ['C', 'c']:
+                get_bv_para_dict['BDparas'] = '1 1 0.1 C'
 
-    # write out get bv command
-    get_BV_cmd_txt_handle = open(get_BV_cmd_txt, 'w')
-    get_BV_cmd_txt_handle.write('mcmctree\n')
-    get_BV_cmd_txt_handle.close()
+            prep_mcmctree_ctl(get_bv_para_dict, mcmctree_ctl_bv)
 
-    # run command to get bv file
-    print('Running step one command to get the BV file.')
-    os.chdir(get_bv_wd)
-    os.system('mcmctree > log.txt')
-    #os.system('touch out.BV')
-    print('Step one finished.')
-    os.chdir(current_pwd)
+            # write out get bv command
+            get_BV_cmd_txt_handle = open(get_BV_cmd_txt, 'w')
+            get_BV_cmd_txt_handle.write('mcmctree\n')
+            get_BV_cmd_txt_handle.close()
+
+            # run command to get bv file
+            print('Running step one command to get the BV file.')
+            os.chdir(get_bv_wd)
+            os.system('mcmctree > log.txt')
+            print('Step one finished.')
+            os.chdir(current_pwd)
 
     ############################################# write out step 2 command #############################################
 
@@ -247,8 +249,15 @@ def dating(args):
         prep_mcmctree_ctl(current_para_dict_run2, mcmctree_ctl_2)
 
         # copy BV files generated in step one
-        os.system('cp %s/out.BV %s/in.BV' % (get_bv_wd, current_dating_wd_1))
-        os.system('cp %s/out.BV %s/in.BV' % (get_bv_wd, current_dating_wd_2))
+        if 'clock1' in para_comb:
+            os.system('cp %s/get_bv_clock1/out.BV %s/in.BV' % (op_dir, current_dating_wd_1))
+            os.system('cp %s/get_bv_clock1/out.BV %s/in.BV' % (op_dir, current_dating_wd_2))
+        elif 'clock2' in para_comb:
+            os.system('cp %s/get_bv_clock2/out.BV %s/in.BV' % (op_dir, current_dating_wd_1))
+            os.system('cp %s/get_bv_clock2/out.BV %s/in.BV' % (op_dir, current_dating_wd_2))
+        elif 'clock3' in para_comb:
+            os.system('cp %s/get_bv_clock3/out.BV %s/in.BV' % (op_dir, current_dating_wd_1))
+            os.system('cp %s/get_bv_clock3/out.BV %s/in.BV' % (op_dir, current_dating_wd_2))
 
         # write out commands
         cmd_run_1 = 'cd %s/%s/%s; mcmctree' % (current_pwd, op_dir, current_dating_wd_1.split('/')[-1])

@@ -381,6 +381,7 @@ if __name__ == '__main__':
         VisHPD95_parser.add_argument('-x',      required=False, default=10,type=int,    help='plot width, default is 10')
         VisHPD95_parser.add_argument('-y',      required=False, default=6,type=int,     help='plot height, default is 6')
         VisHPD95_parser.add_argument('-u',      required=False, default='Ga',           help='time unit, default is Ga')
+        VisHPD95_parser.add_argument('-tmp',    required=False, action="store_true",    help='keep the table')
         VisHPD95_parser.add_argument('-o',      required=True,                          help='output plot')
         args = vars(parser.parse_args())
         VisHPD95.VisHPD95(args)
