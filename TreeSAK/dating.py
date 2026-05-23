@@ -49,30 +49,45 @@ def sep_path_basename_ext(file_in):
 def prep_mcmctree_ctl(ctl_para_dict, mcmctree_ctl_file):
 
     ctl_file_handle = open(mcmctree_ctl_file, 'w')
+
+    # INPUT/OUTPUT FILES AND SEED NUMBER
+    ctl_file_handle.write('\n* [[ INPUT/OUTPUT FILES AND SEED NUMBER ]]\n')
     ctl_file_handle.write('          seed = %s\n' % ctl_para_dict.get('seed', '-1'))
     ctl_file_handle.write('       seqfile = %s\n' % ctl_para_dict['seqfile'])
     ctl_file_handle.write('      treefile = %s\n' % ctl_para_dict['treefile'])
     ctl_file_handle.write('      mcmcfile = %s\n' % ctl_para_dict['mcmcfile'])
     ctl_file_handle.write('       outfile = %s\n' % ctl_para_dict['outfile'])
+
+    # DATA FORMAT AND LIKELIHOOD CALCULATION
+    ctl_file_handle.write('\n* [[ DATA FORMAT AND LIKELIHOOD CALCULATION ]]\n')
     ctl_file_handle.write('         ndata = %s\n'                                                                           % ctl_para_dict.get('ndata',        1))
     ctl_file_handle.write('       seqtype = %s    	* 0: nucleotides; 1:codons; 2:AAs\n'                                    % ctl_para_dict['seqtype'])
     ctl_file_handle.write('       usedata = %s    	* 0: no data; 1:seq like; 2:normal approximation; 3:out.BV (in.BV)\n'   % ctl_para_dict['usedata'])
-    ctl_file_handle.write('         clock = %s    	* 1: global clock; 2: independent rates; 3: correlated rates\n'         % ctl_para_dict.get('clock',        2))
-    ctl_file_handle.write('       RootAge = %s      * safe constraint on root age, used if no fossil for root.\n'           % ctl_para_dict.get('RootAge',      '<1.0'))
+    ctl_file_handle.write('     cleandata = %s    	* remove sites with ambiguity data (1:yes, 0:no)?\n'                    % ctl_para_dict.get('cleandata',    0))
+
+    # EVOLUTIONARY MODEL
+    ctl_file_handle.write('\n* [[ EVOLUTIONARY MODEL ]]\n')
     ctl_file_handle.write('         model = %s    	* 0:JC69, 1:K80, 2:F81, 3:F84, 4:HKY85\n'                               % ctl_para_dict.get('model',        0))
     ctl_file_handle.write('         alpha = %s  	* alpha for gamma rates at sites\n'                                     % ctl_para_dict.get('alpha',        0.5))
     ctl_file_handle.write('         ncatG = %s    	* No. categories in discrete gamma\n'                                   % ctl_para_dict.get('ncatG',        4))
-    ctl_file_handle.write('     cleandata = %s    	* remove sites with ambiguity data (1:yes, 0:no)?\n'                    % ctl_para_dict.get('cleandata',    0))
+    ctl_file_handle.write('         clock = %s    	* 1: global clock; 2: independent rates; 3: correlated rates\n'         % ctl_para_dict.get('clock',        2))
+
+    # PRIORS
+    ctl_file_handle.write('\n* [[ PRIORS ]]\n')
     ctl_file_handle.write('       BDparas = %s      * birth, death, sampling, conditional/multiplicative\n'                 % ctl_para_dict['BDparas'])
+    ctl_file_handle.write('   rgene_gamma = %s      * gammaDir prior for rate for genes\n'                                  % ctl_para_dict.get('rgene_gamma',  '2 4.6'))
+    ctl_file_handle.write('  sigma2_gamma = %s      * gammaDir prior for sigma^2     (for clock=2 or 3)\n'                  % ctl_para_dict.get('sigma2_gamma', '1 10'))
     ctl_file_handle.write('   kappa_gamma = %s      * gamma prior for kappa\n'                                              % ctl_para_dict.get('kappa_gamma',  '6 2'))
     ctl_file_handle.write('   alpha_gamma = %s      * gamma prior for alpha\n'                                              % ctl_para_dict.get('alpha_gamma',  '1 1'))
-    ctl_file_handle.write('   rgene_gamma = %s      * gammaDir prior for rate for genes\n'                                  % ctl_para_dict.get('rgene_gamma',  '1 50 1'))
-    ctl_file_handle.write('  sigma2_gamma = %s      * gammaDir prior for sigma^2     (for clock=2 or 3)\n'                  % ctl_para_dict.get('sigma2_gamma', '1 10 1'))
-    # ctl_file_handle.write('      finetune = %s      * auto (0 or 1): times, musigma2, rates, mixing, paras, FossilErr\n'    % ctl_para_dict.get('finetune',     '1: .1 .1 .1 .1 .1 .1'))
+
+    # MCMC SETTINGS
+    ctl_file_handle.write('\n* [[ MCMC SETTINGS ]]\n')
     ctl_file_handle.write('         print = %s      * 0: no mcmc sample; 1: everything except branch rates 2: everything\n' % ctl_para_dict.get('print',        1))
     ctl_file_handle.write('        burnin = %s\n'                                                                           % ctl_para_dict.get('burnin',       50000))
     ctl_file_handle.write('      sampfreq = %s\n'                                                                           % ctl_para_dict.get('sampfreq',     50))
     ctl_file_handle.write('       nsample = %s\n'                                                                           % ctl_para_dict.get('nsample',      10000))
+
+    # Close file
     ctl_file_handle.close()
 
 
@@ -122,12 +137,13 @@ def dating(args):
     seq_type            = args['st']
     settings_to_compare = args['s']
     force_overwrite     = args['f']
-    bd_paras            = args['BDparas']
     submit_to_hpc4      = args['hpc4']
     hpc4_wt             = args['hpc4_wt']
     hpc4_a              = args['hpc4_a']
     hpc4_q              = args['hpc4_q']
     hpc4_conda          = args['hpc4_conda']
+
+    bd_paras            = 'M'
 
     check_dependencies(['mcmctree'])
 
@@ -157,6 +173,7 @@ def dating(args):
     ############################################# write out step 1 command #############################################
 
     # prepare files for getting bv file
+    # https://github.com/abacus-gene/paml/wiki/MCMCtree
     if 'clock' in para_to_test_dict:
         clock_list = para_to_test_dict['clock']
         for each_clock in clock_list:
@@ -220,26 +237,28 @@ def dating(args):
         mcmctree_ctl_2 = '%s/mcmctree.ctl' % current_dating_wd_2
 
         # run 1
+        # https://github.com/abacus-gene/paml/wiki/MCMCtree
         current_para_dict_run1 = para_comb_dict[para_comb].copy()
         current_para_dict_run1['seqfile']  = msa_f_name
         current_para_dict_run1['treefile'] = tree_f_name
         current_para_dict_run1['mcmcfile'] = '%s_%s_run1_mcmc.txt' % (op_prefix, para_comb)
         current_para_dict_run1['outfile']  = '%s_%s_run1_out.txt'  % (op_prefix, para_comb)
         current_para_dict_run1['seqtype']  = seq_type
-        current_para_dict_run1['usedata']  = '2'
+        current_para_dict_run1['usedata']  = '2 ./in.BV'
         if bd_paras in ['M', 'm']:
             current_para_dict_run1['BDparas'] = '1 1 0.1 M'
         if bd_paras in ['C', 'c']:
             current_para_dict_run1['BDparas'] = '1 1 0.1 C'
 
         # run 2
+        # https://github.com/abacus-gene/paml/wiki/MCMCtree
         current_para_dict_run2 = para_comb_dict[para_comb].copy()
         current_para_dict_run2['seqfile']  = msa_f_name
         current_para_dict_run2['treefile'] = tree_f_name
         current_para_dict_run2['mcmcfile'] = '%s_%s_run2_mcmc.txt' % (op_prefix, para_comb)
         current_para_dict_run2['outfile']  = '%s_%s_run2_out.txt'  % (op_prefix, para_comb)
         current_para_dict_run2['seqtype']  = seq_type
-        current_para_dict_run2['usedata']  = '2'
+        current_para_dict_run2['usedata']  = '2 ./in.BV'
         if bd_paras in ['M', 'm']:
             current_para_dict_run2['BDparas'] = '1 1 0.1 M'
         if bd_paras in ['C', 'c']:
@@ -285,7 +304,7 @@ if __name__ == '__main__':
     dating_parser.add_argument('-o',            required=True,                          help='output directory')
     dating_parser.add_argument('-p',            required=True,                          help='output prefix')
     dating_parser.add_argument('-s',            required=True,                          help='settings to compare')
-    dating_parser.add_argument('-BDparas',      required=True,                          help='BDparas, either M/m or C/c')
+    dating_parser.add_argument('-model',        required=False, default='1,2,3,4',      help='evolutionary model, default is "1,2,3,4"')
     dating_parser.add_argument('-st',           required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
     dating_parser.add_argument('-hpc4',         required=False, action="store_true",    help='submit job on hpc4')
     dating_parser.add_argument('-hpc4_wt',      required=False, default='119:59:59',    help='walltime, default: 119:59:59')

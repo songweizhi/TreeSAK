@@ -324,7 +324,7 @@ if __name__ == '__main__':
         dating_parser.add_argument('-o',            required=True,                          help='output directory')
         dating_parser.add_argument('-p',            required=True,                          help='output prefix')
         dating_parser.add_argument('-s',            required=True,                          help='settings to compare')
-        dating_parser.add_argument('-BDparas',      required=True,                          help='BDparas, either M/m or C/c')
+        dating_parser.add_argument('-model',        required=False, default='1,2,3,4',      help='Evolutionary model, default is "1,2,3,4"')
         dating_parser.add_argument('-st',           required=False, default='2',            help='sequence type, 0 for nucleotides, 1 for codons, 2 for AAs, default: 2')
         dating_parser.add_argument('-hpc4',         required=False, action="store_true",    help='submit job on hpc4')
         dating_parser.add_argument('-hpc4_wt',      required=False, default='119:59:59',    help='walltime, default: 119:59:59')

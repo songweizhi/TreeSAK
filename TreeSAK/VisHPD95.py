@@ -8,17 +8,12 @@ VisHPD95_usage = '''
 
 TreeSAK VisHPD95 -i samples.txt -n nodes.txt -o HPD95.pdf
 
-# The input file has three columns (tab separated)
-# Samples will be colored by the 1st column and shaped by the 2nd column
-DeltaLL_50	IR  dating_results/M1_PA_75_DeltaLL_50_clock2_nsample500000_out.txt
-DeltaLL_50	AR  dating_results/M1_PA_75_DeltaLL_50_clock3_nsample500000_out.txt
-DeltaLL_75	IR  dating_results/M1_PA_75_DeltaLL_75_clock2_nsample500000_out.txt
-DeltaLL_75	AR  dating_results/M1_PA_75_DeltaLL_75_clock3_nsample500000_out.txt
-JTT_default	RelTime	dating_results/topo1_RelTime_JTT_default.txt
-JTT_Gamma4	RelTime	dating_results/topo1_RelTime_JTT_Gamma4.txt
-
-# Example data
-https://github.com/songweizhi/TreeSAK/tree/master/DemoData/VisHPD95
+# The input file has five columns (tab separated)
+column 1: uniq sample label
+column 2: define color
+column 3: define shape
+column 4: define line type 
+column 5: output file from MCMCTree or RelTime
 
 # format of nodes.txt
 GCA038869675_1,GCA013002265_1	LCA_AOA
@@ -250,13 +245,11 @@ def VisHPD95(args):
     time_unit   = args['u']
     keep_table  = args['tmp']
 
-    _, op_path, op_base, _ = sep_path_basename_ext(plot_out)
-
-    pwd_current_file  = os.path.realpath(__file__)
-    current_file_path = '/'.join(pwd_current_file.split('/')[:-1])
-    VisHPD95_R        = '%s/VisHPD95.R'     % current_file_path
-    VisHPD95_R_v2     = '%s/VisHPD95_v2.R'  % current_file_path
-    dm_out            = '%s/%s_table.txt'   % (op_path, op_base)
+    _, op_path, op_base, _  = sep_path_basename_ext(plot_out)
+    pwd_current_file        = os.path.realpath(__file__)
+    current_file_path       = '/'.join(pwd_current_file.split('/')[:-1])
+    VisHPD95_R              = '%s/VisHPD95.R'     % current_file_path
+    dm_out                  = '%s/%s_table.txt'   % (op_path, op_base)
 
     if os.path.isfile(input_txt) is False:
         print('%s not found, program exited!' % input_txt)
@@ -276,22 +269,22 @@ def VisHPD95(args):
     label_dict              = dict()
     color_dict              = dict()
     shape_dict              = dict()
+    linetype_dict           = dict()
     missing_file_set        = set()
     missing_tree_file_set   = set()
     for each_file in open(input_txt):
         each_file_split = each_file.strip().split('\t')
-        if len(each_file_split) == 4:
+        if len(each_file_split) == 5:
             dating_result_file  = each_file_split[-1].strip()
             dating_result_file_list.append(dating_result_file)
             if os.path.isfile(dating_result_file) is False:
                 missing_file_set.add(dating_result_file)
-            label_dict[dating_result_file] = each_file_split[0]
-            color_dict[dating_result_file] = each_file_split[1]
-            shape_dict[dating_result_file] = each_file_split[2]
+            label_dict[dating_result_file]    = each_file_split[0]
+            color_dict[dating_result_file]    = each_file_split[1]
+            shape_dict[dating_result_file]    = each_file_split[2]
+            linetype_dict[dating_result_file] = each_file_split[3]
         else:
-            print(each_file_split)
-            print('There is something wrong with the format of %s' % input_txt)
-            print('run "TreeSAK VisHPD95 -h" for help, Program exited!')
+            print('It is expected to have 5 columns in %s, but %s were detected, program exited!' % (input_txt, len(each_file_split)))
             exit()
 
     if len(missing_file_set) > 0:
@@ -308,9 +301,10 @@ def VisHPD95(args):
     value_dict = dict()
     for dating_result_file in dating_result_file_list:
         dating_result_file_name, _, _, _ = sep_path_basename_ext(dating_result_file)
-        label_col_to_write  = label_dict.get(dating_result_file, dating_result_file)
-        color_col_to_write  = color_dict.get(dating_result_file, dating_result_file)
-        shape_col_to_write  = shape_dict.get(dating_result_file, dating_result_file)
+        label_col_to_write     = label_dict.get(dating_result_file, dating_result_file)
+        color_col_to_write     = color_dict.get(dating_result_file, dating_result_file)
+        shape_col_to_write     = shape_dict.get(dating_result_file, dating_result_file)
+        linetype_col_to_write  = linetype_dict.get(dating_result_file, dating_result_file)
         dating_approach = ''
         with open(dating_result_file) as f:
             first_line = f.readline()
@@ -328,7 +322,7 @@ def VisHPD95(args):
             for each_node in node_set:
                 node_name_to_write = node_rename_dict.get(each_node, each_node)
                 mean_95_hpd_list = node_to_mean_95_hpd_dict.get(each_node)
-                value_str ='%s\t%s\t%s\t%s\t%s' % (label_col_to_write, color_col_to_write, shape_col_to_write, node_name_to_write, '\t'.join(mean_95_hpd_list))
+                value_str ='%s\t%s\t%s\t%s\t%s\t%s' % (label_col_to_write, color_col_to_write, shape_col_to_write, linetype_col_to_write, node_name_to_write, '\t'.join(mean_95_hpd_list))
                 if node_name_to_write not in value_dict:
                     value_dict[node_name_to_write] = []
                 value_dict[node_name_to_write].append(value_str)
@@ -336,13 +330,13 @@ def VisHPD95(args):
             reltime_value_dict = parse_reltime_op(dating_result_file, node_txt)
             for each_node in reltime_value_dict:
                 node_age_value_list = reltime_value_dict[each_node]
-                value_str = '%s\t%s\t%s\t%s\t%s' % (label_col_to_write, color_col_to_write, shape_col_to_write, each_node, '\t'.join([str(i) for i in node_age_value_list]))
+                value_str = '%s\t%s\t%s\t%s\t%s\t%s' % (label_col_to_write, color_col_to_write, shape_col_to_write, linetype_col_to_write, each_node, '\t'.join([str(i) for i in node_age_value_list]))
                 if each_node not in value_dict:
                     value_dict[each_node] = []
                 value_dict[each_node].append(value_str)
 
     dm_out_handle = open(dm_out, 'w')
-    dm_out_handle.write('Label\tColor\tShape\tNode\tMean\tLow\tHigh\tPost_X\n')
+    dm_out_handle.write('Label\tColor\tShape\tLinetype\tNode\tMean\tLow\tHigh\tPost_X\n')
     x_loci = 3
     v_line_list = ['0']
     break_range_dict = dict()
@@ -368,10 +362,9 @@ def VisHPD95(args):
     break_point_list_sorted = sorted(break_point_list)
     break_point_str = ','.join([str(i) for i in break_point_list_sorted])
 
-    # plot_cmd    = 'Rscript %s -i %s -x %s -y %s -o %s -l "%s" -b %s -v %s -u %s' % (VisHPD95_R,    dm_out, plot_width, plot_height, plot_out, order_str, break_point_str, v_line_str, time_unit)
-    plot_cmd_v2 = 'Rscript %s -i %s -x %s -y %s -o %s -l "%s" -b %s -v %s -u %s' % (VisHPD95_R_v2, dm_out, plot_width, plot_height, plot_out, order_str, break_point_str, v_line_str, time_unit)
-    print(plot_cmd_v2)
-    os.system(plot_cmd_v2)
+    plot_cmd = 'Rscript %s -i %s -x %s -y %s -o %s -l "%s" -b %s -v %s -u %s' % (VisHPD95_R, dm_out, plot_width, plot_height, plot_out, order_str, break_point_str, v_line_str, time_unit)
+    print(plot_cmd)
+    os.system(plot_cmd)
     if keep_table is False:
         os.system('rm %s' % dm_out)
 
