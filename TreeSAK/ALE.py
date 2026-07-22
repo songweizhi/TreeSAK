@@ -10,7 +10,9 @@ TreeSAK ALE4         -> Filter ALE identified HGTs
 TreeSAK ALE5         -> Get RTC file based on ALE detected HGTs
 TreeSAK SingleAleHGT -> Perform HGT analysis using ALE for single protein family
 TreeSAK ALE6         -> faa ancestral genomes
-TreeSAK ALE7         -> get function P/A in ancestral genomes
+TreeSAK ALE7         -> Get function P/A in ancestral genomes
+TreeSAK ALE8         -> Gene gain and loss
+TreeSAK ALE9         -> Annotate and plot gene gain and loss
 
 # Example commands
 TreeSAK ALE1 -i OrthologousGroups.txt -s combined_d__Archaea_o_rs.faa -p oma -m 50 -t 12 -jst 3 -f -o ALE1_op_dir
@@ -22,6 +24,9 @@ TreeSAK ALE4 -i1 ALE1_op_dir -i2 ALE2_op_dir -c genome_taxon.txt -color phylum_c
 TreeSAK ALE7 -6 ALE6_op_dir -fun ko.txt -node internal_node.txt -o Fun_PA.txt
 TreeSAK ALE7 -6 ALE6_op_dir -fun K01995,K01995 -node 359,466,470 -o Fun_PA.txt
 TreeSAK ALE7 -6 ALE6_op_dir -fun arCOG07811,K01995 -node 359,466,470 -o Fun_PA.txt
+TreeSAK ALE8 -3 ALE3_op_dir_30 -o ALE8_op_dir_30 -l genome_tree_leaf_rename.txt -f
+TreeSAK ALE8 -3 ALE3_op_dir_75 -o ALE8_op_dir_75 -l genome_tree_leaf_rename.txt -f
+TreeSAK ALE9 -1 ALE1_op_dir -8 ALE8_op_dir -o ALE9_op_dir -cog AOA_genomes_faa_arCOG_wd -kegg AOA_genomes_faa_KEGG_wd -cog_db /Users/songweizhi/DB/arCOG18 -f 
 TreeSAK SingleAleHGT -i OMA00001.aln -s genome.treefile -fc 0.3 -c genome_taxon.txt -color phylum_color.txt -api S1kZZuDHc0d5M7J5vLnUNQ -t 9 -f -o OMA00001_ALE_HGT_wd
 
 Note:

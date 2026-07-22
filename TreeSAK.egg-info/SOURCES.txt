@@ -11,6 +11,7 @@ TreeSAK/ALE4.py
 TreeSAK/ALE5.py
 TreeSAK/ALE6.py
 TreeSAK/ALE7.py
+TreeSAK/ALE8.py
 TreeSAK/ALE_backup.py
 TreeSAK/AssessCVG.py
 TreeSAK/AssessMarker.py

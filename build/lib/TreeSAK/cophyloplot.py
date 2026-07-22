@@ -1,6 +1,6 @@
 import os
-
 from ete3 import Tree
+
 
 ########################################################################################################################
 
@@ -73,7 +73,3 @@ op_association_table_handle.close()
 r_cmd = 'Rscript %s -i %s -s %s -l %s -o %s' % (cophyloplot_Rscript, tree_file_host, tree_file_symbiont, op_association_table, op_pdf)
 print(r_cmd)
 os.system(r_cmd)
-
-
-
-

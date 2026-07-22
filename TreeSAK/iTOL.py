@@ -624,7 +624,10 @@ def iTOL(args):
         for leaf_matrix in open(LeafMatrix):
             leaf_matrix_split = leaf_matrix.strip().split('\t')
             if n == 0:
-                col_name_list = leaf_matrix_split[1:]
+                if (leaf_matrix.startswith(' ')) or (leaf_matrix.startswith('\t')) or (leaf_matrix.startswith(',')):
+                    col_name_list = leaf_matrix_split
+                else:
+                    col_name_list = leaf_matrix_split[1:]
             else:
                 leaf_matrix_dict[leaf_matrix_split[0]] = leaf_matrix_split[1:]
             n += 1
@@ -636,6 +639,7 @@ def iTOL(args):
         Heatmap_FileOut_handle.write('\n# customize heatmap attributes here\n')
         Heatmap_FileOut_handle.write('MARGIN\t%s\n'          % MARGIN)
         Heatmap_FileOut_handle.write('STRIP_WIDTH\t%s\n'     % Heatmap_STRIP_WIDTH)
+        Heatmap_FileOut_handle.write('LABEL_ROTATION\t45\n')
         Heatmap_FileOut_handle.write('\n# customize legend here\n')
         Heatmap_FileOut_handle.write('AUTO_LEGEND\t1\n')
         Heatmap_FileOut_handle.write('DATASET_LABEL\t%s\n' % LegendTitle)

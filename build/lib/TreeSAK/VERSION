@@ -1,5 +1,8 @@
-1.58.32
+1.59.2
 - fixed bugs
+
+1.59.0
+- new module added: ALE8
 
 1.58.0
 - new module added: rm_leaf

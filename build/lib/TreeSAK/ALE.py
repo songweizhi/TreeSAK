@@ -11,6 +11,7 @@ TreeSAK ALE5         -> Get RTC file based on ALE detected HGTs
 TreeSAK SingleAleHGT -> Perform HGT analysis using ALE for single protein family
 TreeSAK ALE6         -> faa ancestral genomes
 TreeSAK ALE7         -> get function P/A in ancestral genomes
+TreeSAK ALE8         -> gene gain and loss
 
 # Example commands
 TreeSAK ALE1 -i OrthologousGroups.txt -s combined_d__Archaea_o_rs.faa -p oma -m 50 -t 12 -jst 3 -f -o ALE1_op_dir

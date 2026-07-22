@@ -610,6 +610,31 @@ if __name__ == '__main__':
         args = vars(parser.parse_args())
         ALE7.ALE7(args)
 
+    elif sys.argv[1] == 'ALE8':
+        from TreeSAK import ALE8
+        ALE8_parser = subparsers.add_parser('ALE8', usage=ALE8.ALE8_usage)
+        ALE8_parser.add_argument('-3',      required=True,                          help='ALE3 output directory')
+        ALE8_parser.add_argument('-l',      required=False, default=None,           help='rename leaves')
+        ALE8_parser.add_argument('-cog',    required=False, default=None,           help='COG annotation dir')
+        ALE8_parser.add_argument('-kegg',   required=False, default=None,           help='KEGG annotation dir')
+        ALE8_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
+        ALE8_parser.add_argument('-o',      required=True,                          help='output directory')
+        args = vars(parser.parse_args())
+        ALE8.ALE8(args)
+
+    elif sys.argv[1] == 'ALE9':
+        from TreeSAK import ALE9
+        ALE9_parser = subparsers.add_parser('ALE9', usage=ALE9.ALE9_usage)
+        ALE9_parser.add_argument('-1',      required=True,                          help='ALE1 output directory')
+        ALE9_parser.add_argument('-8',      required=True,                          help='ALE8 output directory')
+        ALE9_parser.add_argument('-cog',    required=False, default=None,           help='COG annotation dir')
+        ALE9_parser.add_argument('-kegg',   required=False, default=None,           help='KEGG annotation dir')
+        ALE9_parser.add_argument('-cog_db', required=False, default=None,           help='COG database dir')
+        ALE9_parser.add_argument('-f',      required=False, action="store_true",    help='force overwrite')
+        ALE9_parser.add_argument('-o',      required=True,                          help='output directory')
+        args = vars(parser.parse_args())
+        ALE9.ALE9(args)
+
     elif sys.argv[1] == 'RootTree':
         from TreeSAK import RootTree
         RootTree_parser = subparsers.add_parser('RootTree', usage=RootTree.RootTree_usage)
